@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" 
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  name        String
+  email       String       @unique
+  password    String
+  proxyUsers  ProxyUser[]  
+  purchases   Purchase[] 
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model ProxyUser {
+  id         Int       @id @default(autoincrement())
+  username   String    // Usuário proxy gerado no DataImpulse
+  password   String    // Senha proxy
+  subuserId  String    // ID retornado pelo DataImpulse
+  userId     Int
+  user       User      @relation(fields: [userId], references: [id])
+  createdAt  DateTime  @default(now())
+}
+
+model Plan {
+  id         Int       @id @default(autoincrement())
+  name       String    // Ex: "Plano Básico", "5GB"
+  gbAmount   Float     // Quantidade de GBs do plano
+  price      Float     // Preço em reais/dólar
+  createdAt  DateTime  @default(now())
+  purchases  Purchase[]
+}
+
+enum PurchaseStatus {
+  PENDING   // aguardando pagamento
+  PAID      // pago
+  CANCELED  // cancelado
+  FAILED    // falha no pagamento
+}
+
+model Purchase {
+  id          Int            @id @default(autoincrement())
+  userId      Int
+  user        User           @relation(fields: [userId], references: [id])
+  planId      Int
+  plan        Plan           @relation(fields: [planId], references: [id])
+  gbAmount    Float          // Quantidade de GB adquirida nesta compra
+  totalPrice  Float          // Valor pago
+  status      PurchaseStatus @default(PENDING) // status do pagamento
+  createdAt   DateTime       @default(now())
+}

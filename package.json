@@ -1,0 +1,38 @@
+{
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "zod": "^3.25.56"
+  },
+  "devDependencies": {
+    "@prisma/client": "^6.9.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/morgan": "^1.9.10",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.9.0"
+  },
+  "name": "anonytools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/server.ts --watch ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DaniloCDev/anonytools.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DaniloCDev/anonytools/issues"
+  },
+  "homepage": "https://github.com/DaniloCDev/anonytools#readme"
+}
