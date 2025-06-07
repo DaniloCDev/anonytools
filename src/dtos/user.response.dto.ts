@@ -1,6 +1,6 @@
 
 export interface UserResponseDTO {
-  id: number;
+  id: string;
   name: string;
   email: string;
   createdAt: string;
@@ -8,7 +8,7 @@ export interface UserResponseDTO {
 
 export interface UserLoginResponseDTO {
   user: {
-    id: number;
+    id: string;
     name: string;
     email: string;
   };
