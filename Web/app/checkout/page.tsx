@@ -1,43 +1,40 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { useCart } from "@/components/cart-provider"
 import { AuthModal } from "@/components/auth-modal"
 import { Trash2, Plus, Minus, PiIcon as Pix } from "lucide-react"
-import { useEffect, useState } from "react"
 
 export default function Checkout() {
   const { items, updateQuantity, removeItem, total, clearCart } = useCart()
-  const [isLoggedIn, setIsLoggedIn] = useState(false) // Em produção, verificar token/sessão
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
 
-  const handleLogin = () => {
-    useEffect(() => {
-      fetch("http://localhost:3001/auth/check", {
-        credentials: "include",
-      })
-        .then((res) => {
-          console.log(res)
-          if (res.ok) {
-            setIsLoggedIn(true)
-          } else {
-            setIsLoggedIn(false)
-          }
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("http://localhost:3001/auth/check", {
+          credentials: "include",
         })
-        .catch(() => setIsLoggedIn(false))
-    }, []);
-  }
 
+        setIsLoggedIn(res.ok)
+      } catch (error) {
+        setIsLoggedIn(false)
+      }
+    }
+
+    checkAuth()
+  }, [])
 
   const handleFinalizePurchase = () => {
     if (!isLoggedIn) {
       setShowAuthModal(true)
       return
     }
-
-    // Aqui você integraria com gateway de pagamento
+    
     alert("Compra finalizada! Redirecionando para pagamento...")
     clearCart()
   }
@@ -64,7 +61,7 @@ export default function Checkout() {
         </h1>
 
         <div className="grid lg:grid-cols-2 gap-8">
-          {/* Cart Items */}
+          {/* Itens do carrinho */}
           <div className="space-y-6">
             <Card className="glass border-white/10">
               <CardHeader>
@@ -76,7 +73,9 @@ export default function Checkout() {
                     <div className="flex-1">
                       <h3 className="font-semibold">{item.name}</h3>
                       <p className="text-sm text-gray-400">{item.description}</p>
-                      <p className="text-lg font-bold text-blue-400">R$ {item.price.toFixed(2).replace(".", ",")}</p>
+                      <p className="text-lg font-bold text-blue-400">
+                        R$ {item.price.toFixed(2).replace(".", ",")}
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -115,7 +114,7 @@ export default function Checkout() {
             </Card>
           </div>
 
-          {/* Payment Form */}
+          {/* Resumo e pagamento */}
           <div className="space-y-6">
             <Card className="glass border-white/10">
               <CardHeader>
@@ -169,7 +168,15 @@ export default function Checkout() {
         </div>
       </div>
 
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onLogin={handleLogin} />
+      {/* Modal de autenticação */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onLogin={() => {
+          setIsLoggedIn(true)
+          setShowAuthModal(false)
+        }}
+      />
     </div>
   )
 }

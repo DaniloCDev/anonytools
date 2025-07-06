@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge"
 import { ShoppingCart, Menu, X, Zap } from "lucide-react"
 import { useCart } from "@/components/cart-provider"
 import { AuthModal } from "@/components/auth-modal"
-import { jwtDecode } from "jwt-decode"
 
 
 export function Navbar() {
@@ -18,39 +17,31 @@ export function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
 
-  const handleLogin = () => {
-    const token = localStorage.getItem("token")
-    if (token) setIsLoggedIn(true)
-  }
-
-  useEffect(() => {
-    fetch("http://localhost:3001/auth/check", {
-      credentials: "include",
-    })
-      .then((res) => {
-        if (res.ok) {
-          setIsLoggedIn(true)
-        } else {
-          setIsLoggedIn(false)
-        }
+  const handleLogin = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/auth/check", {
+        credentials: "include",
       })
-      .catch(() => setIsLoggedIn(false))
-  }, []);
-
-
-  const handleAccountClick = () => {
-    if (isLoggedIn) {
-      // Navegar para dashboard
-      window.location.href = "/dashboard"
-    } else {
-      setShowAuthModal(true)
+      setIsLoggedIn(res.ok)
+    } catch {
+      setIsLoggedIn(false)
     }
   }
 
-  const handleBuyClick = () => {
-    if (isLoggedIn) {
-      window.location.href = "/produtos"
-    } else {
+  const handleAccountClick = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/auth/check", {
+        credentials: "include",
+      })
+      if (res.ok) {
+        setIsLoggedIn(true)
+        window.location.href = "/dashboard"
+      } else {
+        setIsLoggedIn(false)
+        setShowAuthModal(true)
+      }
+    } catch {
+      setIsLoggedIn(false)
       setShowAuthModal(true)
     }
   }
@@ -71,15 +62,18 @@ export function Navbar() {
             <Link href="/" className="hover:text-blue-400 transition-colors">
               Início
             </Link>
+            {/* in development
             <Link href="/produtos" className="hover:text-blue-400 transition-colors">
               Meus Produtos
             </Link>
             <button onClick={handleBuyClick} className="hover:text-blue-400 transition-colors">
               Comprar
             </button>
+            */}
             <button onClick={handleAccountClick} className="hover:text-blue-400 transition-colors">
               Minha Conta
             </button>
+            {/* in development
             <Link href="/checkout" className="relative">
               <Button variant="ghost" size="icon" className="glass-hover">
                 <ShoppingCart className="w-5 h-5" />
@@ -88,6 +82,7 @@ export function Navbar() {
                 )}
               </Button>
             </Link>
+                        */}
           </div>
 
           {/* Mobile Menu Button */}
@@ -103,24 +98,37 @@ export function Navbar() {
               <Link href="/" className="hover:text-blue-400 transition-colors">
                 Início
               </Link>
+              {/* in development
               <Link href="/produtos" className="hover:text-blue-400 transition-colors">
                 Meus Produtos
               </Link>
               <button onClick={handleBuyClick} className="hover:text-blue-400 transition-colors">
                 Comprar
               </button>
+                          */}
               <button onClick={handleAccountClick} className="hover:text-blue-400 transition-colors">
                 Minha Conta
               </button>
-              <Link href="/checkout" className="flex items-center space-x-2">
+              {/* in development
+            <Link href="/checkout" className="relative">
+              <Button variant="ghost" size="icon" className="glass-hover">
                 <ShoppingCart className="w-5 h-5" />
-                <span>Carrinho ({itemCount})</span>
-              </Link>
+                {itemCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs">{itemCount}</Badge>
+                )}
+              </Button>
+            </Link>
+                        */}
             </div>
           </div>
         )}
       </div>
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onLogin={handleLogin} />
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onLogin={handleLogin}
+      />
+
     </nav>
   )
 }
