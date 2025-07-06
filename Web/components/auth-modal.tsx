@@ -16,6 +16,54 @@ interface AuthModalProps {
   onLogin: (email: string, password: string) => void
 }
 
+
+const API_BASE_URL = "http://localhost:3001"
+
+async function login(email: string, password: string) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    })
+
+
+    const data = await response.json()
+
+    console.log(data)
+    if (!response.ok) throw new Error(data.message)
+    return data
+  } catch (err: any) {
+    alert(err.message || "Erro desconhecido")
+    return null
+  }
+}
+
+async function register(name: string, email: string, password: string) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/user/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    })
+
+    if (!response.ok) throw new Error("Erro ao registrar")
+
+    const data = await response.json()
+
+    // Armazenar o token também se a API retornar
+    localStorage.setItem("token", data.token)
+    localStorage.setItem("user", JSON.stringify(data.user))
+
+    return data
+  } catch (err: any) {
+    alert(err.message)
+    return null
+  }
+}
+
+
 export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [loginData, setLoginData] = useState({ email: "", password: "" })
@@ -25,25 +73,38 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
     password: "",
     confirmPassword: "",
   })
+  const [loginError, setLoginError] = useState("")
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    onLogin(loginData.email, loginData.password)
-    onClose()
+    setLoginError("")
+    const result = await login(loginData.email, loginData.password)
+    if (result) {
+      onLogin(loginData.email, loginData.password)
+      onClose()
+    } else {
+      setLoginError("Email ou senha inválidos")
+    }
   }
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
     if (registerData.password !== registerData.confirmPassword) {
-      alert("Senhas não coincidem!")
+      setLoginError("Senhas não coincidem!")
       return
     }
-    // Simular registro e login automático
-    onLogin(registerData.email, registerData.password)
-    onClose()
+
+    const result = await register(
+      registerData.name,
+      registerData.email,
+      registerData.password
+    )
+
+    if (result) onClose()
   }
 
   return (
+
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="glass border-white/10 max-w-md">
         <DialogHeader>
@@ -98,6 +159,7 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
                   </Button>
                 </div>
               </div>
+              {loginError && <p className="text-red-500 text-sm">{loginError}</p>}
 
               <Button
                 type="submit"

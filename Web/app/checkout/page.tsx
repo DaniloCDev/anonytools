@@ -6,17 +6,30 @@ import { Separator } from "@/components/ui/separator"
 import { useCart } from "@/components/cart-provider"
 import { AuthModal } from "@/components/auth-modal"
 import { Trash2, Plus, Minus, PiIcon as Pix } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export default function Checkout() {
   const { items, updateQuantity, removeItem, total, clearCart } = useCart()
   const [isLoggedIn, setIsLoggedIn] = useState(false) // Em produção, verificar token/sessão
   const [showAuthModal, setShowAuthModal] = useState(false)
 
-  const handleLogin = (email: string, password: string) => {
-    setIsLoggedIn(true)
-    setShowAuthModal(false)
+  const handleLogin = () => {
+    useEffect(() => {
+      fetch("http://localhost:3001/auth/check", {
+        credentials: "include",
+      })
+        .then((res) => {
+          console.log(res)
+          if (res.ok) {
+            setIsLoggedIn(true)
+          } else {
+            setIsLoggedIn(false)
+          }
+        })
+        .catch(() => setIsLoggedIn(false))
+    }, []);
   }
+
 
   const handleFinalizePurchase = () => {
     if (!isLoggedIn) {

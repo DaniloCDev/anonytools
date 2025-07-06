@@ -1,12 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ShoppingCart, Menu, X, Zap } from "lucide-react"
 import { useCart } from "@/components/cart-provider"
 import { AuthModal } from "@/components/auth-modal"
+import { jwtDecode } from "jwt-decode"
+
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -16,10 +18,25 @@ export function Navbar() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
 
-  const handleLogin = (email: string, password: string) => {
-    setIsLoggedIn(true)
-    // Aqui você salvaria o token/sessão
+  const handleLogin = () => {
+    const token = localStorage.getItem("token")
+    if (token) setIsLoggedIn(true)
   }
+
+  useEffect(() => {
+    fetch("http://localhost:3001/auth/check", {
+      credentials: "include",
+    })
+      .then((res) => {
+        if (res.ok) {
+          setIsLoggedIn(true)
+        } else {
+          setIsLoggedIn(false)
+        }
+      })
+      .catch(() => setIsLoggedIn(false))
+  }, []);
+
 
   const handleAccountClick = () => {
     if (isLoggedIn) {

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Copy, Plus, Activity, Shield, Clock, Eye, EyeOff, RefreshCw } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { AddBalanceModal } from "@/components/add-balance-modal"
 import { useToast } from "@/components/toast-provider"
 
@@ -13,57 +13,75 @@ export default function Dashboard() {
   const [showCredentials, setShowCredentials] = useState(false)
   const [showAddBalanceModal, setShowAddBalanceModal] = useState(false)
   const { addToast } = useToast()
+  type ActivityItem = {
+    date: string;
+    action: string;
+    ip: string;
+    data: string;
+  };
 
-  // Mock data - em produção viria de uma API
-  const [userPlan, setUserPlan] = useState({
-    name: "Proxy Brasil 10GB",
-    totalGb: 10,
-    usedGb: 3.2,
-    remainingGb: 6.8,
-    status: "active",
-    expiresAt: "2024-02-15",
+  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
+
+
+  type UserPlan = {
+    name: string;
+    totalGb: number;
+    usedGb: number;
+    remainingGb: number;
+    expiresAt: string;
     credentials: {
-      host: "proxy.proxybr.com",
-      port: "8080",
-      username: "user_12345",
-      password: "pass_67890",
-    },
-  })
+      host: string;
+      port: number;
+      username: string;
+      password: string;
+    };
+  };
 
-  const recentActivity = [
-    { date: "2024-01-10", action: "Conexão estabelecida", ip: "191.123.45.67", data: "0.5GB" },
-    { date: "2024-01-09", action: "Renovação automática", ip: "-", data: "10GB" },
-    { date: "2024-01-08", action: "Conexão estabelecida", ip: "191.234.56.78", data: "1.2GB" },
-  ]
+  const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    addToast({
-      type: "success",
-      title: "Copiado!",
-      message: "Texto copiado para a área de transferência",
-      duration: 2000,
-    })
+  useEffect(() => {
+    fetch("http://localhost:3001/user", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        setUserPlan({
+          name: data.plan.name,
+          totalGb: data.plan.gbAmount,
+          usedGb: data.usage.used,
+          remainingGb: data.usage.remaining,
+          expiresAt: data.plan.expiresAt,
+          credentials: {
+            host: data.proxyCredentials.host,
+            port: data.proxyCredentials.port,
+            username: data.proxyCredentials.username,
+            password: data.proxyCredentials.password,
+          },
+        });
+        setRecentActivity(
+          data.recentActivity.map((a: { date: any; ip: string; dataUsed: any }) => ({
+            date: a.date,
+            action: a.ip === "-" ? "Renovação automática" : "Conexão estabelecida",
+            ip: a.ip,
+            data: `${a.dataUsed}GB`,
+          }))
+        );
+      })
+      .catch((err) => console.error("Erro ao buscar dados:", err));
+  }, []);
+
+  if (!userPlan) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-400">
+        Carregando dados do seu plano...
+      </div>
+    )
   }
 
-  const generateNewPassword = () => {
-    // Gerar nova senha aleatória
-    const newPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase()
+  function copyToClipboard(host: string): void {
+    throw new Error("Function not implemented.")
+  }
 
-    setUserPlan((prev) => ({
-      ...prev,
-      credentials: {
-        ...prev.credentials,
-        password: newPassword,
-      },
-    }))
-
-    addToast({
-      type: "success",
-      title: "Nova senha gerada!",
-      message: `Sua nova senha é: ${newPassword}`,
-      duration: 8000,
-    })
+  function generateNewPassword(event:string ): void {
+    throw new Error("Function not implemented.")
   }
 
   return (
@@ -84,7 +102,7 @@ export default function Dashboard() {
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-2xl">{userPlan.name}</CardTitle>
-                  <p className="text-gray-400">Plano ativo até {userPlan.expiresAt}</p>
+                  <p className="text-gray-400">Plano</p>
                 </div>
                 <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
                   <Activity className="w-4 h-4 mr-1" />
@@ -150,7 +168,7 @@ export default function Dashboard() {
                       <Button
                         size="icon"
                         variant="ghost"
-                        onClick={() => copyToClipboard(userPlan.credentials.port)}
+                       onClick={() => copyToClipboard(String(userPlan.credentials.port))}
                         className="w-8 h-8"
                       >
                         <Copy className="w-4 h-4" />
@@ -194,7 +212,7 @@ export default function Dashboard() {
                 </div>
 
                 <Button
-                  onClick={generateNewPassword}
+           //       onClick={generateNewPassword}
                   variant="outline"
                   className="w-full glass glass-hover border-white/20 mt-4"
                 >

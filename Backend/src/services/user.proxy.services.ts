@@ -56,7 +56,18 @@ class ProxyUserService {
 
         return result;
     }
+    async searchInfoUser(user_id: string) {
 
+        if (!user_id) throw new Error("Usuario não esta logado");
+
+        const existing = await this.userRepository.getDashboardData(user_id);
+        if (!existing) {
+            throw new Error("Usuario nâo existe");
+        }
+
+        console.log(existing)
+        return existing;
+    }
 }
 
 export default ProxyUserService;

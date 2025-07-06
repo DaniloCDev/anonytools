@@ -1,4 +1,4 @@
-import type React from "react"
+// app/layout.tsx
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
@@ -11,7 +11,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "ProxyBR - Os Melhores Proxies do Brasil",
   description: "Proxies residenciais brasileiros de alta qualidade com IP rotativo. Acesso ilimitado e suporte 24/7.",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({
