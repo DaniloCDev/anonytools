@@ -43,11 +43,10 @@ export class UserProxyController {
     informationsUser = async (req: Request, res: Response): Promise<void> => {
 
         const userId = req.userId;
-                console.log(userId)
         const usecase = new ProxyUserService(new UserRepository());
         try {
             const user = await usecase.searchInfoUser(userId);
-            console.log(userId)
+            console.log(user)
             res.status(201).json(user);
         } catch (error) {
             if (error instanceof ZodError) {

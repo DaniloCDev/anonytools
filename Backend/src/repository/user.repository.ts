@@ -45,6 +45,9 @@ class UserRepository {
 
 
     async getDashboardData(userId: string) {
+        const dataUser = await prisma.user.findFirst({
+            where: { id:userId }
+        });
         const proxyData = await prisma.proxyUser.findFirst({
             where: { userId },
             include: {
@@ -56,6 +59,7 @@ class UserRepository {
                 },
             },
         });
+
 
         const lastPaidPurchase = await prisma.purchase.findFirst({
             where: {
@@ -72,8 +76,8 @@ class UserRepository {
 
         return {
             user: {
-                name: proxyData?.user.name,
-                email: proxyData?.user.email,
+                name: dataUser?.name,
+                email: dataUser?.email,
             },
             proxyCredentials: {
                 username: proxyData?.username,
@@ -85,10 +89,10 @@ class UserRepository {
                 name: lastPaidPurchase?.plan.name,
                 gbAmount: lastPaidPurchase?.plan.gbAmount,
                 totalPrice: lastPaidPurchase?.totalPrice,
-                expiresAt: "2024-02-15", // <- simulado, pois não tem isso no schema
+                expiresAt: "2024-02-15", 
             },
             usage: {
-                used: 3.2,  // <- vindo da infra externa
+                used: 3.2, 
                 remaining: 10 - 3.2,
             },
             recentActivity: [

@@ -17,7 +17,8 @@ export class AuthController {
             }
 
             const user = await usecase.registerUser(result.data);
-            console.log(user)
+            
+            console.log(user);
             const responseDTO = toUserResponseDTO(user);
             res.status(201).json(responseDTO);
         } catch (error) {
@@ -52,6 +53,7 @@ export class AuthController {
             });
             res.status(200).json({ message: "Login successful" });
         } catch (error) {
+            console.log(error)
             if (error instanceof ZodError) {
                 res.status(400).json({ message: "Erro de validação", errors: error.format() });
             } else {

@@ -1,10 +1,12 @@
-import { RegisterUserDTO, UserLoginDTO,toUserResponseDTO } from "../dtos";
+import { RegisterUserDTO, UserLoginDTO, toUserResponseDTO } from "../dtos";
 import UserRepository from "../repository/user.repository";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import ProxyUserService from "./user.proxy.services";
 
 class AuthUserService {
     constructor(private userRepository: UserRepository) { }
+
 
     async registerUser(data: RegisterUserDTO) {
         const existing = await this.userRepository.findByEmail(data.email);
@@ -23,6 +25,7 @@ class AuthUserService {
     }
 
     async LoginUser(data: UserLoginDTO) {
+        const proxyService = new ProxyUserService(new UserRepository());
         const existingUser = await this.userRepository.findByEmail(data.email);
         if (!existingUser) {
             throw new Error("Email não existe.");
@@ -32,6 +35,9 @@ class AuthUserService {
         if (!isPassword) {
             throw new Error("Senha invalida");
         }
+
+       await proxyService.createUserProxy(existingUser.id);
+
 
         const token = jwt.sign(
             { id: existingUser.id },

@@ -3,12 +3,10 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { useCart, type Product } from "@/components/cart-provider"
 import { useToast } from "@/components/toast-provider"
-import { ShoppingCart, Zap, Globe, Shield, CheckCircle } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Zap, Globe, Shield, CheckCircle } from "lucide-react"
 
-const products: Product[] = [
+const products = [
   {
     id: "1",
     name: "Proxy Brasil 5GB",
@@ -60,9 +58,7 @@ const products: Product[] = [
 ]
 
 export default function Produtos() {
-  const { addItem } = useCart()
   const { addToast } = useToast()
-  const router = useRouter()
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -90,23 +86,17 @@ export default function Produtos() {
     }
   }
 
-  const handleAddToCart = (product: Product) => {
-    addItem(product)
+  const handleBuyProduct = () => {
     addToast({
-      type: "success",
-      title: "Produto adicionado!",
-      message: `${product.name} foi adicionado ao carrinho`,
-      duration: 3000,
+      type: "info",
+      title: "Faça login para comprar",
+      message: "Acesse sua conta para continuar com a compra",
+      duration: 4000,
     })
-
-    // Redirecionar para o carrinho após 1 segundo
-    setTimeout(() => {
-      router.push("/checkout")
-    }, 1000)
   }
 
   return (
-    <div className="min-h-screen py-20">
+    <div className="min-h-screen py-20 scrollbar-hide">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
@@ -163,11 +153,10 @@ export default function Produtos() {
                   </div>
 
                   <Button
-                    onClick={() => handleAddToCart(product)}
+                    onClick={handleBuyProduct}
                     className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 group-hover:glow transition-all duration-300"
                   >
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    Adicionar ao Carrinho
+                    Comprar Agora
                   </Button>
                 </div>
               </CardContent>

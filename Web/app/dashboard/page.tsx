@@ -1,300 +1,377 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Copy, Plus, Activity, Shield, Clock, Eye, EyeOff, RefreshCw } from "lucide-react"
-import { useEffect, useState } from "react"
+import { DashboardSidebar } from "@/components/dashboard-sidebar"
+import { MobileSidebar } from "@/components/mobile-sidebar"
 import { AddBalanceModal } from "@/components/add-balance-modal"
+import { AccountSettings } from "@/components/account-settings"
+import { UsageManagement } from "@/components/usage-management"
+import { PurchaseHistory } from "@/components/purchase-history"
 import { useToast } from "@/components/toast-provider"
+import { Copy, Plus, Activity, Shield, Clock, Eye, EyeOff, RefreshCw, HelpCircle } from "lucide-react"
 
 export default function Dashboard() {
+  const [activeMenu, setActiveMenu] = useState("proxys")
   const [showCredentials, setShowCredentials] = useState(false)
   const [showAddBalanceModal, setShowAddBalanceModal] = useState(false)
   const { addToast } = useToast()
-  type ActivityItem = {
-    date: string;
-    action: string;
-    ip: string;
-    data: string;
-  };
 
-  const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
-
-
-  type UserPlan = {
-    name: string;
-    totalGb: number;
-    usedGb: number;
-    remainingGb: number;
-    expiresAt: string;
+  // Mock data - em produção viria de uma API
+  const [userPlan, setUserPlan] = useState({
+    name: "Proxy Brasil 10GB",
+    totalGb: 10,
+    usedGb: 3.2,
+    remainingGb: 6.8,
+    status: "active",
+    expiresAt: "2024-02-15",
     credentials: {
-      host: string;
-      port: number;
-      username: string;
-      password: string;
-    };
-  };
+      host: "proxy.proxybr.com",
+      port: "8080",
+      username: "c7a9c9b21a08c1abc4b4",
+      password: "e2436adfb313e734",
+    },
+  })
 
-  const [userPlan, setUserPlan] = useState<UserPlan | null>(null);
+  const recentActivity = [
+    { date: "2024-01-10", action: "Conexão estabelecida", ip: "191.123.45.67", data: "0.5GB" },
+    { date: "2024-01-09", action: "Renovação automática", ip: "-", data: "10GB" },
+    { date: "2024-01-08", action: "Conexão estabelecida", ip: "191.234.56.78", data: "1.2GB" },
+  ]
 
-  useEffect(() => {
-    fetch("http://localhost:3001/user", { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => {
-        setUserPlan({
-          name: data.plan.name,
-          totalGb: data.plan.gbAmount,
-          usedGb: data.usage.used,
-          remainingGb: data.usage.remaining,
-          expiresAt: data.plan.expiresAt,
-          credentials: {
-            host: data.proxyCredentials.host,
-            port: data.proxyCredentials.port,
-            username: data.proxyCredentials.username,
-            password: data.proxyCredentials.password,
-          },
-        });
-        setRecentActivity(
-          data.recentActivity.map((a: { date: any; ip: string; dataUsed: any }) => ({
-            date: a.date,
-            action: a.ip === "-" ? "Renovação automática" : "Conexão estabelecida",
-            ip: a.ip,
-            data: `${a.dataUsed}GB`,
-          }))
-        );
-      })
-      .catch((err) => console.error("Erro ao buscar dados:", err));
-  }, []);
-
-  if (!userPlan) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-400">
-        Carregando dados do seu plano...
-      </div>
-    )
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+    addToast({
+      type: "success",
+      title: "Copiado!",
+      message: "Texto copiado para a área de transferência",
+      duration: 2000,
+    })
   }
 
-  function copyToClipboard(host: string): void {
-    throw new Error("Function not implemented.")
+  const generateNewPassword = () => {
+    const newPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase()
+
+    setUserPlan((prev) => ({
+      ...prev,
+      credentials: {
+        ...prev.credentials,
+        password: newPassword,
+      },
+    }))
+
+    addToast({
+      type: "success",
+      title: "Nova senha gerada!",
+      message: `Sua nova senha é: ${newPassword}`,
+      duration: 8000,
+    })
   }
 
-  function generateNewPassword(event:string ): void {
-    throw new Error("Function not implemented.")
+  const renderContent = () => {
+    switch (activeMenu) {
+      case "proxys":
+        return (
+          <div className="space-y-6 lg:space-y-8">
+            <div className="space-y-2">
+              <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold">
+                <span className="gradient-text">Dashboard</span> Proxys
+              </h1>
+              <p className="text-gray-400 text-lg lg:text-xl">Visão geral dos seus proxies e credenciais</p>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 lg:gap-8">
+              {/* Main Content */}
+              <div className="xl:col-span-8 space-y-6 lg:space-y-8">
+                {/* Plan Overview */}
+                <Card className="glass border-white/10">
+                  <CardHeader className="pb-4 lg:pb-6">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                      <div className="space-y-1">
+                        <CardTitle className="text-xl lg:text-2xl">Plano Ativo</CardTitle>
+                        <p className="text-gray-400 lg:text-lg">Ativo até {userPlan.expiresAt}</p>
+                      </div>
+                      <Badge className="bg-green-500/20 text-green-300 border-green-500/30 w-fit px-4 py-2 text-sm lg:text-base">
+                        <Activity className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
+                        Ativo
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-gray-400 lg:text-lg">Uso de dados</span>
+                        <span className="font-medium lg:text-lg">
+                          {userPlan.usedGb}GB / {userPlan.totalGb}GB
+                        </span>
+                      </div>
+                      <Progress value={(userPlan.usedGb / userPlan.totalGb) * 100} className="h-3 lg:h-4" />
+                      <p className="text-gray-400 lg:text-lg">{userPlan.remainingGb}GB restantes</p>
+                    </div>
+
+                    <Button
+                      onClick={() => setShowAddBalanceModal(true)}
+                      className="w-full lg:w-auto bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-6 py-3 text-base lg:text-lg"
+                    >
+                      <Plus className="w-5 h-5 mr-2" />
+                      Adicionar Saldo
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Proxy Credentials */}
+                <Card className="glass border-white/10">
+                  <CardHeader className="pb-4 lg:pb-6">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-3 text-xl lg:text-2xl">
+                        <Shield className="w-6 h-6 lg:w-7 lg:h-7" />
+                        Credenciais do Proxy
+                      </CardTitle>
+                      <Button variant="ghost" size="lg" onClick={() => setShowCredentials(!showCredentials)}>
+                        {showCredentials ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                      <div className="space-y-3">
+                        <label className="text-sm text-gray-400 uppercase tracking-wide font-medium">Host</label>
+                        <div className="flex items-center gap-3">
+                          <code className="flex-1 p-3 lg:p-4 glass rounded-lg text-sm lg:text-base font-mono">
+                            {userPlan.credentials.host}
+                          </code>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => copyToClipboard(userPlan.credentials.host)}
+                            className="w-10 h-10 lg:w-12 lg:h-12"
+                          >
+                            <Copy className="w-4 h-4 lg:w-5 lg:h-5" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-sm text-gray-400 uppercase tracking-wide font-medium">Porta</label>
+                        <div className="flex items-center gap-3">
+                          <code className="flex-1 p-3 lg:p-4 glass rounded-lg text-sm lg:text-base font-mono">
+                            {userPlan.credentials.port}
+                          </code>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => copyToClipboard(userPlan.credentials.port)}
+                            className="w-10 h-10 lg:w-12 lg:h-12"
+                          >
+                            <Copy className="w-4 h-4 lg:w-5 lg:h-5" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-sm text-gray-400 uppercase tracking-wide font-medium">Usuário</label>
+                        <div className="flex items-center gap-3">
+                          <code className="flex-1 p-3 lg:p-4 glass rounded-lg text-sm lg:text-base font-mono">
+                            {showCredentials ? userPlan.credentials.username : "••••••••••••••••"}
+                          </code>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => copyToClipboard(userPlan.credentials.username)}
+                            className="w-10 h-10 lg:w-12 lg:h-12"
+                          >
+                            <Copy className="w-4 h-4 lg:w-5 lg:h-5" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <label className="text-sm text-gray-400 uppercase tracking-wide font-medium">Senha</label>
+                        <div className="flex items-center gap-3">
+                          <code className="flex-1 p-3 lg:p-4 glass rounded-lg text-sm lg:text-base font-mono">
+                            {showCredentials ? userPlan.credentials.password : "••••••••••••••••"}
+                          </code>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => copyToClipboard(userPlan.credentials.password)}
+                            className="w-10 h-10 lg:w-12 lg:h-12"
+                          >
+                            <Copy className="w-4 h-4 lg:w-5 lg:h-5" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={generateNewPassword}
+                      variant="outline"
+                      className="w-full lg:w-auto glass glass-hover border-white/20 bg-transparent px-6 py-3 text-base"
+                    >
+                      <RefreshCw className="w-5 h-5 mr-2" />
+                      Gerar Nova Senha
+                    </Button>
+
+                    <div className="p-4 lg:p-6 glass rounded-lg">
+                      <p className="text-sm text-gray-400 mb-3 uppercase tracking-wide font-medium">
+                        Configuração rápida:
+                      </p>
+                      <code className="text-sm lg:text-base text-green-400 break-all block font-mono leading-relaxed">
+                        curl -x {userPlan.credentials.host}:{userPlan.credentials.port} -U{" "}
+                        {userPlan.credentials.username}:{userPlan.credentials.password} https://httpbin.org/ip
+                      </code>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Activity */}
+                <Card className="glass border-white/10">
+                  <CardHeader className="pb-4 lg:pb-6">
+                    <CardTitle className="flex items-center gap-3 text-xl lg:text-2xl">
+                      <Clock className="w-6 h-6 lg:w-7 lg:h-7" />
+                      Atividade Recente
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {recentActivity.map((activity, index) => (
+                        <div key={index} className="flex items-center justify-between p-4 lg:p-6 glass rounded-lg">
+                          <div className="space-y-1">
+                            <p className="font-medium lg:text-lg">{activity.action}</p>
+                            <p className="text-sm lg:text-base text-gray-400">{activity.date}</p>
+                          </div>
+                          <div className="text-right space-y-1">
+                            <p className="text-sm lg:text-base">{activity.ip}</p>
+                            <p className="text-sm lg:text-base text-blue-400 font-medium">{activity.data}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Sidebar */}
+              <div className="xl:col-span-4 space-y-6">
+                {/* Quick Stats */}
+                <Card className="glass border-white/10">
+                  <CardHeader className="pb-4 lg:pb-6">
+                    <CardTitle className="text-xl lg:text-2xl">Estatísticas</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 lg:space-y-6">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 lg:text-lg">Conexões hoje</span>
+                      <span className="font-bold text-blue-400 text-xl lg:text-2xl">47</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 lg:text-lg">Uptime</span>
+                      <span className="font-bold text-green-400 text-xl lg:text-2xl">99.9%</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 lg:text-lg">Velocidade média</span>
+                      <span className="font-bold text-lg lg:text-xl">125 Mbps</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Support */}
+                <Card className="glass border-white/10">
+                  <CardHeader className="pb-4 lg:pb-6">
+                    <CardTitle className="text-xl lg:text-2xl">Precisa de Ajuda?</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 lg:space-y-6">
+                    <p className="text-gray-400 lg:text-lg">Nossa equipe está disponível 24/7 para ajudar você</p>
+                    <Button className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 py-3 text-base lg:text-lg">
+                      Contatar Suporte
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        )
+
+      case "gerenciamento":
+        return <UsageManagement />
+
+      case "compras":
+        return <PurchaseHistory />
+
+      case "configurações":
+        return (
+          <div className="space-y-6 lg:space-y-8">
+            <div className="space-y-2">
+              <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold">Configurações</h1>
+              <p className="text-gray-400 text-lg lg:text-xl">Gerencie as configurações da sua conta</p>
+            </div>
+            <Card className="glass border-white/10 p-8 lg:p-12">
+              <div className="text-center">
+                <p className="text-gray-400 text-lg lg:text-xl">Configurações em desenvolvimento...</p>
+              </div>
+            </Card>
+          </div>
+        )
+
+      case "suporte":
+        return (
+          <div className="space-y-6 lg:space-y-8">
+            <div className="space-y-2">
+              <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold">Suporte</h1>
+              <p className="text-gray-400 text-lg lg:text-xl">Entre em contato conosco</p>
+            </div>
+            <Card className="glass border-white/10 p-8 lg:p-12">
+              <div className="text-center space-y-6 lg:space-y-8">
+                <HelpCircle className="w-20 h-20 lg:w-24 lg:h-24 mx-auto text-blue-400" />
+                <h3 className="text-2xl lg:text-3xl font-semibold">Como podemos ajudar?</h3>
+                <p className="text-gray-400 text-lg lg:text-xl">Nossa equipe está disponível 24/7</p>
+                <Button className="bg-gradient-to-r from-green-500 to-blue-600 px-8 py-4 text-lg">Abrir Ticket</Button>
+              </div>
+            </Card>
+          </div>
+        )
+
+      case "conta":
+        return <AccountSettings />
+
+      default:
+        return null
+    }
   }
 
   return (
-    <div className="min-h-screen py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
-            Meu <span className="gradient-text">Dashboard</span>
-          </h1>
-          <p className="text-gray-400">Gerencie seus proxies e monitore o uso</p>
+    <div className="min-h-screen bg-black">
+      <div className="flex h-screen">
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block w-80 fixed left-0 top-0 h-screen">
+          <DashboardSidebar onMenuClick={setActiveMenu} activeMenu={activeMenu} className="h-full" />
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Plan Overview */}
-            <Card className="glass border-white/10">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl">{userPlan.name}</CardTitle>
-                  <p className="text-gray-400">Plano</p>
-                </div>
-                <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                  <Activity className="w-4 h-4 mr-1" />
-                  Ativo
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm text-gray-400">Uso de dados</span>
-                    <span className="text-sm font-medium">
-                      {userPlan.usedGb}GB / {userPlan.totalGb}GB
-                    </span>
-                  </div>
-                  <Progress value={(userPlan.usedGb / userPlan.totalGb) * 100} className="h-2" />
-                  <p className="text-sm text-gray-400 mt-1">{userPlan.remainingGb}GB restantes</p>
-                </div>
-
-                <div className="flex justify-center">
-                  <Button
-                    onClick={() => setShowAddBalanceModal(true)}
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Adicionar Saldo
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Proxy Credentials */}
-            <Card className="glass border-white/10">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
-                  Credenciais do Proxy
-                </CardTitle>
-                <Button variant="ghost" size="sm" onClick={() => setShowCredentials(!showCredentials)}>
-                  {showCredentials ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm text-gray-400">Host</label>
-                    <div className="flex items-center gap-2">
-                      <code className="flex-1 p-2 glass rounded text-sm">{userPlan.credentials.host}</code>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => copyToClipboard(userPlan.credentials.host)}
-                        className="w-8 h-8"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm text-gray-400">Porta</label>
-                    <div className="flex items-center gap-2">
-                      <code className="flex-1 p-2 glass rounded text-sm">{userPlan.credentials.port}</code>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                       onClick={() => copyToClipboard(String(userPlan.credentials.port))}
-                        className="w-8 h-8"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm text-gray-400">Usuário</label>
-                    <div className="flex items-center gap-2">
-                      <code className="flex-1 p-2 glass rounded text-sm">
-                        {showCredentials ? userPlan.credentials.username : "••••••••"}
-                      </code>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => copyToClipboard(userPlan.credentials.username)}
-                        className="w-8 h-8"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm text-gray-400">Senha</label>
-                    <div className="flex items-center gap-2">
-                      <code className="flex-1 p-2 glass rounded text-sm">
-                        {showCredentials ? userPlan.credentials.password : "••••••••"}
-                      </code>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => copyToClipboard(userPlan.credentials.password)}
-                        className="w-8 h-8"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                <Button
-           //       onClick={generateNewPassword}
-                  variant="outline"
-                  className="w-full glass glass-hover border-white/20 mt-4"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Gerar Nova Senha
-                </Button>
-
-                <div className="p-4 glass rounded-lg">
-                  <p className="text-sm text-gray-400 mb-2">Configuração rápida:</p>
-                  <code className="text-xs text-green-400">
-                    curl -x {userPlan.credentials.host}:{userPlan.credentials.port} -U {userPlan.credentials.username}:
-                    {userPlan.credentials.password} https://httpbin.org/ip
-                  </code>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recent Activity */}
-            <Card className="glass border-white/10">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="w-5 h-5" />
-                  Atividade Recente
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentActivity.map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 glass rounded-lg">
-                      <div>
-                        <p className="font-medium">{activity.action}</p>
-                        <p className="text-sm text-gray-400">{activity.date}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm">{activity.ip}</p>
-                        <p className="text-sm text-blue-400">{activity.data}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+        {/* Main Content */}
+        <div className="flex-1 lg:ml-80">
+          {/* Mobile Header */}
+          <div className="lg:hidden flex items-center justify-between p-4 border-b border-white/10 bg-black/50 backdrop-blur-sm">
+            <MobileSidebar onMenuClick={setActiveMenu} activeMenu={activeMenu} />
+            <h2 className="font-semibold text-lg capitalize">
+              {activeMenu === "proxys" && "Dashboard"}
+              {activeMenu === "gerenciamento" && "Gerenciamento"}
+              {activeMenu === "compras" && "Compras"}
+              {activeMenu === "configurações" && "Configurações"}
+              {activeMenu === "suporte" && "Suporte"}
+              {activeMenu === "conta" && "Minha Conta"}
+            </h2>
+            <div className="w-10" /> {/* Spacer */}
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Stats */}
-            <Card className="glass border-white/10">
-              <CardHeader>
-                <CardTitle>Estatísticas</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Conexões hoje</span>
-                  <span className="font-bold text-blue-400">47</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Uptime</span>
-                  <span className="font-bold text-green-400">99.9%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-400">Velocidade média</span>
-                  <span className="font-bold">125 Mbps</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Support */}
-            <Card className="glass border-white/10">
-              <CardHeader>
-                <CardTitle>Precisa de Ajuda?</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-gray-400">Nossa equipe está disponível 24/7 para ajudar você</p>
-                <Button className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700">
-                  Contatar Suporte
-                </Button>
-              </CardContent>
-            </Card>
+          {/* Content */}
+          <div className="p-4 lg:p-8 xl:p-12 max-w-[1600px] mx-auto w-full overflow-y-auto scrollbar-hide h-full lg:h-screen">
+            {renderContent()}
           </div>
         </div>
       </div>
+
       <AddBalanceModal isOpen={showAddBalanceModal} onClose={() => setShowAddBalanceModal(false)} />
     </div>
   )

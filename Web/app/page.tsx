@@ -1,49 +1,12 @@
-"use client"
-
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Shield, Zap, Globe, Users, ArrowRight, CheckCircle } from "lucide-react"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation" 
-import { AuthModal } from "@/components/auth-modal"
 
 export default function Home() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [authChecked, setAuthChecked] = useState(false)
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const router = useRouter()
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("http://localhost:3001/auth/check", {
-          credentials: "include",
-        })
-        setIsLoggedIn(res.ok)
-      } catch {
-        setIsLoggedIn(false)
-      } finally {
-        setAuthChecked(true)
-      }
-    }
-
-    checkAuth()
-  }, [])
-
-
-  const handleStartClick = () => {
-    if (!authChecked) return 
-    if (isLoggedIn) {
-      router.push("/dashboard")
-    } else {
-      setShowAuthModal(true)
-    }
-  }
-
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen scrollbar-hide">
       {/* Hero Section */}
       <section className="relative overflow-hidden py-20 lg:py-32">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20" />
@@ -64,14 +27,15 @@ export default function Home() {
           </p>
 
           <div className="flex justify-center mb-12">
-            <Button
-              onClick={handleStartClick}
-              size="lg"
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 glow text-lg px-8 py-4"
-            >
-              Começar agora
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
+            <Link href="/produtos">
+              <Button
+                size="lg"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 glow text-lg px-8 py-4"
+              >
+                Ver Pacotes
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
           </div>
 
           <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-400">
@@ -176,7 +140,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Pronto para começar?</h2>
           <p className="text-xl text-gray-300 mb-8">Junte-se a milhares de desenvolvedores que confiam na ProxyBR</p>
-          <Link href="/dashboard">
+          <Link href="/produtos">
             <Button
               size="lg"
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 glow text-lg px-8 py-4"
@@ -187,16 +151,6 @@ export default function Home() {
           </Link>
         </div>
       </section>
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        onLogin={() => {
-          setIsLoggedIn(true)
-          setShowAuthModal(false)
-          router.push("/dashboard")
-        }}
-      />
-
     </div>
   )
 }
