@@ -17,7 +17,7 @@ export class AuthController {
             }
 
             const user = await usecase.registerUser(result.data);
-            
+
             console.log(user);
             const responseDTO = toUserResponseDTO(user);
             res.status(201).json(responseDTO);
@@ -65,6 +65,20 @@ export class AuthController {
     authCheck = async (req: Request, res: Response): Promise<void> => {
         try {
             res.status(200).json({ message: "Usuário autenticado", userId: req.userId });
+        } catch (error) {
+            console.log(error)
+            if (error instanceof ZodError) {
+                res.status(400).json({ message: "Erro de validação", errors: error.format() });
+            } else {
+                res.status(400).json({ message: (error as Error).message });
+            }
+        }
+    };
+
+    logout = async (req: Request, res: Response): Promise<void> => {
+        try {
+            res.cookie('token', '', { httpOnly: true, expires: new Date(0), path: '/' });
+            res.status(200).send({ message: 'Logout successful' });
         } catch (error) {
             console.log(error)
             if (error instanceof ZodError) {

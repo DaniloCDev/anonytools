@@ -7,12 +7,16 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react"
+import { useRouter } from "next/navigation";
+import { useUser } from "@/context/UserContext"
+
 
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
   onLoginSuccess: () => void  // Só aviso que login deu certo
 }
+
 
 export function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false)
@@ -24,6 +28,8 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
     confirmPassword: "",
   })
   const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const { refreshUser } = useUser();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,13 +38,14 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
       const res = await fetch("http://localhost:3001/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // para cookies serem enviados
+        credentials: "include", // importante para cookies
         body: JSON.stringify(loginData),
       })
 
       if (res.ok) {
-        onLoginSuccess()
-        onClose()
+        await new Promise((r) => setTimeout(r, 200));
+        await refreshUser(); // Atualiza estado do usuário no contexto
+        router.push("/dashboard");
       } else {
         const data = await res.json()
         alert(data.message || "Erro ao fazer login")
@@ -49,6 +56,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
       setLoading(false)
     }
   }
+
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()

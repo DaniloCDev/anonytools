@@ -1,22 +1,35 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/toast-provider"
 import { User, Lock, Save } from "lucide-react"
+import { useUser } from "@/context/UserContext"
 
 export function AccountSettings() {
   const { addToast } = useToast()
+  const { user, loading } = useUser()
+
   const [formData, setFormData] = useState({
-    name: "João Silva",
-    email: "joao@email.com",
+    name: "",
+    email: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   })
+
+  useEffect(() => {
+    if (!loading && user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || "",
+        email: user.email || "",
+      }))
+    }
+  }, [user, loading])
 
   const handleSaveProfile = () => {
     addToast({

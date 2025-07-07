@@ -46,7 +46,7 @@ class UserRepository {
 
     async getDashboardData(userId: string) {
         const dataUser = await prisma.user.findFirst({
-            where: { id:userId }
+            where: { id: userId }
         });
         const proxyData = await prisma.proxyUser.findFirst({
             where: { userId },
@@ -75,44 +75,24 @@ class UserRepository {
         });
 
         return {
-            user: {
-                name: dataUser?.name,
-                email: dataUser?.email,
-            },
-            proxyCredentials: {
-                username: proxyData?.username,
-                password: proxyData?.password,
-                host: "proxy.proxybr.com",
-                port: 8080,
-            },
+            name: dataUser?.name,
+            email: dataUser?.email,
             plan: {
                 name: lastPaidPurchase?.plan.name,
-                gbAmount: lastPaidPurchase?.plan.gbAmount,
-                totalPrice: lastPaidPurchase?.totalPrice,
-                expiresAt: "2024-02-15", 
+                totalGb: lastPaidPurchase?.plan.gbAmount,
+                usedGb: 3.2,
+                remainingGb: (lastPaidPurchase?.plan.gbAmount || 0) - 3.2,
+                status: lastPaidPurchase?.status || "active",
+                expiresAt: "2024-02-15",
+                credentials: {
+                    host: "proxy.proxybr.com",
+                    port: "8080",
+                    username: proxyData?.username,
+                    password: proxyData?.password,
+                },
             },
-            usage: {
-                used: 3.2, 
-                remaining: 10 - 3.2,
-            },
-            recentActivity: [
-                {
-                    date: "2024-01-10",
-                    ip: "191.123.45.67",
-                    dataUsed: 0.5,
-                },
-                {
-                    date: "2024-01-09",
-                    ip: "-",
-                    dataUsed: 10,
-                },
-                {
-                    date: "2024-01-08",
-                    ip: "191.234.56.78",
-                    dataUsed: 1.2,
-                },
-            ],
-        };
+        }
+
     }
     async createUserProxy(data: {
         userId: string;

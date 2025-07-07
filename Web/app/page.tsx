@@ -19,6 +19,7 @@ export default function Home() {
         credentials: "include",
       })
 
+      console.log(res)
       if (res.ok) {
         router.push("/dashboard")
       } else {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -13,29 +13,34 @@ import { UsageManagement } from "@/components/usage-management"
 import { PurchaseHistory } from "@/components/purchase-history"
 import { useToast } from "@/components/toast-provider"
 import { Copy, Plus, Activity, Shield, Clock, Eye, EyeOff, RefreshCw, HelpCircle } from "lucide-react"
+import { useUser } from "@/context/UserContext";
 
 export default function Dashboard() {
   const [activeMenu, setActiveMenu] = useState("proxys")
   const [showCredentials, setShowCredentials] = useState(false)
   const [showAddBalanceModal, setShowAddBalanceModal] = useState(false)
+  const [timeoutReached, setTimeoutReached] = useState(false);
   const { addToast } = useToast()
 
-  // Mock data - em produção viria de uma API
-  const [userPlan, setUserPlan] = useState({
-    name: "Proxy Brasil 10GB",
-    totalGb: 10,
-    usedGb: 3.2,
-    remainingGb: 6.8,
-    status: "active",
-    expiresAt: "2024-02-15",
-    credentials: {
-      host: "proxy.proxybr.com",
-      port: "8080",
-      username: "c7a9c9b21a08c1abc4b4",
-      password: "e2436adfb313e734",
-    },
-  })
+  const { user, loading } = useUser();
+  const userPlan = user?.plan;
 
+  useEffect(() => {
+  const timer = setTimeout(() => setTimeoutReached(true), 8000);
+  return () => clearTimeout(timer);
+}, []);
+
+if (loading || !userPlan) {
+  if (timeoutReached) {
+    return <div className="text-white text-xl">Erro ao carregar o plano. Tente novamente.</div>;
+  }
+
+  return (
+    <div className="flex justify-center items-center h-screen text-white text-xl">
+      Carregando informações do plano...
+    </div>
+  );
+}
   const recentActivity = [
     { date: "2024-01-10", action: "Conexão estabelecida", ip: "191.123.45.67", data: "0.5GB" },
     { date: "2024-01-09", action: "Renovação automática", ip: "-", data: "10GB" },
@@ -52,24 +57,7 @@ export default function Dashboard() {
     })
   }
 
-  const generateNewPassword = () => {
-    const newPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase()
 
-    setUserPlan((prev) => ({
-      ...prev,
-      credentials: {
-        ...prev.credentials,
-        password: newPassword,
-      },
-    }))
-
-    addToast({
-      type: "success",
-      title: "Nova senha gerada!",
-      message: `Sua nova senha é: ${newPassword}`,
-      duration: 8000,
-    })
-  }
 
   const renderContent = () => {
     switch (activeMenu) {
@@ -205,15 +193,15 @@ export default function Dashboard() {
                         </div>
                       </div>
                     </div>
-
-                    <Button
-                      onClick={generateNewPassword}
+                    {/**                     <Button
+                     // onClick={""}
                       variant="outline"
                       className="w-full lg:w-auto glass glass-hover border-white/20 bg-transparent px-6 py-3 text-base"
                     >
                       <RefreshCw className="w-5 h-5 mr-2" />
                       Gerar Nova Senha
                     </Button>
+*/}
 
                     <div className="p-4 lg:p-6 glass rounded-lg">
                       <p className="text-sm text-gray-400 mb-3 uppercase tracking-wide font-medium">
@@ -375,4 +363,5 @@ export default function Dashboard() {
       <AddBalanceModal isOpen={showAddBalanceModal} onClose={() => setShowAddBalanceModal(false)} />
     </div>
   )
+
 }

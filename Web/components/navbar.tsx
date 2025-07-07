@@ -12,10 +12,21 @@ export function Navbar() {
   const handleLogin = () => {
     window.location.href = "/dashboard"
   }
-  const handleAccountClick = () => {
-    setShowAuthModal(true)
-  }
+  const handleAccountClick = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/auth/check", {
+        credentials: "include",
+      })
 
+      if (res.ok) {
+        window.location.href = "/dashboard"
+      } else {
+        setShowAuthModal(true) 
+      }
+    } catch (err) {
+      setShowAuthModal(true)
+    }
+  }
   return (
     <nav className="fixed top-0 w-full z-50 glass border-b border-white/10 h-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">

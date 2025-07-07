@@ -46,7 +46,7 @@ export class UserProxyController {
         const usecase = new ProxyUserService(new UserRepository());
         try {
             const user = await usecase.searchInfoUser(userId);
-            console.log(user)
+          //  console.log(user)
             res.status(201).json(user);
         } catch (error) {
             if (error instanceof ZodError) {

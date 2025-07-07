@@ -32,6 +32,8 @@ import {
   ShoppingCart,
   Shield,
 } from "lucide-react"
+import { useUser } from "@/context/UserContext"
+
 
 const menuItems = [
   {
@@ -77,6 +79,8 @@ export function AppSidebar({ onMenuClick, activeMenu }: AppSidebarProps) {
   const handleLogout = () => {
     window.location.href = "/"
   }
+  const { user, loading } = useUser()
+
 
   return (
     <Sidebar collapsible="icon" className="border-r border-white/10 z-40 lg:w-80">
@@ -175,12 +179,21 @@ export function AppSidebar({ onMenuClick, activeMenu }: AppSidebarProps) {
                 <SidebarMenuButton className="w-full px-3 py-2 hover:bg-white/10 lg:mx-4 lg:mb-4 lg:px-6 lg:py-4 lg:rounded-xl lg:hover:bg-gradient-to-r lg:hover:from-gray-800/50 lg:hover:to-gray-700/50 lg:transition-all lg:duration-300">
                   <Avatar className="w-5 h-5 lg:w-10 lg:h-10 lg:ring-2 lg:ring-blue-500/30">
                     <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs lg:text-sm font-medium">
-                      JD
+                      {(user?.name || "JD")
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col items-start text-left lg:ml-2">
-                    <span className="text-xs lg:text-sm font-medium lg:text-white">João Silva</span>
-                    <span className="text-xs text-gray-400 lg:text-gray-300">joao@email.com</span>
+                    <span className="text-xs lg:text-sm font-medium lg:text-white">
+                      {loading ? "Carregando..." : user?.name || "Usuário"}
+                    </span>
+                    <span className="text-xs text-gray-400 lg:text-gray-300">
+                      {loading ? "..." : user?.email || "email@desconhecido.com"}
+                    </span>
+
                   </div>
                   <ChevronUp className="ml-auto w-3 h-3 lg:w-4 lg:h-4 lg:text-gray-400" />
                 </SidebarMenuButton>

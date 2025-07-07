@@ -17,6 +17,7 @@ import {
   ShoppingCart,
   Shield,
 } from "lucide-react"
+import { useUser } from "@/context/UserContext"
 
 const menuItems = [
   {
@@ -59,10 +60,15 @@ interface DashboardSidebarProps {
   className?: string
 }
 
+
 export function DashboardSidebar({ onMenuClick, activeMenu, className = "" }: DashboardSidebarProps) {
-  const handleLogout = () => {
-    window.location.href = "/"
-  }
+const handleLogout = async () => {
+  
+  await fetch('http://localhost:3001/auth/logout', { method: 'POST', credentials: 'include' });
+  //clearAllCookies()
+  window.location.href = "/";
+};
+  const { user, loading } = useUser()
 
   return (
     <div
@@ -110,11 +116,10 @@ export function DashboardSidebar({ onMenuClick, activeMenu, className = "" }: Da
                           key={subItem.key}
                           variant="ghost"
                           onClick={() => onMenuClick(subItem.key)}
-                          className={`w-full justify-start px-8 py-3 rounded-lg text-base hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all duration-200 ${
-                            activeMenu === subItem.key
-                              ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 shadow-lg shadow-blue-500/10 text-blue-300"
-                              : ""
-                          }`}
+                          className={`w-full justify-start px-8 py-3 rounded-lg text-base hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all duration-200 ${activeMenu === subItem.key
+                            ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 shadow-lg shadow-blue-500/10 text-blue-300"
+                            : ""
+                            }`}
                         >
                           <subItem.icon className="w-5 h-5 text-gray-300 mr-3" />
                           <span>{subItem.title}</span>
@@ -127,11 +132,10 @@ export function DashboardSidebar({ onMenuClick, activeMenu, className = "" }: Da
                 <Button
                   variant="ghost"
                   onClick={() => onMenuClick(item.key || item.title.toLowerCase())}
-                  className={`w-full justify-start px-6 py-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 hover:border hover:border-blue-500/20 transition-all duration-300 text-base font-medium ${
-                    activeMenu === (item.key || item.title.toLowerCase())
-                      ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 shadow-lg shadow-blue-500/10 text-blue-300"
-                      : ""
-                  }`}
+                  className={`w-full justify-start px-6 py-4 rounded-xl hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-purple-500/10 hover:border hover:border-blue-500/20 transition-all duration-300 text-base font-medium ${activeMenu === (item.key || item.title.toLowerCase())
+                    ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 shadow-lg shadow-blue-500/10 text-blue-300"
+                    : ""
+                    }`}
                 >
                   <item.icon className="w-6 h-6 text-blue-400 mr-3" />
                   <span>{item.title}</span>
@@ -171,13 +175,22 @@ export function DashboardSidebar({ onMenuClick, activeMenu, className = "" }: Da
               className="w-full justify-start px-6 py-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-800/50 hover:to-gray-700/50 transition-all duration-300"
             >
               <Avatar className="w-10 h-10 ring-2 ring-blue-500/30 mr-3">
-                <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-medium">
-                  JD
+                <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs lg:text-sm font-medium">
+                  {(user?.name || "JD")
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()}
                 </AvatarFallback>
               </Avatar>
+
               <div className="flex flex-col items-start text-left flex-1">
-                <span className="text-sm font-medium text-white">João Silva</span>
-                <span className="text-xs text-gray-300">joao@email.com</span>
+                <span className="text-sm font-medium text-white">
+                  {loading ? "Carregando..." : user?.name || "Usuário"}
+                </span>
+                <span className="text-xs text-gray-300">
+                  {loading ? "..." : user?.email || "email@desconhecido.com"}
+                </span>
               </div>
               <ChevronUp className="w-4 h-4 text-gray-400" />
             </Button>
