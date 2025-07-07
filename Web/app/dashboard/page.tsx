@@ -26,21 +26,34 @@ export default function Dashboard() {
   const userPlan = user?.plan;
 
   useEffect(() => {
-  const timer = setTimeout(() => setTimeoutReached(true), 8000);
-  return () => clearTimeout(timer);
-}, []);
+    const timer = setTimeout(() => setTimeoutReached(true), 8000);
+    return () => clearTimeout(timer);
+  }, []);
 
-if (loading || !userPlan) {
-  if (timeoutReached) {
-    return <div className="text-white text-xl">Erro ao carregar o plano. Tente novamente.</div>;
+  if (loading || !userPlan) {
+    if (timeoutReached) {
+
+      return (
+      <div className="flex justify-center items-center h-screen text-white text-xl">
+        <img src="/error.gif" alt="Carregando..." className="w-20 h-20 mb-4" />
+        Erro ao carregar . Tente novamente.
+      </div>
+      )
+    }
+
+    return (
+      // return (
+      //<div className="flex justify-center items-center h-screen text-white text-xl flex-col">
+      //<img src="/loading.gif" alt="Carregando..." className="w-20 h-20 mb-4" />
+      //Carregando informações do plano...
+      //</div>
+      // );
+      <div className="flex justify-center items-center h-screen text-white text-xl">
+        <img src="/loading.gif" alt="Carregando..." className="w-20 h-20 mb-4" />
+        Carregando informações...
+      </div>
+    );
   }
-
-  return (
-    <div className="flex justify-center items-center h-screen text-white text-xl">
-      Carregando informações do plano...
-    </div>
-  );
-}
   const recentActivity = [
     { date: "2024-01-10", action: "Conexão estabelecida", ip: "191.123.45.67", data: "0.5GB" },
     { date: "2024-01-09", action: "Renovação automática", ip: "-", data: "10GB" },
