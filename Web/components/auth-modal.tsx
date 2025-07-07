@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,10 +11,10 @@ import { User, Mail, Lock, Eye, EyeOff } from "lucide-react"
 interface AuthModalProps {
   isOpen: boolean
   onClose: () => void
-  onLogin: (email: string, password: string) => void
+  onLoginSuccess: () => void  // Só aviso que login deu certo
 }
 
-export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [loginData, setLoginData] = useState({ email: "", password: "" })
   const [registerData, setRegisterData] = useState({
@@ -25,22 +23,66 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
     password: "",
     confirmPassword: "",
   })
+  const [loading, setLoading] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    onLogin(loginData.email, loginData.password)
-    onClose()
+    setLoading(true)
+    try {
+      const res = await fetch("http://localhost:3001/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // para cookies serem enviados
+        body: JSON.stringify(loginData),
+      })
+
+      if (res.ok) {
+        onLoginSuccess()
+        onClose()
+      } else {
+        const data = await res.json()
+        alert(data.message || "Erro ao fazer login")
+      }
+    } catch (error) {
+      alert("Erro de conexão")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault()
+
     if (registerData.password !== registerData.confirmPassword) {
       alert("Senhas não coincidem!")
       return
     }
-    // Simular registro e login automático
-    onLogin(registerData.email, registerData.password)
-    onClose()
+
+    setLoading(true)
+    try {
+      const res = await fetch("http://localhost:3001/user/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: registerData.name,
+          email: registerData.email,
+          password: registerData.password,
+        }),
+      })
+
+      if (res.ok) {
+        alert("Cadastro realizado com sucesso! Faça login agora.")
+        // Opcional: resetar formulário registro
+        setRegisterData({ name: "", email: "", password: "", confirmPassword: "" })
+      } else {
+        const data = await res.json()
+        alert(data.message || "Erro ao registrar usuário")
+      }
+    } catch (error) {
+      alert("Erro de conexão")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -101,6 +143,7 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
 
               <Button
                 type="submit"
+                disabled={loading}
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 glow"
               >
                 Entrar
@@ -185,6 +228,7 @@ export function AuthModal({ isOpen, onClose, onLogin }: AuthModalProps) {
 
               <Button
                 type="submit"
+                disabled={loading}
                 className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 glow"
               >
                 Criar Conta

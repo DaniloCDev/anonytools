@@ -16,25 +16,24 @@ class ProxyUserService {
         }
 
         const existingUserProxy = await this.userRepository.findProxyUserByUserId(user_id);
-        if (existingUserProxy) {
-            throw new Error("Já existe um usuario de proxy para este usuario");
+        if (!existingUserProxy) {
+            let result: SubUserDTO = await createSubUser(existing.name);
+
+            const proxyUser: ProxyUser = mapSubUserDtoToProxyUser(result);
+
+            const user = await this.userRepository.createUserProxy({
+                userId: existing.id,
+                username: proxyUser.login,
+                password: proxyUser.password,
+                subuserId: proxyUser.userId.toString(),
+            });
+
+            return user;
         }
-
-        let result: SubUserDTO = await createSubUser(existing.name);
-
-        const proxyUser: ProxyUser = mapSubUserDtoToProxyUser(result);
-
-        const user = await this.userRepository.createUserProxy({
-            userId: existing.id,
-            username: proxyUser.login,
-            password: proxyUser.password,
-            subuserId: proxyUser.userId.toString(),
-        });
-
-        return user;
+        return;
     }
 
-    async addTrafficInToBalance(user_id: string, saldo:number) {
+    async addTrafficInToBalance(user_id: string, saldo: number) {
 
         if (!user_id) throw new Error("Usuario não esta logado");
 
@@ -50,9 +49,9 @@ class ProxyUserService {
 
         let result = await addToBalance(Number(existingUserProxy.subuserId), saldo);
 
-        if(!result.success) throw new Error("Error ao adicionar saldo");
+        if (!result.success) throw new Error("Error ao adicionar saldo");
 
-       // const user = await this.userRepository.createUserProxy();
+        // const user = await this.userRepository.createUserProxy();
 
         return result;
     }

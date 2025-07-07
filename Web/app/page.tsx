@@ -1,10 +1,34 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Shield, Zap, Globe, Users, ArrowRight, CheckCircle } from "lucide-react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { AuthModal } from "@/components/auth-modal"
 
 export default function Home() {
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const router = useRouter()
+
+  const handleStartClick = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/auth/check", {
+        credentials: "include",
+      })
+
+      if (res.ok) {
+        router.push("/dashboard")
+      } else {
+        setShowAuthModal(true)
+      }
+    } catch (err) {
+      setShowAuthModal(true)
+    }
+  }
+
   return (
     <div className="min-h-screen scrollbar-hide">
       {/* Hero Section */}
@@ -27,15 +51,14 @@ export default function Home() {
           </p>
 
           <div className="flex justify-center mb-12">
-            <Link href="/produtos">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 glow text-lg px-8 py-4"
-              >
-                Ver Pacotes
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              onClick={handleStartClick}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 glow text-lg px-8 py-4"
+            >
+              Começar Agora
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
           </div>
 
           <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-400">
@@ -140,17 +163,24 @@ export default function Home() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Pronto para começar?</h2>
           <p className="text-xl text-gray-300 mb-8">Junte-se a milhares de desenvolvedores que confiam na ProxyBR</p>
-          <Link href="/produtos">
-            <Button
-              size="lg"
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 glow text-lg px-8 py-4"
-            >
-              Começar Agora
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </Link>
+          <Button
+            size="lg"
+            onClick={handleStartClick}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 glow text-lg px-8 py-4"
+          >
+            Começar Agora
+            <ArrowRight className="ml-2 w-5 h-5" />
+          </Button>
         </div>
       </section>
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onLoginSuccess={() => {
+          setShowAuthModal(false)
+          router.push("/dashboard")
+        }}
+      />
     </div>
   )
 }

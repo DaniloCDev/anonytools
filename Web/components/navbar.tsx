@@ -9,12 +9,9 @@ import { AuthModal } from "@/components/auth-modal"
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
-
-  const handleLogin = (email: string, password: string) => {
-    // Redirecionar para dashboard após login
+  const handleLogin = () => {
     window.location.href = "/dashboard"
   }
-
   const handleAccountClick = () => {
     setShowAuthModal(true)
   }
@@ -35,9 +32,10 @@ export function Navbar() {
             <Link href="/" className="hover:text-blue-400 transition-colors">
               Início
             </Link>
+            {/* Desktop Menu
             <Link href="/produtos" className="hover:text-blue-400 transition-colors">
               Produtos
-            </Link>
+            </Link> */}
             <button onClick={handleAccountClick} className="hover:text-blue-400 transition-colors">
               Minha Conta
             </button>
@@ -56,9 +54,11 @@ export function Navbar() {
               <Link href="/" className="hover:text-blue-400 transition-colors">
                 Início
               </Link>
+              {/* Desktop Menu 
               <Link href="/produtos" className="hover:text-blue-400 transition-colors">
                 Produtos
               </Link>
+               */}
               <button onClick={handleAccountClick} className="hover:text-blue-400 transition-colors text-left">
                 Minha Conta
               </button>
@@ -66,7 +66,7 @@ export function Navbar() {
           </div>
         )}
       </div>
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onLogin={handleLogin} />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onLoginSuccess={handleLogin} />
     </nav>
   )
 }
