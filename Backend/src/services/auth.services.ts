@@ -48,6 +48,8 @@ class AuthUserService {
         return { user: toUserResponseDTO(existingUser), token };
 
     }
+
+    
 }
 
 export default AuthUserService;

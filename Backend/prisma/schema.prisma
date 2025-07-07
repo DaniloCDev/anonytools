@@ -29,15 +29,6 @@ model ProxyUser {
   createdAt  DateTime  @default(now())
 }
 
-model Plan {
-  id         Int       @id @default(autoincrement())
-  name       String    // Ex: "Plano Básico", "5GB"
-  gbAmount   Float     // Quantidade de GBs do plano
-  price      Float     // Preço em reais/dólar
-  createdAt  DateTime  @default(now())
-  purchases  Purchase[]
-}
-
 enum PurchaseStatus {
   PENDING   // aguardando pagamento
   PAID      // pago
@@ -46,13 +37,12 @@ enum PurchaseStatus {
 }
 
 model Purchase {
-  id          Int            @id @default(autoincrement())
-  userId      String
-  user        User           @relation(fields: [userId], references: [id])
-  planId      Int
-  plan        Plan           @relation(fields: [planId], references: [id])
-  gbAmount    Float
-  totalPrice  Float
-  status      PurchaseStatus @default(PENDING)
-  createdAt   DateTime       @default(now())
+  id             Int            @id @default(autoincrement())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id])
+  gbAmount       Float
+  totalPrice     Float
+  status         PurchaseStatus @default(PENDING)
+  mpPaymentId    Int?        // <--- ID da transação do Mercado Pago
+  createdAt      DateTime       @default(now())
 }

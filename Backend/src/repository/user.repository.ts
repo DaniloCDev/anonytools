@@ -26,28 +26,23 @@ class UserRepository {
             where: { userId },
         });
     }
-
     async findInformationUserById(userId: string) {
-        return prisma.proxyUser.findFirst({
-            where: { userId },
-            select: {
-                id: true,
-                userId: true,
-                user: {
-                    select: {
-                        name: true,
-                        email: true,
-                    },
-                },
+        return prisma.user.findUnique({
+            where: { id: userId },
+            include: {
+                proxyUser: true,     // dados do ProxyUser
+                purchases: true,     // lista de compras
             },
         });
     }
 
 
+
     async getDashboardData(userId: string) {
         const dataUser = await prisma.user.findFirst({
-            where: { id: userId }
+            where: { id: userId },
         });
+
         const proxyData = await prisma.proxyUser.findFirst({
             where: { userId },
             include: {
@@ -60,7 +55,6 @@ class UserRepository {
             },
         });
 
-
         const lastPaidPurchase = await prisma.purchase.findFirst({
             where: {
                 userId,
@@ -69,21 +63,16 @@ class UserRepository {
             orderBy: {
                 createdAt: 'desc',
             },
-            include: {
-                plan: true,
-            },
         });
 
         return {
             name: dataUser?.name,
             email: dataUser?.email,
             plan: {
-                name: lastPaidPurchase?.plan.name,
-                totalGb: lastPaidPurchase?.plan.gbAmount,
-                usedGb: 3.2,
-                remainingGb: (lastPaidPurchase?.plan.gbAmount || 0) - 3.2,
+                usedGb: 3.2, // você pode substituir isso por uma lógica real se quiser
+                remainingGb: (lastPaidPurchase?.gbAmount || 0) - 3.2,
                 status: lastPaidPurchase?.status || "active",
-                expiresAt: "2024-02-15",
+                expiresAt: "2024-02-15", // precisa de um campo real para isso, se for relevante
                 credentials: {
                     host: "proxy.proxybr.com",
                     port: "8080",
@@ -91,9 +80,10 @@ class UserRepository {
                     password: proxyData?.password,
                 },
             },
-        }
-
+        };
     }
+
+
     async createUserProxy(data: {
         userId: string;
         username: string;
@@ -105,6 +95,34 @@ class UserRepository {
                 ...data,
             },
         });
+    }
+
+
+    async createPurchase(data: { userId: string; gbAmount: number; totalPrice: number, paymentId: number }) {
+        console.log(data.paymentId)
+        const purchase = await prisma.purchase.create({
+            data: {
+                userId: data.userId,
+                gbAmount: data.gbAmount,
+                totalPrice: data.totalPrice,
+                mpPaymentId: data.paymentId,
+                status: "PENDING",
+            },
+        });
+        return purchase;
+    }
+
+    async getUserPurchases(userId: string) {
+        const purchases = await prisma.purchase.findMany({
+            where: {
+                userId,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
+
+        return purchases;
     }
 
 
