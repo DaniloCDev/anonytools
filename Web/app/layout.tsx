@@ -1,6 +1,8 @@
 import type React from "react"
 import ClientLayout from "./client-layout"
-import { UserProvider } from "@/context/UserContext";
+import { UserProvider } from "@/contexts/UserContext";
+import { PurchaseProvider } from "@/contexts/PurchaseContext";
+
 
 export default function RootLayout({
   children,
@@ -9,9 +11,10 @@ export default function RootLayout({
 }) {
   return (
     <UserProvider>
-      <ClientLayout>{children}</ClientLayout>
+      <PurchaseProvider>
+        <ClientLayout>{children}</ClientLayout>
+      </PurchaseProvider>
     </UserProvider>
   )
 }
-
 import './globals.css'

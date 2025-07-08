@@ -9,6 +9,9 @@ router.patch("/user/createProxy", authenticateToken , userProxyController.regist
 router.post("/user/createPurchase", authenticateToken , userProxyController.createPurchase); 
 router.get("/user/purchases", authenticateToken , userProxyController.purchaseHistory); 
 
+router.get("/coupons/validate", authenticateToken , userProxyController.GetCouponWithCode); 
+
+
 router.get("/user/test",userProxyController.informationsUser); 
 
 router.get("/user/me", authenticateToken , userProxyController.informationsUser); 

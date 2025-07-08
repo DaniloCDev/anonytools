@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/toast-provider"
 import { User, Lock, Save } from "lucide-react"
-import { useUser } from "@/context/UserContext"
+import { useUser } from "@/contexts/UserContext"
 
 export function AccountSettings() {
   const { addToast } = useToast()

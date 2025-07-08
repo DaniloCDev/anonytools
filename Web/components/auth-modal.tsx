@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { useRouter } from "next/navigation";
-import { useUser } from "@/context/UserContext"
+import { useUser } from "@/contexts/UserContext"
 
 
 interface AuthModalProps {

@@ -10,4 +10,5 @@ router.get("/auth/check", authenticateToken, authController.authCheck);
 router.post("/auth/logout", authenticateToken, authController.logout); 
 
 
+
 export default router;

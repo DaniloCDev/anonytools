@@ -25,12 +25,17 @@ export class UserProxyController {
 
     createPurchase = async (req: Request, res: Response): Promise<void> => {
         const userId = req.userId;
-        const { gbAmount, totalPrice } = req.body;
-
-        console.log(userId)
+        const { gbAmount, couponCode } = req.body;
         try {
-            if (!userId) throw new Error("Usuário não está logado");
-            if (!gbAmount || !totalPrice) throw new Error("Dados incompletos");
+
+            if (!userId) {
+                res.status(401).json({ message: "Usuário não está logado" });
+                return;
+            }
+            if (typeof gbAmount !== 'number' || gbAmount <= 0) {
+                res.status(400).json({ message: "Quantidade de GB inválida" });
+                return;
+            }
 
             const gbPackages = [
                 { gb: 5, price: 29.9 },
@@ -45,7 +50,7 @@ export class UserProxyController {
                 return;
             }
             const usecase = new PurchaseService(new UserRepository());
-            const purchase = await usecase.createPurchase(userId, selected?.gb, selected?.price);
+            const purchase = await usecase.createPurchase(userId, selected?.gb, selected?.price, couponCode);
             console.log(purchase)
 
             res.status(200).json(purchase);
@@ -56,7 +61,7 @@ export class UserProxyController {
 
     informationsUser = async (req: Request, res: Response): Promise<void> => {
 
-        const userId = 'e1615c22-7b5f-47b6-8d72-03e7f23fd251';
+        const userId = req.userId;
         const usecase = new ProxyUserService(new UserRepository());
         try {
             const user = await usecase.searchInfoUser(userId);
@@ -72,7 +77,7 @@ export class UserProxyController {
 
     purchaseHistory = async (req: Request, res: Response): Promise<void> => {
 
-        const userId = 'e1615c22-7b5f-47b6-8d72-03e7f23fd251';
+        const userId = req.userId;
         const usecase = new PurchaseService(new UserRepository());
         try {
             const user = await usecase.purchaseHistory(userId);
@@ -85,4 +90,21 @@ export class UserProxyController {
             }
         }
     };
+
+    GetCouponWithCode = async (req: Request, res: Response): Promise<void> => {
+        const couponCode = req.query.code as string;
+        if (!couponCode) {
+            res.status(400).json({ message: 'Código do cupom é obrigatório' });
+            return;
+        }
+
+        try {
+            const usecase = new PurchaseService(new UserRepository());
+            const coupon = await usecase.getCouponIsValid(couponCode);
+            res.status(200).json(coupon);
+        } catch (error) {
+            res.status(400).json({ message: (error as Error).message });
+        }
+    };
+
 }

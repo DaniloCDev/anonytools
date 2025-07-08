@@ -4,85 +4,51 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { History, Download, CheckCircle, Clock, XCircle } from "lucide-react"
+import { usePurchaseContext } from "@/contexts/PurchaseContext";
 
 export function PurchaseHistory() {
-  const purchases = [
-    {
-      id: "PX-2024-001",
-      date: "2024-01-15",
-      plan: "Proxy Brasil 10GB",
-      amount: 49.9,
-      status: "completed",
-      gb: 10,
-      method: "PIX",
-    },
-    {
-      id: "PX-2024-002",
-      date: "2024-01-10",
-      plan: "Adicionar Saldo 5GB",
-      amount: 29.9,
-      status: "completed",
-      gb: 5,
-      method: "PIX",
-    },
-    {
-      id: "PX-2024-003",
-      date: "2024-01-05",
-      plan: "Proxy Brasil 25GB",
-      amount: 99.9,
-      status: "pending",
-      gb: 25,
-      method: "PIX",
-    },
-    {
-      id: "PX-2023-045",
-      date: "2023-12-28",
-      plan: "Proxy Brasil 10GB",
-      amount: 49.9,
-      status: "completed",
-      gb: 10,
-      method: "PIX",
-    },
-    {
-      id: "PX-2023-044",
-      date: "2023-12-20",
-      plan: "Adicionar Saldo 10GB",
-      amount: 49.9,
-      status: "failed",
-      gb: 10,
-      method: "PIX",
-    },
-  ]
+  const { purchases, isLoading } = usePurchaseContext();
+
+  if (isLoading) {
+    return <p>Carregando histórico de compras...</p>;
+  }
+
+  const purchasesArray = Array.isArray(purchases) ? purchases : [];
+
+  const totalSpent = purchasesArray
+    .filter((p) => p.status === "PAID")
+    .reduce((sum, p) => sum + p.totalPrice, 0);
+
+  const totalGB = purchasesArray
+    .filter((p) => p.status === "PAID")
+    .reduce((sum, p) => sum + p.gbAmount, 0);
+
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "completed":
-        return <CheckCircle className="w-4 h-4 text-green-400" />
-      case "pending":
-        return <Clock className="w-4 h-4 text-yellow-400" />
-      case "failed":
-        return <XCircle className="w-4 h-4 text-red-400" />
+      case "PAID":
+        return <CheckCircle className="w-4 h-4 text-green-400" />;
+      case "PENDING":
+        return <Clock className="w-4 h-4 text-yellow-400" />;
+      case "FAILED":
+        return <XCircle className="w-4 h-4 text-red-400" />;
       default:
-        return <Clock className="w-4 h-4 text-gray-400" />
+        return <Clock className="w-4 h-4 text-gray-400" />;
     }
-  }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "completed":
-        return <Badge className="bg-green-500/20 text-green-300 border-green-500/30">Concluído</Badge>
-      case "pending":
-        return <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">Pendente</Badge>
-      case "failed":
-        return <Badge className="bg-red-500/20 text-red-300 border-red-500/30">Falhou</Badge>
+      case "PAID":
+        return <Badge className="bg-green-500/20 text-green-300 border-green-500/30">Concluído</Badge>;
+      case "PENDING":
+        return <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">Pendente</Badge>;
+      case "FAILED":
+        return <Badge className="bg-red-500/20 text-red-300 border-red-500/30">Falhou</Badge>;
       default:
-        return <Badge className="bg-gray-500/20 text-gray-300 border-gray-500/30">Desconhecido</Badge>
+        return <Badge className="bg-gray-500/20 text-gray-300 border-gray-500/30">Desconhecido</Badge>;
     }
-  }
-
-  const totalSpent = purchases.filter((p) => p.status === "completed").reduce((sum, p) => sum + p.amount, 0)
-
-  const totalGB = purchases.filter((p) => p.status === "completed").reduce((sum, p) => sum + p.gb, 0)
+  };
 
   return (
     <div className="space-y-4">
@@ -155,17 +121,18 @@ export function PurchaseHistory() {
                 <div className="flex items-center gap-4">
                   {getStatusIcon(purchase.status)}
                   <div>
-                    <h4 className="font-semibold">{purchase.plan}</h4>
+                    <h4 className="font-semibold">Compra de {purchase.gbAmount}GB</h4>
                     <p className="text-sm text-gray-400">
-                      {purchase.id} • {purchase.date} • {purchase.method}
+                      #{purchase.id} • {new Date(purchase.createdAt).toLocaleDateString("pt-BR")} • Pix
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <p className="font-semibold">R$ {purchase.amount.toFixed(2).replace(".", ",")}</p>
-                    <p className="text-sm text-gray-400">{purchase.gb}GB</p>
+                    <p className="font-semibold">R$ {purchase.totalPrice.toFixed(2).replace(".", ",")}</p>
+                    <p className="text-sm text-gray-400">{purchase.gbAmount}GB</p>
+
                   </div>
                   {getStatusBadge(purchase.status)}
                 </div>

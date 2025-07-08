@@ -126,6 +126,29 @@ class UserRepository {
     }
 
 
+    async getCuponCode(couponCode: string) {
+        let cupomFInd = await prisma.coupon.findUnique({ where: { code: couponCode } })
+
+        return cupomFInd;
+    }
+
+    async couponUsage(userId: string, couponId: string) {
+        return await prisma.couponUsage.findFirst({
+            where: { couponId, userId }
+        });
+    }
+
+    async registerUseCoupon(userId: string, couponId: string) {
+        return await prisma.couponUsage.create({
+            data: {
+                couponId,
+                userId,
+            }
+        });
+    }
+
+
+
 }
 
 export default UserRepository;

@@ -13,7 +13,7 @@ import { UsageManagement } from "@/components/usage-management"
 import { PurchaseHistory } from "@/components/purchase-history"
 import { useToast } from "@/components/toast-provider"
 import { Copy, Plus, Activity, Shield, Clock, Eye, EyeOff, RefreshCw, HelpCircle } from "lucide-react"
-import { useUser } from "@/context/UserContext";
+import { useUser } from "@/contexts/UserContext";
 
 export default function Dashboard() {
   const [activeMenu, setActiveMenu] = useState("proxys")

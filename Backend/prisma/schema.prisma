@@ -3,46 +3,73 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql" 
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id           String      @id @default(uuid())
+  id           String        @id @default(uuid())
   name         String
-  email        String      @unique
+  email        String        @unique
   password     String
-  proxyUser    ProxyUser?  // Apenas referência simples
-  purchases    Purchase[] 
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  proxyUser    ProxyUser? // Apenas referência simples
+  purchases    Purchase[]
+  couponUsages CouponUsage[] // 👈 Adicione essa linha
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
-
 model ProxyUser {
-  id         Int       @id @default(autoincrement())
-  username   String
-  password   String
-  subuserId  String
-  user       User      @relation(fields: [userId], references: [id])
-  userId     String    @unique
-  createdAt  DateTime  @default(now())
+  id        Int      @id @default(autoincrement())
+  username  String
+  password  String
+  subuserId String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  createdAt DateTime @default(now())
 }
 
 enum PurchaseStatus {
-  PENDING   // aguardando pagamento
-  PAID      // pago
-  CANCELED  // cancelado
-  FAILED    // falha no pagamento
+  PENDING // aguardando pagamento
+  PAID // pago
+  CANCELED // cancelado
+  FAILED // falha no pagamento
 }
 
 model Purchase {
-  id             Int            @id @default(autoincrement())
-  userId         String
-  user           User           @relation(fields: [userId], references: [id])
-  gbAmount       Float
-  totalPrice     Float
-  status         PurchaseStatus @default(PENDING)
-  mpPaymentId    Int?        // <--- ID da transação do Mercado Pago
-  createdAt      DateTime       @default(now())
+  id          Int            @id @default(autoincrement())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id])
+  gbAmount    Float
+  totalPrice  Float
+  status      PurchaseStatus @default(PENDING)
+  mpPaymentId Int? // <--- ID da transação do Mercado Pago
+  createdAt   DateTime       @default(now())
+}
+
+model Coupon {
+  id          String        @id @default(uuid())
+  code        String        @unique
+  discountPct Float // Ex: 10.0 para 10%
+  onlyOnce    Boolean       @default(false) // Apenas 1 uso por usuário
+  minGb       Float? // Ex: só vale se comprar mais de 10GB
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  usages      CouponUsage[]
+
+  // Regra opcional: validade
+  expiresAt DateTime?
+}
+
+model CouponUsage {
+  id       Int    @id @default(autoincrement())
+  couponId String
+  userId   String
+
+  coupon Coupon @relation(fields: [couponId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  usedAt DateTime @default(now())
+
+  @@unique([couponId, userId]) // Garante uso único por usuário
 }

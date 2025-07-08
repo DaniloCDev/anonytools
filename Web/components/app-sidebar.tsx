@@ -32,7 +32,7 @@ import {
   ShoppingCart,
   Shield,
 } from "lucide-react"
-import { useUser } from "@/context/UserContext"
+import { useUser } from "@/contexts/UserContext"
 
 
 const menuItems = [
