@@ -26,6 +26,7 @@ export class UserProxyController {
     createPurchase = async (req: Request, res: Response): Promise<void> => {
         const userId = req.userId;
         const { gbAmount, couponCode } = req.body;
+
         try {
 
             if (!userId) {
@@ -55,7 +56,9 @@ export class UserProxyController {
 
             res.status(200).json(purchase);
         } catch (error) {
-            res.status(400).json({ message: (error as Error).message });
+             console.error(error);
+            res.status(400).json({ message: (error as Error).message});
+
         }
     };
 

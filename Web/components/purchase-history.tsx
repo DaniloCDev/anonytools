@@ -92,7 +92,7 @@ export function PurchaseHistory() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-400">Transações</p>
-                <p className="text-2xl font-bold">{purchases.length}</p>
+                <p className="text-2xl font-bold">{purchasesArray.length}</p>
               </div>
               <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
                 <div className="w-4 h-4 rounded-full bg-purple-400"></div>

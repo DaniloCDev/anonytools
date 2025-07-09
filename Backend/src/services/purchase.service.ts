@@ -6,11 +6,14 @@ class PurchaseService {
     constructor(private userRepository: UserRepository) { }
 
     async createPurchase(userId: string, gbAmount: number, totalPrice: number, couponCode?: string) {
-        const user = await this.userRepository.findById(userId)
+        const user = await this.userRepository.findById(userId);
         if (!user) throw new Error("Usuário não encontrado.")
-        let coupon;
 
+            console.log(couponCode)
+        let coupon;
         if (couponCode) {
+            console.log(couponCode)
+
             coupon = await this.userRepository.getCuponCode(couponCode);
             if (!coupon || !coupon.isActive || (coupon.expiresAt && coupon.expiresAt < new Date())) {
                 throw new Error("Cupom inválido ou expirado.");
@@ -44,8 +47,6 @@ class PurchaseService {
         if (couponCode) {
             await this.userRepository.registerUseCoupon(userId, coupon!.id);
         }
-
-        console.log(payment, purchase)
         return {
             ...payment,
             status: 'PENDING',

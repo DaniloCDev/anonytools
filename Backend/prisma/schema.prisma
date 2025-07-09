@@ -43,7 +43,7 @@ model Purchase {
   gbAmount    Float
   totalPrice  Float
   status      PurchaseStatus @default(PENDING)
-  mpPaymentId Int? // <--- ID da transação do Mercado Pago
+  mpPaymentId BigInt? // <--- ID da transação do Mercado Pago
   createdAt   DateTime       @default(now())
 }
 

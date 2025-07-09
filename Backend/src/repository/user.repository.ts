@@ -148,6 +148,25 @@ class UserRepository {
     }
 
 
+    async getPurchaseByPaymentId(mpPaymentId: number) {
+        return await prisma.purchase.findFirst({
+            where: { mpPaymentId },
+            include: {
+                user: {
+                    include: {
+                        proxyUser: true, 
+                    },
+                },
+            },
+        });
+    }
+
+    async markPurchaseAsPaid(purchaseId: number): Promise<void> {
+        await prisma.purchase.update({
+            where: { id: purchaseId },
+            data: { status: "PAID" },
+        });
+    }
 
 }
 

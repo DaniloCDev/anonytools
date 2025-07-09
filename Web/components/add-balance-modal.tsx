@@ -50,7 +50,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
     }
 
     try {
-      const res = await fetch(`http://localhost:3001/coupons/validate?code=${encodeURIComponent(couponCode)}`,{
+      const res = await fetch(`http://localhost:3001/coupons/validate?code=${encodeURIComponent(couponCode)}`, {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
       });
@@ -118,13 +118,16 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gbAmount: pkg.gb, totalPrice: finalPrice, couponCode }),
+        body: JSON.stringify({ gbAmount: pkg.gb, couponCode }),
       });
 
+      console.log(res)
 
       if (!res.ok) {
         const errorData = await res.json();
-        alert(errorData.message || "Erro ao criar pedido");
+
+        console.log(res)
+        //alert(errorData || "Erro ao criar pedido");
         return;
       }
 
