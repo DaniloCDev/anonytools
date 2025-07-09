@@ -64,7 +64,7 @@ export class UserProxyController {
 
     informationsUser = async (req: Request, res: Response): Promise<void> => {
 
-        const userId = req.userId;
+        const userId = "dd3b2262-f976-4ae7-9179-e653bec3e3a3";
         const usecase = new ProxyUserService(new UserRepository());
         try {
             const user = await usecase.searchInfoUser(userId);

@@ -2,6 +2,25 @@
 import UserRepository from "../repository/user.repository";
 import { createPixPayment } from "../external/mercadopago/createPixPayment"
 
+function convertBigIntToString(obj: any): any {
+  if (typeof obj === 'bigint') {
+    return obj.toString();
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(convertBigIntToString);
+  }
+
+  if (typeof obj === 'object' && obj !== null) {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, convertBigIntToString(value)])
+    );
+  }
+
+  return obj;
+}
+
+
 class PurchaseService {
     constructor(private userRepository: UserRepository) { }
 
@@ -61,7 +80,7 @@ class PurchaseService {
         const purchases = await this.userRepository.getUserPurchases(userId)
 
         console.log(purchases)
-        return purchases
+        return convertBigIntToString(purchases)
     }
 
     async getCouponIsValid(couponCode: string) {

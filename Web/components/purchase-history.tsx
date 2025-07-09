@@ -116,14 +116,15 @@ export function PurchaseHistory() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {purchases.map((purchase) => (
+            {purchasesArray.map((purchase) => (
               <div key={purchase.id} className="flex items-center justify-between p-4 glass rounded-lg">
                 <div className="flex items-center gap-4">
                   {getStatusIcon(purchase.status)}
                   <div>
                     <h4 className="font-semibold">Compra de {purchase.gbAmount}GB</h4>
                     <p className="text-sm text-gray-400">
-                      #{purchase.id} • {new Date(purchase.createdAt).toLocaleDateString("pt-BR")} • Pix
+                      #{purchase.id} • {purchase.createdAt && new Date(purchase.createdAt).toLocaleDateString("pt-BR")}
+ • Pix
                     </p>
                   </div>
                 </div>

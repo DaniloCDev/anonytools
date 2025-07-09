@@ -3,6 +3,25 @@ import { addToBalance } from "../external/dataimpulse/addTrafficInToBalance";
 import { createSubUser } from "../external/dataimpulse/createSubUser";
 import UserRepository from "../repository/user.repository";
 
+function convertBigIntToString(obj: any): any {
+  if (typeof obj === 'bigint') {
+    return obj.toString();
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(convertBigIntToString);
+  }
+
+  if (typeof obj === 'object' && obj !== null) {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, convertBigIntToString(value)])
+    );
+  }
+
+  return obj;
+}
+
+
 class ProxyUserService {
     constructor(private userRepository: UserRepository) { }
 
@@ -50,7 +69,6 @@ class ProxyUserService {
     }
     
     async searchInfoUser(user_id: string) {
-
         if (!user_id) throw new Error("Usuario não esta logado");
 
         const existing = await this.userRepository.getDashboardData(user_id);
@@ -58,8 +76,8 @@ class ProxyUserService {
             throw new Error("Usuario nâo existe");
         }
 
-        console.log(existing)
-        return existing;
+    //    console.log(existing)
+        return convertBigIntToString(existing);
     }
 }
 

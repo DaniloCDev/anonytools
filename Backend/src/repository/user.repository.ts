@@ -105,7 +105,7 @@ class UserRepository {
                 userId: data.userId,
                 gbAmount: data.gbAmount,
                 totalPrice: data.totalPrice,
-                mpPaymentId: data.paymentId,
+                mpPaymentId: BigInt(data.paymentId),
                 status: "PENDING",
             },
         });
