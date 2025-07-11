@@ -64,7 +64,7 @@ export class UserProxyController {
 
     informationsUser = async (req: Request, res: Response): Promise<void> => {
 
-        const userId = "dd3b2262-f976-4ae7-9179-e653bec3e3a3";
+        const userId = req.userId;
         const usecase = new ProxyUserService(new UserRepository());
         try {
             const user = await usecase.searchInfoUser(userId);
@@ -84,6 +84,7 @@ export class UserProxyController {
         const usecase = new PurchaseService(new UserRepository());
         try {
             const user = await usecase.purchaseHistory(userId);
+            console.log(usecase)
             res.status(201).json(user);
         } catch (error) {
             if (error instanceof ZodError) {
@@ -107,6 +108,25 @@ export class UserProxyController {
             res.status(200).json(coupon);
         } catch (error) {
             res.status(400).json({ message: (error as Error).message });
+        }
+    };
+
+    
+    getUserBalance = async (req: Request, res: Response): Promise<void> => {
+
+        const userId = "dd3b2262-f976-4ae7-9179-e653bec3e3a3";
+        const usecase = new ProxyUserService(new UserRepository());
+        try {
+            const user = await usecase.getUserBalanceService(userId);
+            console.log(usecase)
+            res.status(201).json(user);
+        } catch (error) {
+            console.log(error)
+            if (error instanceof ZodError) {
+                res.status(400).json({ message: "Erro de validação", errors: error.format() });
+            } else {
+                res.status(400).json({ message: (error as Error).message });
+            }
         }
     };
 

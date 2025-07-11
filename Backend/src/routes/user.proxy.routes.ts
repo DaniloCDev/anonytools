@@ -10,6 +10,8 @@ router.post("/user/createPurchase", authenticateToken , userProxyController.crea
 router.get("/user/purchases", authenticateToken , userProxyController.purchaseHistory); 
 
 router.get("/coupons/validate", authenticateToken , userProxyController.GetCouponWithCode); 
+router.get("/user/get-balance" , userProxyController.getUserBalance); 
+
 
 
 router.get("/user/test",userProxyController.informationsUser); 

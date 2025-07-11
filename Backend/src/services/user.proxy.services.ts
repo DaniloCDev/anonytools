@@ -1,26 +1,9 @@
 import { mapSubUserDtoToProxyUser, ProxyUser, SubUserDTO } from "../dtos/mappers/touseproxy.response.dto";
 import { addToBalance } from "../external/dataimpulse/addTrafficInToBalance";
 import { createSubUser } from "../external/dataimpulse/createSubUser";
+import { getBalanceUser } from "../external/dataimpulse/getBalanceSubUser";
 import UserRepository from "../repository/user.repository";
-
-function convertBigIntToString(obj: any): any {
-  if (typeof obj === 'bigint') {
-    return obj.toString();
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map(convertBigIntToString);
-  }
-
-  if (typeof obj === 'object' && obj !== null) {
-    return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => [key, convertBigIntToString(value)])
-    );
-  }
-
-  return obj;
-}
-
+import serializeBigIntAndDate from "../utils/serializeBigInt";
 
 class ProxyUserService {
     constructor(private userRepository: UserRepository) { }
@@ -67,17 +50,28 @@ class ProxyUserService {
 
         return result;
     }
-    
+
+    async getUserBalanceService(userId: string) {
+        const user = await this.userRepository.findById(userId)
+        if (!user) throw new Error("Usuário não encontrado.")
+
+        const descUser = await this.userRepository.getSubuserIdByUserId(userId)
+        let respBalance = await getBalanceUser(Number(descUser?.subuserId));
+        console.log(respBalance)
+        return respBalance
+    }
+
     async searchInfoUser(user_id: string) {
         if (!user_id) throw new Error("Usuario não esta logado");
 
         const existing = await this.userRepository.getDashboardData(user_id);
+        console.log(existing)
         if (!existing) {
             throw new Error("Usuario nâo existe");
         }
 
-    //    console.log(existing)
-        return convertBigIntToString(existing);
+        //    console.log(existing)
+        return serializeBigIntAndDate(existing);
     }
 }
 

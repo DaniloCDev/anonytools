@@ -30,11 +30,11 @@ const menuItems = [
         icon: Shield,
         key: "proxys",
       },
-      {
-        title: "Gerenciamento",
-        icon: BarChart3,
-        key: "gerenciamento",
-      },
+   //   {
+     //   title: "Gerenciamento",
+       // icon: BarChart3,
+        //key: "gerenciamento",
+      //},
       {
         title: "Compras",
         icon: ShoppingCart,
@@ -145,7 +145,7 @@ const handleLogout = async () => {
           ))}
         </div>
 
-        {/* Quick Stats */}
+        {/* Quick Stats 
         <div className="mt-8">
           <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-xl p-4 backdrop-blur-sm">
             <h4 className="text-sm font-semibold text-gray-300 mb-3">Status do Sistema</h4>
@@ -164,6 +164,7 @@ const handleLogout = async () => {
             </div>
           </div>
         </div>
+        */}
       </div>
 
       {/* Footer */}

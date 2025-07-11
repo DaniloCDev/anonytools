@@ -3,6 +3,7 @@ import UserRepository from "../repository/user.repository";
 import { toUserResponseDTO, registerUserSchema, loginUserSchema } from "../dtos";
 import { ZodError } from "zod";
 import AuthUserService from "../services/auth.services";
+import formatZodError from "../utils/formatErrorZod";
 
 export class AuthController {
     registerUser = async (req: Request, res: Response): Promise<void> => {
@@ -38,7 +39,12 @@ export class AuthController {
         try {
 
             if (!result.success) {
-                throw new ZodError(result.error.errors);
+                res.status(400).json({
+                    message: "Erro de validação",
+                    errors: formatZodError(result.error),
+                });
+
+                return;
             }
 
             const user = await usecase.LoginUser(result.data);

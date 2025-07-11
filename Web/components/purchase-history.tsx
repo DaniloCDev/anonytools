@@ -13,6 +13,8 @@ export function PurchaseHistory() {
     return <p>Carregando histórico de compras...</p>;
   }
 
+
+
   const purchasesArray = Array.isArray(purchases) ? purchases : [];
 
   const totalSpent = purchasesArray
@@ -24,7 +26,7 @@ export function PurchaseHistory() {
     .reduce((sum, p) => sum + p.gbAmount, 0);
 
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: "PENDING" | "PAID" | "FAILED") => {
     switch (status) {
       case "PAID":
         return <CheckCircle className="w-4 h-4 text-green-400" />;
@@ -37,7 +39,7 @@ export function PurchaseHistory() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: "PENDING" | "PAID" | "FAILED") => {
     switch (status) {
       case "PAID":
         return <Badge className="bg-green-500/20 text-green-300 border-green-500/30">Concluído</Badge>;
@@ -49,6 +51,62 @@ export function PurchaseHistory() {
         return <Badge className="bg-gray-500/20 text-gray-300 border-gray-500/30">Desconhecido</Badge>;
     }
   };
+
+
+  type Purchase = {
+    id: number;
+    createdAt: string;
+    gbAmount: number;
+    totalPrice: number;
+    status: "PENDING" | "PAID" | "FAILED";
+    mpPaymentId?: number | null;
+  };
+
+  type MonthlySummary = {
+    year: number;
+    month: number;
+    monthName: string;
+    transactionCount: number;
+    totalSpent: number;
+    totalGB: number;
+  };
+
+  function getMonthlySummary(purchases: Purchase[]): MonthlySummary[] {
+    // Map: chave 'YYYY-MM' -> resumo
+    const map = new Map<string, MonthlySummary>();
+
+    purchases.forEach(p => {
+      if (p.status !== "PAID") return; // só compras pagas
+
+      const date = new Date(p.createdAt);
+      const year = date.getFullYear();
+      const month = date.getMonth(); // 0 a 11
+      const key = `${year}-${month}`;
+
+      if (!map.has(key)) {
+        map.set(key, {
+          year,
+          month,
+          monthName: date.toLocaleString("pt-BR", { month: "long" }),
+          transactionCount: 0,
+          totalSpent: 0,
+          totalGB: 0,
+        });
+      }
+
+      const summary = map.get(key)!;
+      summary.transactionCount += 1;
+      summary.totalSpent += p.totalPrice;
+      summary.totalGB += p.gbAmount;
+    });
+
+    // Ordena por ano e mês decrescente
+    return Array.from(map.values()).sort((a, b) =>
+      a.year !== b.year ? b.year - a.year : b.month - a.month
+    );
+  }
+
+  const monthlySummary = getMonthlySummary(purchasesArray);
 
   return (
     <div className="space-y-4">
@@ -123,8 +181,8 @@ export function PurchaseHistory() {
                   <div>
                     <h4 className="font-semibold">Compra de {purchase.gbAmount}GB</h4>
                     <p className="text-sm text-gray-400">
-                      #{purchase.id} • {purchase.createdAt && new Date(purchase.createdAt).toLocaleDateString("pt-BR")}
- • Pix
+                      {purchase.createdAt && new Date(purchase.createdAt).toLocaleDateString("pt-BR")}
+                      • Pix
                     </p>
                   </div>
                 </div>
@@ -150,41 +208,28 @@ export function PurchaseHistory() {
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-semibold mb-3">Janeiro 2024</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Transações:</span>
-                  <span>3</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Total gasto:</span>
-                  <span className="text-green-400">R$ 179,70</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">GB adquiridos:</span>
-                  <span className="text-blue-400">40GB</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-3">Dezembro 2023</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Transações:</span>
-                  <span>2</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Total gasto:</span>
-                  <span className="text-green-400">R$ 49,90</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">GB adquiridos:</span>
-                  <span className="text-blue-400">10GB</span>
+            {monthlySummary.length === 0 && <p>Nenhuma compra paga encontrada.</p>}
+            {monthlySummary.map(({ year, month, monthName, transactionCount, totalSpent, totalGB }) => (
+              <div key={`${year}-${month}`} >
+                <h4 className="font-semibold mb-3">
+                  {monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}
+                </h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Transações:</span>
+                    <span>{transactionCount}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Total gasto:</span>
+                    <span className="text-green-400">R$ {totalSpent.toFixed(2).replace(".", ",")}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">GB adquiridos:</span>
+                    <span className="text-blue-400">{totalGB}GB</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>

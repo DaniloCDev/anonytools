@@ -1,25 +1,7 @@
 
 import UserRepository from "../repository/user.repository";
 import { createPixPayment } from "../external/mercadopago/createPixPayment"
-
-function convertBigIntToString(obj: any): any {
-  if (typeof obj === 'bigint') {
-    return obj.toString();
-  }
-
-  if (Array.isArray(obj)) {
-    return obj.map(convertBigIntToString);
-  }
-
-  if (typeof obj === 'object' && obj !== null) {
-    return Object.fromEntries(
-      Object.entries(obj).map(([key, value]) => [key, convertBigIntToString(value)])
-    );
-  }
-
-  return obj;
-}
-
+import serializeBigIntAndDate from "../utils/serializeBigInt";
 
 class PurchaseService {
     constructor(private userRepository: UserRepository) { }
@@ -80,8 +62,9 @@ class PurchaseService {
         const purchases = await this.userRepository.getUserPurchases(userId)
 
         console.log(purchases)
-        return convertBigIntToString(purchases)
+        return serializeBigIntAndDate(purchases)
     }
+
 
     async getCouponIsValid(couponCode: string) {
         const coupon = await this.userRepository.getCuponCode(couponCode);

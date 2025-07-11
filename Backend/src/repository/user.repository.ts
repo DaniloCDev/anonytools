@@ -27,13 +27,16 @@ class UserRepository {
         });
     }
     async findInformationUserById(userId: string) {
-        return prisma.user.findUnique({
+        let userData = await prisma.user.findUnique({
             where: { id: userId },
             include: {
                 proxyUser: true,     // dados do ProxyUser
                 purchases: true,     // lista de compras
             },
         });
+
+        //    console.log(JSON.stringify(userData!.purchases, null, 2));
+        return userData;
     }
 
 
@@ -154,12 +157,26 @@ class UserRepository {
             include: {
                 user: {
                     include: {
-                        proxyUser: true, 
+                        proxyUser: true,
                     },
                 },
             },
         });
     }
+
+    async getSubuserIdByUserId(userId: string) {
+        const proxyUser = await prisma.proxyUser.findFirst({ 
+            where: { userId },
+            select: {
+                subuserId: true,
+            },
+        });
+
+        return proxyUser;
+    }
+
+
+
 
     async markPurchaseAsPaid(purchaseId: number): Promise<void> {
         await prisma.purchase.update({

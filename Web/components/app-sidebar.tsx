@@ -46,11 +46,11 @@ const menuItems = [
         icon: Shield,
         key: "proxys",
       },
-      {
-        title: "Gerenciamento",
-        icon: BarChart3,
-        key: "gerenciamento",
-      },
+      //  {
+      //  title: "Gerenciamento",
+      //icon: BarChart3,
+      // key: "gerenciamento",
+      //},
       {
         title: "Compras",
         icon: ShoppingCart,

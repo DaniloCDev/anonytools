@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { MobileSidebar } from "@/components/mobile-sidebar"
 import { AddBalanceModal } from "@/components/add-balance-modal"
@@ -15,12 +16,41 @@ import { useToast } from "@/components/toast-provider"
 import { Copy, Plus, Activity, Shield, Clock, Eye, EyeOff, RefreshCw, HelpCircle } from "lucide-react"
 import { useUser } from "@/contexts/UserContext";
 
+type UserBalance = {
+  balance: number;
+  balance_format: string;
+  balance_total: number;
+  balance_total_format: string;
+  balance_used: number;
+  balance_used_format: string;
+  threads_used: number;
+};
+
+export function useUserBalance() {
+  const [balance, setBalance] = useState<UserBalance | null>(null);
+  const [loadingBalance, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://localhost:3001/user/get-balance")
+      .then(res => res.json())
+      .then(data => {
+        setBalance(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  return { balance, loadingBalance };
+}
+
 export default function Dashboard() {
   const [activeMenu, setActiveMenu] = useState("proxys")
   const [showCredentials, setShowCredentials] = useState(false)
   const [showAddBalanceModal, setShowAddBalanceModal] = useState(false)
   const [timeoutReached, setTimeoutReached] = useState(false);
   const { addToast } = useToast()
+  const { balance, loadingBalance } = useUserBalance();
+
 
   const { user, loading } = useUser();
   const userPlan = user?.plan;
@@ -34,10 +64,10 @@ export default function Dashboard() {
     if (timeoutReached) {
 
       return (
-      <div className="flex justify-center items-center h-screen text-white text-xl">
-        <img src="/error.gif" alt="Carregando..." className="w-20 h-20 mb-4" />
-        Erro ao carregar . Tente novamente.
-      </div>
+        <div className="flex justify-center items-center h-screen text-white text-xl">
+          <img src="/error.gif" alt="Carregando..." className="w-20 h-20 mb-4" />
+          Erro ao carregar . Tente novamente.
+        </div>
       )
     }
 
@@ -54,11 +84,6 @@ export default function Dashboard() {
       </div>
     );
   }
-  const recentActivity = [
-    { date: "2024-01-10", action: "Conexão estabelecida", ip: "191.123.45.67", data: "0.5GB" },
-    { date: "2024-01-09", action: "Renovação automática", ip: "-", data: "10GB" },
-    { date: "2024-01-08", action: "Conexão estabelecida", ip: "191.234.56.78", data: "1.2GB" },
-  ]
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
@@ -69,8 +94,6 @@ export default function Dashboard() {
       duration: 2000,
     })
   }
-
-
 
   const renderContent = () => {
     switch (activeMenu) {
@@ -92,8 +115,8 @@ export default function Dashboard() {
                   <CardHeader className="pb-4 lg:pb-6">
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                       <div className="space-y-1">
-                        <CardTitle className="text-xl lg:text-2xl">Plano Ativo</CardTitle>
-                        <p className="text-gray-400 lg:text-lg">Ativo até {userPlan.expiresAt}</p>
+                        <CardTitle className="text-xl lg:text-2xl">Uso do Plano</CardTitle>
+                        <p className="text-gray-400 lg:text-lg">Plano válido enquanto houver saldo disponível</p>
                       </div>
                       <Badge className="bg-green-500/20 text-green-300 border-green-500/30 w-fit px-4 py-2 text-sm lg:text-base">
                         <Activity className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
@@ -101,17 +124,28 @@ export default function Dashboard() {
                       </Badge>
                     </div>
                   </CardHeader>
+
+
                   <CardContent className="space-y-6">
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-400 lg:text-lg">Uso de dados</span>
-                        <span className="font-medium lg:text-lg">
-                          {userPlan.usedGb}GB / {userPlan.totalGb}GB
-                        </span>
+                    {!loadingBalance && balance && (
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400 lg:text-lg">Uso de dados</span>
+                          <span className="font-medium lg:text-lg">
+                            {balance.balance_used_format} / {balance.balance_total_format}
+                          </span>
+                        </div>
+                        <div className="relative w-full h-3 lg:h-4 bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 to-purple-500"
+                            style={{ width: `${(balance.balance_used / balance.balance_total) * 100}%` }}
+                          />
+                        </div>
+                        <p className="text-gray-400 lg:text-lg">
+                          {((balance.balance_total - balance.balance_used) / 1_073_741_824).toFixed(2)}GB restantes
+                        </p>
                       </div>
-                      <Progress value={(userPlan.usedGb / userPlan.totalGb) * 100} className="h-3 lg:h-4" />
-                      <p className="text-gray-400 lg:text-lg">{userPlan.remainingGb}GB restantes</p>
-                    </div>
+                    )}
 
                     <Button
                       onClick={() => setShowAddBalanceModal(true)}
@@ -228,7 +262,7 @@ export default function Dashboard() {
                   </CardContent>
                 </Card>
 
-                {/* Recent Activity */}
+                {/* Recent Activity *
                 <Card className="glass border-white/10">
                   <CardHeader className="pb-4 lg:pb-6">
                     <CardTitle className="flex items-center gap-3 text-xl lg:text-2xl">
@@ -253,11 +287,12 @@ export default function Dashboard() {
                     </div>
                   </CardContent>
                 </Card>
+                */}
               </div>
 
               {/* Sidebar */}
               <div className="xl:col-span-4 space-y-6">
-                {/* Quick Stats */}
+                {/* Quick Stats
                 <Card className="glass border-white/10">
                   <CardHeader className="pb-4 lg:pb-6">
                     <CardTitle className="text-xl lg:text-2xl">Estatísticas</CardTitle>
@@ -277,6 +312,8 @@ export default function Dashboard() {
                     </div>
                   </CardContent>
                 </Card>
+                 */}
+
 
                 {/* Support */}
                 <Card className="glass border-white/10">
