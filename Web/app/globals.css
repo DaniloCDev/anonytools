@@ -3,35 +3,173 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+
   * {
     @apply border-border;
   }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Garantir que o fundo seja sempre preto */
+  html,
   body {
     @apply bg-black text-white;
   }
-}
 
-@layer utilities {
-  .glass {
+  /* Estilizações para inputs e selects */
+  input,
+  select,
+  textarea {
+    @apply bg-white/5 border-white/10 text-white placeholder:text-gray-400;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    @apply ring-2 ring-blue-500/50 border-blue-500/50;
+  }
+
+  /* Botões padrão */
+  button {
+    @apply transition-all duration-200;
+  }
+
+  /* Scrollbar personalizada */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-white/20 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-white/30;
+  }
+
+  /* Seleções de texto */
+  ::selection {
+    @apply bg-blue-500/30 text-white;
+  }
+
+  /* Links */
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  /* Formulários */
+  label {
+    @apply text-sm font-medium text-gray-300;
+  }
+
+  /* Progress bars */
+  [role="progressbar"] {
+    @apply bg-white/10;
+  }
+
+  /* Dropdowns e menus */
+  [role="menu"],
+  [role="menuitem"] {
+    @apply bg-white/5 border-white/10;
+  }
+
+  /* Tooltips */
+  [role="tooltip"] {
+    @apply bg-gray-900 border border-white/10 text-white;
+  }
+
+  /* Modais e dialogs */
+  [role="dialog"] {
     @apply bg-white/5 backdrop-blur-xl border border-white/10;
   }
 
-  .glass-hover {
-    @apply hover:bg-white/10 transition-all duration-300;
+  /* Badges e tags */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
 
+  /* Cards */
+  .card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-lg;
+  }
+
+  /* Gradientes reutilizáveis */
   .gradient-text {
     @apply bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent;
   }
 
-  .glow {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  .gradient-bg {
+    @apply bg-gradient-to-r from-blue-500 to-purple-600;
   }
 
-  .glow-purple {
-    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+  .gradient-border {
+    @apply border border-transparent bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-border;
   }
+}
 
+@layer utilities {
   /* Ocultar scrollbar mas manter funcionalidade */
   .scrollbar-hide {
     -ms-overflow-style: none; /* IE and Edge */
@@ -40,5 +178,134 @@
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none; /* Chrome, Safari and Opera */
+  }
+
+  /* Utilitários para glass effect */
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+
+  .glass-hover {
+    @apply hover:bg-white/10 transition-all duration-300;
+  }
+
+  /* Utilitários para sombras */
+  .shadow-glow {
+    @apply shadow-lg shadow-blue-500/25;
+  }
+
+  .shadow-glow-purple {
+    @apply shadow-lg shadow-purple-500/25;
+  }
+
+  .shadow-glow-green {
+    @apply shadow-lg shadow-green-500/25;
+  }
+
+  /* Animações customizadas */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Responsividade para textos */
+  .text-responsive {
+    @apply text-sm md:text-base lg:text-lg;
+  }
+
+  .text-responsive-lg {
+    @apply text-lg md:text-xl lg:text-2xl;
+  }
+
+  .text-responsive-xl {
+    @apply text-xl md:text-2xl lg:text-3xl xl:text-4xl;
+  }
+
+  /* Espaçamentos responsivos */
+  .p-responsive {
+    @apply p-4 md:p-6 lg:p-8;
+  }
+
+  .px-responsive {
+    @apply px-4 md:px-6 lg:px-8;
+  }
+
+  .py-responsive {
+    @apply py-4 md:py-6 lg:py-8;
+  }
+
+  /* Grid responsivo */
+  .grid-responsive {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .grid-responsive-4 {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4;
+  }
+}
+
+/* Componentes específicos do shadcn/ui */
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background;
+  }
+
+  .btn-default {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  }
+
+  .btn-outline {
+    @apply border border-input hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .btn-ghost {
+    @apply hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .input {
+    @apply flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .card {
+    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+
+  .progress {
+    @apply relative h-4 w-full overflow-hidden rounded-full bg-secondary;
+  }
+
+  .progress-indicator {
+    @apply h-full w-full flex-1 bg-primary transition-all;
   }
 }
