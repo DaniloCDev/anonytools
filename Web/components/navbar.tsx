@@ -5,11 +5,12 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu, X, Zap } from "lucide-react"
 import { AuthModal } from "@/components/auth-modal"
-import LogoIcon from "../public/seuarquivo.svg"
+import { useToast } from "@/components/toast-provider"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const { addToast } = useToast()
   const handleLogin = () => {
     window.location.href = "/dashboard"
   }
@@ -25,15 +26,22 @@ export function Navbar() {
         setShowAuthModal(true)
       }
     } catch (err) {
+      addToast({
+        type: "error",
+        title: "Erro de conexão",
+        message: "Não foi possível verificar sua sessão.",
+        duration: 4000,
+      })
       setShowAuthModal(true)
     }
   }
+
   return (
     <nav className="fixed top-0 w-full z-50 glass border-b border-white/10 h-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex justify-between items-center h-full">
           <Link href="/" className="flex items-center space-x-2">
-             <div className="w-10 h-10 bg-gradient-to-r from-black to-gray-800 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-r from-black to-gray-800 rounded-lg flex items-center justify-center">
               <img
                 src="/logo_nox24proxy.svg"
                 alt="Logo"
