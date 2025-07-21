@@ -6,6 +6,7 @@ import AuthUserService from "../services/auth.services";
 import formatZodError from "../utils/formatErrorZod";
 
 export class AuthController {
+    
     registerUser = async (req: Request, res: Response): Promise<void> => {
 
         const usecase = new AuthUserService(new UserRepository());

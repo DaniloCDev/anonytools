@@ -4,8 +4,6 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-
 import { DashboardSidebar } from "@/components/dashboard-sidebar"
 import { MobileSidebar } from "@/components/mobile-sidebar"
 import { AddBalanceModal } from "@/components/add-balance-modal"
@@ -15,6 +13,8 @@ import { PurchaseHistory } from "@/components/purchase-history"
 import { useToast } from "@/components/toast-provider"
 import { Copy, Plus, Activity, Shield, Clock, Eye, EyeOff, RefreshCw, HelpCircle } from "lucide-react"
 import { useUser } from "@/contexts/UserContext";
+import { ProxySettings } from "@/components/proxy-settings"
+
 
 type UserBalance = {
   balance: number;
@@ -31,7 +31,9 @@ export function useUserBalance() {
   const [loadingBalance, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:3001/user/get-balance")
+    fetch("http://localhost:3001/user/get-balance",{
+        credentials: "include",
+      })
       .then(res => res.json())
       .then(data => {
         setBalance(data);
@@ -339,19 +341,7 @@ export default function Dashboard() {
         return <PurchaseHistory />
 
       case "configurações":
-        return (
-          <div className="space-y-6 lg:space-y-8">
-            <div className="space-y-2">
-              <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold">Configurações</h1>
-              <p className="text-gray-400 text-lg lg:text-xl">Gerencie as configurações da sua conta</p>
-            </div>
-            <Card className="glass border-white/10 p-8 lg:p-12">
-              <div className="text-center">
-                <p className="text-gray-400 text-lg lg:text-xl">Configurações em desenvolvimento...</p>
-              </div>
-            </Card>
-          </div>
-        )
+        return <ProxySettings />
 
       case "suporte":
         return (

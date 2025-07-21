@@ -165,7 +165,7 @@ class UserRepository {
     }
 
     async getSubuserIdByUserId(userId: string) {
-        const proxyUser = await prisma.proxyUser.findFirst({ 
+        const proxyUser = await prisma.proxyUser.findFirst({
             where: { userId },
             select: {
                 subuserId: true,
@@ -175,6 +175,14 @@ class UserRepository {
         return proxyUser;
     }
 
+    async resetPasswordProxy(userId: string, newPassword: string) {
+        await prisma.proxyUser.update({
+            where: { userId },
+            data: {
+                password: newPassword,
+            },
+        });
+    }
 
 
 

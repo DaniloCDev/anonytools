@@ -10,7 +10,11 @@ router.post("/user/createPurchase", authenticateToken , userProxyController.crea
 router.get("/user/purchases", authenticateToken , userProxyController.purchaseHistory); 
 
 router.get("/coupons/validate", authenticateToken , userProxyController.GetCouponWithCode); 
-router.get("/user/get-balance" , userProxyController.getUserBalance); 
+router.get("/user/get-balance" , authenticateToken, userProxyController.getUserBalance); 
+router.get("/user/resetProxyPassword" , authenticateToken, userProxyController.changePassword); 
+router.patch("/user/updateProxyConfig" , authenticateToken, userProxyController.updateProxythreads); 
+
+
 
 
 

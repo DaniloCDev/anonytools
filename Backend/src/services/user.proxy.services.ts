@@ -1,7 +1,9 @@
 import { mapSubUserDtoToProxyUser, ProxyUser, SubUserDTO } from "../dtos/mappers/touseproxy.response.dto";
 import { addToBalance } from "../external/dataimpulse/addTrafficInToBalance";
+import { changePasswordExternalApi } from "../external/dataimpulse/changePassword";
 import { createSubUser } from "../external/dataimpulse/createSubUser";
 import { getBalanceUser } from "../external/dataimpulse/getBalanceSubUser";
+import { changeProxyThreads } from "../external/dataimpulse/updateProxyThreads";
 import UserRepository from "../repository/user.repository";
 import serializeBigIntAndDate from "../utils/serializeBigInt";
 
@@ -57,15 +59,39 @@ class ProxyUserService {
 
         const descUser = await this.userRepository.getSubuserIdByUserId(userId)
         let respBalance = await getBalanceUser(Number(descUser?.subuserId));
-        console.log(respBalance)
+        //  console.log(respBalance)
         return respBalance
     }
+
+    async changePasswordService(userId: string) {
+        const user = await this.userRepository.findById(userId)
+        if (!user) throw new Error("Usuário não encontrado.")
+
+        const descUser = await this.userRepository.getSubuserIdByUserId(userId)
+        let respResetPassword = await changePasswordExternalApi(Number(descUser?.subuserId));
+        await this.userRepository.resetPasswordProxy(userId, respResetPassword.password)
+        console.log(respResetPassword.password)
+        return respResetPassword.password
+    }
+
+    
+    async updateProxyThreadsService(userId: string, threads:number) {
+        const user = await this.userRepository.findById(userId)
+        if (!user) throw new Error("Usuário não encontrado.")
+
+        const descUser = await this.userRepository.getSubuserIdByUserId(userId)
+        let updatedThreads = await changeProxyThreads(Number(descUser?.subuserId), threads);
+      //  await this.userRepository.resetPasswordProxy(userId, respResetPassword.password)
+        console.log(updatedThreads.threads)
+        return updatedThreads.threads
+    }
+
 
     async searchInfoUser(user_id: string) {
         if (!user_id) throw new Error("Usuario não esta logado");
 
         const existing = await this.userRepository.getDashboardData(user_id);
-        console.log(existing)
+        // console.log(existing)
         if (!existing) {
             throw new Error("Usuario nâo existe");
         }
