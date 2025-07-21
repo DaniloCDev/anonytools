@@ -43,7 +43,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const fetchUser = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/user/me", { credentials: "include" });
+      const res = await fetch("/api/user/me", { credentials: "include" });
       if (!res.ok) {
         setUser(null);
         return;

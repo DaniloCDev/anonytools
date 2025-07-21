@@ -24,7 +24,7 @@ export const PurchaseProvider = ({ children }: { children: React.ReactNode }) =>
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/user/purchases", { credentials: "include" })
+    fetch("/api/user/purchases", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
         setPurchases(data);

@@ -15,7 +15,7 @@ export function Navbar() {
   }
   const handleAccountClick = async () => {
     try {
-      const res = await fetch("/auth/check", {
+      const res = await fetch("/api/auth/check", {
         credentials: "include",
       })
 

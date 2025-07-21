@@ -50,7 +50,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
     }
 
     try {
-      const res = await fetch(`/coupons/validate?code=${encodeURIComponent(couponCode)}`, {
+      const res = await fetch(`/api/coupons/validate?code=${encodeURIComponent(couponCode)}`, {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
       });
@@ -114,7 +114,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
       setLoading(true);
       const finalPrice = couponApplied ? pkg.price * (1 - discount / 100) : pkg.price;
 
-      const res = await fetch("/user/createPurchase", {
+      const res = await fetch("/api/user/createPurchase", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

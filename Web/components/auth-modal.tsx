@@ -35,7 +35,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await fetch("/user/login", {
+      const res = await fetch("/api/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // importante para cookies

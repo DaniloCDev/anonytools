@@ -64,7 +64,7 @@ interface DashboardSidebarProps {
 export function DashboardSidebar({ onMenuClick, activeMenu, className = "" }: DashboardSidebarProps) {
   const handleLogout = async () => {
 
-    await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     //clearAllCookies()
     window.location.href = "/";
   };
