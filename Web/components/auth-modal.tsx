@@ -35,7 +35,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
     e.preventDefault()
     setLoading(true)
     try {
-      const res = await fetch("http://localhost:3001/user/login", {
+      const res = await fetch("/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // importante para cookies
@@ -68,7 +68,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
 
     setLoading(true)
     try {
-      const res = await fetch("http://localhost:3001/user/register", {
+      const res = await fetch("/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

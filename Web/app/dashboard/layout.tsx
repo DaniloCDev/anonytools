@@ -2,7 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Dashboard - ProxyBR",
+  title: "Dashboard - Nox24Proxy",
   description: "Gerencie seus proxies e monitore o uso",
 }
 

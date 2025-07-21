@@ -65,7 +65,7 @@ export function ProxySettings() {
     setIsGenerating(true);
 
     try {
-      const response = await fetch("http://localhost:3001/user/resetProxyPassword", {
+      const response = await fetch("/user/resetProxyPassword", {
         method: "GET",
         credentials: "include",
       });
@@ -111,7 +111,7 @@ export function ProxySettings() {
 
   const saveSettings = async () => {
     try {
-      await fetch("http://localhost:3001/user/updateProxyConfig", {
+      await fetch("/user/updateProxyConfig", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

@@ -5,9 +5,10 @@ import { PurchaseProvider } from "@/contexts/PurchaseContext";
 import './globals.css'
 
 export const metadata = {
-  title: "Seu título aqui",
+  title: "Nox24Proxy",
   description: "Sua descrição aqui",
 }
+
 
 export default function RootLayout({
   children,

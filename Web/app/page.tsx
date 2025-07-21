@@ -14,7 +14,7 @@ export default function Home() {
 
   const handleStartClick = async () => {
     try {
-      const res = await fetch("http://localhost:3001/auth/check", {
+      const res = await fetch("/auth/check", {
         credentials: "include",
       })
 

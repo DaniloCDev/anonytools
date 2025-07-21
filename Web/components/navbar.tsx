@@ -5,6 +5,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Menu, X, Zap } from "lucide-react"
 import { AuthModal } from "@/components/auth-modal"
+import LogoIcon from "../public/seuarquivo.svg"
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
@@ -14,14 +15,14 @@ export function Navbar() {
   }
   const handleAccountClick = async () => {
     try {
-      const res = await fetch("http://localhost:3001/auth/check", {
+      const res = await fetch("/auth/check", {
         credentials: "include",
       })
 
       if (res.ok) {
         window.location.href = "/dashboard"
       } else {
-        setShowAuthModal(true) 
+        setShowAuthModal(true)
       }
     } catch (err) {
       setShowAuthModal(true)
@@ -32,10 +33,15 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div className="flex justify-between items-center h-full">
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
+             <div className="w-10 h-10 bg-gradient-to-r from-black to-gray-800 rounded-lg flex items-center justify-center">
+              <img
+                src="/logo_nox24proxy.svg"
+                alt="Logo"
+                className="w-20 h-20"
+              />
+
             </div>
-            <span className="text-xl font-bold gradient-text">ProxyBR</span>
+            <span className="text-xl font-bold gradient-text">Nox24Proxy</span>
           </Link>
 
           {/* Desktop Menu */}

@@ -30,10 +30,10 @@ const menuItems = [
         icon: Shield,
         key: "proxys",
       },
-   //   {
-     //   title: "Gerenciamento",
-       // icon: BarChart3,
-        //key: "gerenciamento",
+      //   {
+      //   title: "Gerenciamento",
+      // icon: BarChart3,
+      //key: "gerenciamento",
       //},
       {
         title: "Compras",
@@ -62,12 +62,12 @@ interface DashboardSidebarProps {
 
 
 export function DashboardSidebar({ onMenuClick, activeMenu, className = "" }: DashboardSidebarProps) {
-const handleLogout = async () => {
-  
-  await fetch('http://localhost:3001/auth/logout', { method: 'POST', credentials: 'include' });
-  //clearAllCookies()
-  window.location.href = "/";
-};
+  const handleLogout = async () => {
+
+    await fetch('/auth/logout', { method: 'POST', credentials: 'include' });
+    //clearAllCookies()
+    window.location.href = "/";
+  };
   const { user, loading } = useUser()
 
   return (
@@ -77,12 +77,16 @@ const handleLogout = async () => {
       {/* Header */}
       <div className="border-b border-white/10 bg-gradient-to-r from-gray-900/90 to-black/90 p-6">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-            <Zap className="w-7 h-7 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-r from-black to-gray-800 rounded-lg flex items-center justify-center">
+            <img
+              src="/logo_nox24proxy.svg"
+              alt="Logo"
+              className="w-20 h-20"
+            />
           </div>
           <div className="flex flex-col">
-            <span className="text-2xl font-bold gradient-text">ProxyBR</span>
-            <span className="text-xs text-gray-400 font-medium">Dashboard Pro</span>
+            <span className="text-2xl font-bold gradient-text">Nox24Proxy</span>
+            <span className="text-xs text-gray-400 font-medium">Dashboard Nox24</span>
           </div>
         </div>
       </div>

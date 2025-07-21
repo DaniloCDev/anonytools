@@ -31,7 +31,7 @@ export function useUserBalance() {
   const [loadingBalance, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:3001/user/get-balance",{
+    fetch("/user/get-balance",{
         credentials: "include",
       })
       .then(res => res.json())

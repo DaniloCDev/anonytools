@@ -86,12 +86,16 @@ export function AppSidebar({ onMenuClick, activeMenu }: AppSidebarProps) {
     <Sidebar collapsible="icon" className="border-r border-white/10 z-40 lg:w-80">
       <SidebarHeader className="border-b border-white/10 bg-black/50 lg:bg-gradient-to-r lg:from-gray-900/90 lg:to-black/90">
         <div className="flex items-center gap-2 px-3 py-3 lg:gap-4 lg:px-8 lg:py-8">
-          <div className="w-6 h-6 lg:w-12 lg:h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg lg:rounded-xl flex items-center justify-center lg:shadow-lg lg:shadow-blue-500/25">
-            <Zap className="w-4 h-4 lg:w-7 lg:h-7 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-r from-black to-gray-800 rounded-lg flex items-center justify-center">
+            <img
+              src="/logo_nox24proxy.svg"
+              alt="Logo"
+              className="w-20 h-20"
+            />
           </div>
           <div className="lg:flex lg:flex-col">
-            <span className="text-lg lg:text-2xl font-bold gradient-text">ProxyBR</span>
-            <span className="hidden lg:block text-xs text-gray-400 font-medium">Dashboard Pro</span>
+            <span className="text-lg lg:text-2xl font-bold gradient-text">Nox24Proxy</span>
+            <span className="hidden lg:block text-xs text-gray-400 font-medium">Dashboard Nox24Proxy</span>
           </div>
         </div>
       </SidebarHeader>
