@@ -24,6 +24,5 @@ app.use(router)
 app.use(routerProxy)
 
 
-app.listen(3001, ()=> {
-    console.log("Running serve in the port 300")
-})
+const port = process.env.PORT || 3001;
+app.listen(port, () => console.log(`Server running on port ${port}`));
