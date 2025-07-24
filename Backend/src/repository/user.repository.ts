@@ -184,6 +184,48 @@ class UserRepository {
         });
     }
 
+    async getCooldown(userId: string) {
+        return prisma.userCooldown.findUnique({ where: { userId } });
+    }
+
+    async setCooldown(userId: string, attempts: number, cooldownUntil: Date) {
+        return prisma.userCooldown.upsert({
+            where: { userId },
+            update: { attempts, cooldownUntil },
+            create: {
+                userId,
+                attempts,
+                cooldownUntil,
+            },
+        });
+    }
+
+    async clearCooldown(userId: string) {
+        return prisma.userCooldown.deleteMany({ where: { userId } });
+    }
+
+    async incrementCooldown(userId: string) {
+        const existing = await prisma.userCooldown.findUnique({ where: { userId } });
+
+        const now = new Date();
+        const attempts = (existing?.attempts || 0) + 1;
+        const cooldownSeconds = Math.min(attempts * 10, 300);
+
+        const cooldownUntil = new Date(now.getTime() + cooldownSeconds * 1000);
+
+        return prisma.userCooldown.upsert({
+            where: { userId },
+            update: {
+                attempts,
+                cooldownUntil,
+            },
+            create: {
+                userId,
+                attempts,
+                cooldownUntil,
+            },
+        });
+    }
 
 
     async markPurchaseAsPaid(purchaseId: number): Promise<void> {

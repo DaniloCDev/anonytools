@@ -17,6 +17,8 @@ model User {
   couponUsages CouponUsage[] 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
+
+  cooldown     UserCooldown?
 }
 
 model ProxyUser {
@@ -71,4 +73,17 @@ model CouponUsage {
   usedAt DateTime @default(now())
 
   @@unique([couponId, userId]) 
+}
+
+
+model UserCooldown {
+  id            Int      @id @default(autoincrement())
+  userId        String   @unique
+  attempts      Int      @default(0)
+  cooldownUntil DateTime?
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

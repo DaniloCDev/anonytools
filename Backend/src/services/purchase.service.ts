@@ -8,13 +8,10 @@ class PurchaseService {
 
     async createPurchase(userId: string, gbAmount: number, totalPrice: number, couponCode?: string) {
         const user = await this.userRepository.findById(userId);
-        if (!user) throw new Error("Usuário não encontrado.")
+        if (!user) throw new Error("Usuário não encontrado.");
 
-            console.log(couponCode)
         let coupon;
         if (couponCode) {
-            console.log(couponCode)
-
             coupon = await this.userRepository.getCuponCode(couponCode);
             if (!coupon || !coupon.isActive || (coupon.expiresAt && coupon.expiresAt < new Date())) {
                 throw new Error("Cupom inválido ou expirado.");
@@ -25,35 +22,53 @@ class PurchaseService {
             }
 
             if (coupon.onlyOnce) {
-                const alreadyUsed = await this.userRepository.couponUsage(userId, coupon.id)
+                const alreadyUsed = await this.userRepository.couponUsage(userId, coupon.id);
                 if (alreadyUsed) throw new Error("Você já usou esse cupom.");
             }
 
             totalPrice = totalPrice * (1 - coupon.discountPct / 100);
         }
 
-        const payment = await createPixPayment({
-            amount: totalPrice,
-            description: `Compra de ${gbAmount}GB de tráfego`,
-            payerEmail: user.email,
-        })
+        const cooldown = await this.userRepository.getCooldown(userId);
+        const now = new Date();
+        if (cooldown?.cooldownUntil && cooldown.cooldownUntil > now) {
+            const wait = Math.ceil((cooldown.cooldownUntil.getTime() - now.getTime()) / 1000);
+            throw new Error(`Aguarde ${wait} segundos antes de gerar um novo código PIX.`);
+        }
+
+        let payment;
+        try {
+            payment = await createPixPayment({
+                amount: totalPrice,
+                description: `Compra de ${gbAmount}GB de tráfego`,
+                payerEmail: user.email,
+            });
+        } catch (err) {
+            await this.userRepository.incrementCooldown(userId); 
+            throw new Error("Erro ao gerar pagamento Pix. Tente novamente.");
+        }
 
         const purchase = await this.userRepository.createPurchase({
             userId,
             gbAmount,
             totalPrice,
             paymentId: payment.paymentId,
-        })
+        });
 
         if (couponCode) {
             await this.userRepository.registerUseCoupon(userId, coupon!.id);
         }
+
+        const cooldownUntil = new Date(Date.now() + 3000);
+        await this.userRepository.setCooldown(userId, 3, cooldownUntil);
+
         return {
             ...payment,
             status: 'PENDING',
             purchaseId: purchase.id,
-        }
+        };
     }
+
 
     async purchaseHistory(userId: string) {
         const user = await this.userRepository.findById(userId)
@@ -82,4 +97,6 @@ class PurchaseService {
     }
 
 }
+
+
 export default PurchaseService;
