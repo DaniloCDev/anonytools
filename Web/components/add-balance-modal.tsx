@@ -40,6 +40,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
 
   const [step, setStep] = useState<"select" | "payment" | "success">("select");
   const [selectedPackage, setSelectedPackage] = useState<GbPackage | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -86,19 +87,36 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
 
   const copyPixCode = () => {
     if (!pixCode) {
-      alert("Código PIX ainda não carregado");
+      addToast({
+        type: "error",
+        title: "Código PIX não disponível",
+        message: "Aguarde o carregamento do QR Code.",
+        duration: 3000,
+      });
       return;
     }
 
     navigator.clipboard.writeText(pixCode)
       .then(() => {
+        addToast({
+          type: "success",
+          title: "Código copiado!",
+          message: "Cole no app do banco para efetuar o pagamento.",
+          duration: 3000,
+        });
+
         setTimeout(() => {
           setStep("success");
         }, 2000);
       })
       .catch((err) => {
         console.error("Erro ao copiar código PIX:", err);
-        alert("Falha ao copiar o código PIX");
+        addToast({
+          type: "error",
+          title: "Falha ao copiar",
+          message: "Tente novamente ou copie manualmente.",
+          duration: 3000,
+        });
       });
   };
 
@@ -121,15 +139,12 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
         body: JSON.stringify({ gbAmount: pkg.gb, couponCode }),
       });
 
-      console.log(res)
-
       if (!res.ok) {
-        const errorData = await res.json();
-
-        console.log(res)
-        //alert(errorData || "Erro ao criar pedido");
+        const data = await res.json();
+        setErrorMessage(data.message || "Tente novamente em instantes.");
         return;
       }
+
 
       const data = await res.json();
       setSelectedPackage({ ...pkg, finalPrice });
@@ -137,13 +152,21 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
       setQrCodeBase64(data.qrCodeBase64);
       setStep("payment");
     } catch (error) {
-      alert("Erro de conexão");
+      console.error(error);
+      addToast({
+        type: "error",
+        title: "Erro de conexão",
+        message: "Verifique sua internet ou tente novamente mais tarde.",
+        duration: 4000,
+      });
     } finally {
       setLoading(false);
     }
   };
 
+
   return (
+    
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="glass border-white/10 max-w-md">
         <DialogHeader>
@@ -160,6 +183,12 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
             </DialogTitle>
           </div>
         </DialogHeader>
+        
+        {errorMessage && (
+          <div className="bg-red-600 text-white p-3 rounded mb-4 text-center font-semibold">
+            {errorMessage}
+          </div>
+        )}
 
         {step === "select" && (
           <div className="space-y-4">
@@ -345,3 +374,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
     </Dialog >
   )
 }
+function addToast(arg0: { type: string; title: string; message: any; duration: number }) {
+  throw new Error("Function not implemented.")
+}
+
