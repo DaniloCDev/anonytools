@@ -196,7 +196,6 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
         setErrorMessage(data.message || "Tente novamente em instantes.");
         setPixCode(null); // limpa código anterior
         setQrCodeBase64(null); // limpa imagem anterior
-        setPaymentId(data.paymentId); // <--- aqui
         return;
       }
 
@@ -205,6 +204,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
       setSelectedPackage({ ...pkg, finalPrice });
       setPixCode(data.qrCode);
       setQrCodeBase64(data.qrCodeBase64);
+      setPaymentId(data.paymentId); // <--- aqui
       setStep("payment");
     } catch (error) {
       console.error(error);
