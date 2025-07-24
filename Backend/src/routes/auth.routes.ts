@@ -12,7 +12,7 @@ router.post("/user/login", authController.login);
 router.get("/auth/check", authenticateToken, authController.authCheck); 
 router.post("/auth/logout", authenticateToken, authController.logout); 
 router.post("/webhook/mercadopago", purchaseController.mercadoPagoWebhook); 
-router.post("/api/user/checkPaymentStatus", authenticateToken, purchaseController.checkPaymentStatus);
+router.post("/user/checkPaymentStatus", authenticateToken, purchaseController.checkPaymentStatus);
 
 
 
