@@ -51,7 +51,7 @@ export class UserProxyController {
                 return;
             }
             const usecase = new PurchaseService(new UserRepository());
-            const purchase = await usecase.createPurchaseSerice(userId, selected?.gb, selected?.price, couponCode);
+            const purchase = await usecase.createPurchaseService(userId, selected?.gb, selected?.price, couponCode);
             //   console.log(purchase)
 
             res.status(200).json(purchase);

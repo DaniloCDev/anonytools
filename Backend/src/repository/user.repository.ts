@@ -204,27 +204,40 @@ class UserRepository {
         return prisma.userCooldown.deleteMany({ where: { userId } });
     }
 
-async incrementCooldown(userId: string) {
-    const existing = await prisma.userCooldown.findUnique({ where: { userId } });
-    const now = new Date();
-    const attempts = (existing?.attempts || 0) + 1;
+    async tryIncrementCooldown(userId: string): Promise<{ allowed: boolean, waitSeconds?: number }> {
+        const existing = await prisma.userCooldown.findUnique({ where: { userId } });
+        const now = new Date();
 
-    // Exemplo de cooldown progressivo em segundos
-    // 1ª tentativa: 30s, 2ª: 60s, 3ª: 120s, >3: bloqueio (ex: 1 dia)
-    let cooldownSeconds;
-    if (attempts === 1) cooldownSeconds = 30;
-    else if (attempts === 2) cooldownSeconds = 60;
-    else if (attempts === 3) cooldownSeconds = 120;
-    else cooldownSeconds = 86400; // 24 horas, obrigar suporte
+        if (existing?.cooldownUntil && existing.cooldownUntil > now) {
+            // Ainda em cooldown, bloqueia
+            const wait = Math.ceil((existing.cooldownUntil.getTime() - now.getTime()) / 1000);
+            return { allowed: false, waitSeconds: wait };
+        }
 
-    const cooldownUntil = new Date(now.getTime() + cooldownSeconds * 1000);
+        // Incrementa tentativas e atualiza cooldown
+        const attempts = (existing?.attempts || 0) + 1;
+        let cooldownSeconds;
+        if (attempts === 1) cooldownSeconds = 30;
+        else if (attempts === 2) cooldownSeconds = 60;
+        else if (attempts === 3) cooldownSeconds = 120;
+        else cooldownSeconds = 86400;
 
-    return prisma.userCooldown.upsert({
-        where: { userId },
-        update: { attempts, cooldownUntil },
-        create: { userId, attempts, cooldownUntil },
-    });
-}
+        const cooldownUntil = new Date(now.getTime() + cooldownSeconds * 1000);
+
+        if (existing) {
+            await prisma.userCooldown.update({
+                where: { userId },
+                data: { attempts, cooldownUntil },
+            });
+        } else {
+            await prisma.userCooldown.create({
+                data: { userId, attempts, cooldownUntil },
+            });
+        }
+
+        return { allowed: true };
+    }
+
 
 
     async markPurchaseAsPaid(purchaseId: number): Promise<void> {
