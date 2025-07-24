@@ -83,7 +83,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Por que escolher a <span className="gradient-text">ProxyBR</span>?
+              Por que escolher a <span className="gradient-text">Nox24proxy</span>
             </h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
               Tecnologia de ponta para suas necessidades de proxy
@@ -162,7 +162,7 @@ export default function Home() {
       <section className="py-20 lg:py-32">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Pronto para começar?</h2>
-          <p className="text-xl text-gray-300 mb-8">Junte-se a milhares de desenvolvedores que confiam na ProxyBR</p>
+          <p className="text-xl text-gray-300 mb-8">Junte-se a milhares de clientes que confiam na Nox24proxy</p>
           <Button
             size="lg"
             onClick={handleStartClick}

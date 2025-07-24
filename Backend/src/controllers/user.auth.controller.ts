@@ -6,7 +6,7 @@ import AuthUserService from "../services/auth.services";
 import formatZodError from "../utils/formatErrorZod";
 
 export class AuthController {
-    
+
     registerUser = async (req: Request, res: Response): Promise<void> => {
 
         const usecase = new AuthUserService(new UserRepository());
@@ -21,8 +21,15 @@ export class AuthController {
             const user = await usecase.registerUser(result.data);
 
             console.log(user);
-            const responseDTO = toUserResponseDTO(user);
-            res.status(201).json(responseDTO);
+
+            const isProduction = process.env.NODE_ENV === "production";
+            res.cookie("token", user.token, {
+                httpOnly: true,
+                maxAge: 60 * 60 * 24000, // 24h
+                sameSite: "lax",
+                secure: isProduction,
+            });
+            res.status(200).json({ message: "Login successful" });
         } catch (error) {
             if (error instanceof ZodError) {
                 res.status(400).json({ message: "Erro de validação", errors: error.format() });
@@ -54,7 +61,7 @@ export class AuthController {
 
             res.cookie("token", user.token, {
                 httpOnly: true,
-                maxAge: 60 * 60 * 24000, // 1h
+                maxAge: 60 * 60 * 24000, // 24h
                 sameSite: "lax",
                 secure: isProduction,
             });
@@ -68,6 +75,34 @@ export class AuthController {
             }
         }
     };
+
+
+    changePasswordProfile = async (req: Request, res: Response): Promise<void> => {
+
+        const usecase = new AuthUserService(new UserRepository());
+        const userID = req.userId;
+
+        const { lastPassword, newPassword } = req.body;
+
+        try {
+
+            if (!lastPassword || !newPassword) {
+                throw new Error("todos campos são obrigatorios")
+            }
+
+            await usecase.changePasswordService(userID, lastPassword, newPassword);
+
+            res.status(200).json({ message: "Senha alterada com sucesso" });
+        } catch (error) {
+            console.log(error)
+            if (error instanceof ZodError) {
+                res.status(400).json({ message: "Erro de validação", errors: error.format() });
+            } else {
+                res.status(400).json({ message: (error as Error).message });
+            }
+        }
+    };
+
 
     authCheck = async (req: Request, res: Response): Promise<void> => {
         try {

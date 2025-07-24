@@ -200,6 +200,14 @@ class UserRepository {
         });
     }
 
+    async changeUserPassword(userId: string, newPasswordHash: string) {
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: { password: newPasswordHash },
+        })
+        return updatedUser
+    }
+
     async clearCooldown(userId: string) {
         return prisma.userCooldown.deleteMany({ where: { userId } });
     }

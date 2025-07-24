@@ -37,7 +37,7 @@ export function ReferralProgram() {
   const shareReferralLink = () => {
     if (navigator.share) {
       navigator.share({
-        title: "ProxyBR - Melhores Proxies do Brasil",
+        title: "Nox24proxy - Melhores Proxies do Brasil",
         text: "Ganhe 20% de desconto nos melhores proxies brasileiros!",
         url: referralLink,
       })

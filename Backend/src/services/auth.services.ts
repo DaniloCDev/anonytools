@@ -9,6 +9,8 @@ class AuthUserService {
 
 
     async registerUser(data: RegisterUserDTO) {
+        const proxyService = new ProxyUserService(new UserRepository());
+
         const existing = await this.userRepository.findByEmail(data.email);
         if (existing) {
             throw new Error("Email já está em uso.");
@@ -21,7 +23,18 @@ class AuthUserService {
             password: hashedPassword,
         });
 
-        return user;
+
+        await proxyService.createUserProxy(user.id);
+
+
+
+        const token = jwt.sign(
+            { id: user.id },
+            process.env.JWT_SECRET_KEY as string,
+            { expiresIn: '1d' }
+        );
+        return { user: toUserResponseDTO(user), token };
+
     }
 
     async LoginUser(data: UserLoginDTO) {
@@ -36,7 +49,7 @@ class AuthUserService {
             throw new Error("Senha invalida");
         }
 
-       await proxyService.createUserProxy(existingUser.id);
+        await proxyService.createUserProxy(existingUser.id);
 
 
         const token = jwt.sign(
@@ -49,7 +62,27 @@ class AuthUserService {
 
     }
 
-    
+        async changePasswordService(userID : string, lastPassword:string, newPassword:string) {
+        const existingUser = await this.userRepository.findById(userID);
+
+        if (!existingUser) {
+            throw new Error("Cliente não existe.");
+        }
+
+        const isPassword = await bcrypt.compare(lastPassword, existingUser.password);
+        if (!isPassword) {
+            throw new Error("Senha invalida");
+        }
+
+        
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await this.userRepository.changeUserPassword(existingUser.id, hashedPassword);
+
+        return 
+
+    }
+
 }
 
 export default AuthUserService;

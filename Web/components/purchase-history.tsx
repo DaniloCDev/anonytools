@@ -167,10 +167,6 @@ export function PurchaseHistory() {
             <History className="w-5 h-5" />
             Histórico de Transações
           </CardTitle>
-          <Button variant="outline" className="glass glass-hover border-white/20 bg-transparent">
-            <Download className="w-4 h-4 mr-2" />
-            Exportar
-          </Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
