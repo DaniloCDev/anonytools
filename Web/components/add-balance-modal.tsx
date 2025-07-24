@@ -42,6 +42,10 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
   const [selectedPackage, setSelectedPackage] = useState<GbPackage | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [paymentStatus, setPaymentStatus] = useState<"pending" | "checking" | "paid">("pending")
+  const [isCheckingPayment, setIsCheckingPayment] = useState(false)
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false)
+
   const applyCoupon = async () => {
     if (!couponCode.trim()) {
       setCouponError("Informe um cupom para validar");
@@ -79,6 +83,8 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
   const handleBack = () => {
     if (step === "payment") {
       setStep("select")
+      setPaymentStatus("pending")
+      setShowPaymentSuccess(false)
     } else if (step === "success") {
       setStep("select")
       onClose()
@@ -120,10 +126,40 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
       });
   };
 
+  // Função para verificar status do pagamento
+  const checkPaymentStatus = async () => {
+    setIsCheckingPayment(true)
+
+    // Simular verificação de pagamento (em produção seria uma API call)
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    // Simular 70% de chance de pagamento aprovado para demonstração
+    const isPaymentApproved = Math.random() > 0.3
+
+    if (isPaymentApproved) {
+      setPaymentStatus("paid")
+      setShowPaymentSuccess(true)
+
+      // Após 2 segundos, ir para tela de sucesso
+      setTimeout(() => {
+        setStep("success")
+      }, 2000)
+    } else {
+      setPaymentStatus("pending")
+    }
+
+    setIsCheckingPayment(false)
+  }
 
   const handleClose = () => {
     setStep("select")
     setSelectedPackage(null)
+    setCouponCode("")
+    setCouponApplied(false)
+    setDiscount(0)
+    setCouponError("")
+    setPaymentStatus("pending")
+    setShowPaymentSuccess(false)
     onClose()
   }
 
@@ -142,6 +178,8 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
       if (!res.ok) {
         const data = await res.json();
         setErrorMessage(data.message || "Tente novamente em instantes.");
+        setPixCode(null); // limpa código anterior
+        setQrCodeBase64(null); // limpa imagem anterior
         return;
       }
 
@@ -166,7 +204,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
 
 
   return (
-    
+
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="glass border-white/10 max-w-md">
         <DialogHeader>
@@ -183,7 +221,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
             </DialogTitle>
           </div>
         </DialogHeader>
-        
+
         {errorMessage && (
           <div className="bg-red-600 text-white p-3 rounded mb-4 text-center font-semibold">
             {errorMessage}
@@ -263,7 +301,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
 
         {step === "payment" && selectedPackage && (
           <div className="space-y-6">
-            <Card className="glass border-white/10">
+            <Card className="bg-white/5 backdrop-blur-xl border border-white/10">
               <CardHeader>
                 <CardTitle className="text-lg">Resumo do Pedido</CardTitle>
               </CardHeader>
@@ -346,7 +384,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
               <p className="text-gray-400">{selectedPackage.gb}GB foram adicionados à sua conta</p>
             </div>
 
-            <Card className="glass border-white/10">
+            <Card className="bg-white/5 backdrop-blur-xl border border-white/10">
               <CardContent className="p-4 space-y-2">
                 <div className="flex justify-between">
                   <span>Saldo adicionado:</span>
