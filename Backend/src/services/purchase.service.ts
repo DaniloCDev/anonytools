@@ -44,7 +44,7 @@ class PurchaseService {
                 payerEmail: user.email,
             });
         } catch (err) {
-            await this.userRepository.incrementCooldown(userId); 
+            await this.userRepository.incrementCooldown(userId);
             throw new Error("Erro ao gerar pagamento Pix. Tente novamente.");
         }
 
@@ -59,44 +59,42 @@ class PurchaseService {
             await this.userRepository.registerUseCoupon(userId, coupon!.id);
         }
 
-        const cooldownUntil = new Date(Date.now() + 3000);
-        await this.userRepository.setCooldown(userId, 3, cooldownUntil);
+        await this.userRepository.clearCooldown(userId);
 
         return {
             ...payment,
             status: 'PENDING',
             purchaseId: purchase.id,
         };
+
     }
-
-
     async purchaseHistory(userId: string) {
-        const user = await this.userRepository.findById(userId)
-        if (!user) throw new Error("Usuário não encontrado.")
+            const user = await this.userRepository.findById(userId)
+            if (!user) throw new Error("Usuário não encontrado.")
 
-        const purchases = await this.userRepository.getUserPurchases(userId)
+            const purchases = await this.userRepository.getUserPurchases(userId)
 
-        console.log(purchases)
-        return serializeBigIntAndDate(purchases)
-    }
+            console.log(purchases)
+            return serializeBigIntAndDate(purchases)
+        }
 
 
     async getCouponIsValid(couponCode: string) {
-        const coupon = await this.userRepository.getCuponCode(couponCode);
-        if (!coupon || !coupon.isActive) {
-            throw new Error("Cupom inválido ou expirado.");
+            const coupon = await this.userRepository.getCuponCode(couponCode);
+            if (!coupon || !coupon.isActive) {
+                throw new Error("Cupom inválido ou expirado.");
+            }
+            if (coupon.expiresAt && coupon.expiresAt < new Date()) {
+                throw new Error("Cupom expirado.");
+            }
+            return {
+                code: coupon.code,
+                discountPct: coupon.discountPct,
+                minGb: coupon.minGb ?? 0,
+            };
         }
-        if (coupon.expiresAt && coupon.expiresAt < new Date()) {
-            throw new Error("Cupom expirado.");
-        }
-        return {
-            code: coupon.code,
-            discountPct: coupon.discountPct,
-            minGb: coupon.minGb ?? 0,
-        };
-    }
 
-}
+    }
 
 
 export default PurchaseService;

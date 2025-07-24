@@ -204,28 +204,27 @@ class UserRepository {
         return prisma.userCooldown.deleteMany({ where: { userId } });
     }
 
-    async incrementCooldown(userId: string) {
-        const existing = await prisma.userCooldown.findUnique({ where: { userId } });
+async incrementCooldown(userId: string) {
+    const existing = await prisma.userCooldown.findUnique({ where: { userId } });
+    const now = new Date();
+    const attempts = (existing?.attempts || 0) + 1;
 
-        const now = new Date();
-        const attempts = (existing?.attempts || 0) + 1;
-        const cooldownSeconds = Math.min(attempts * 10, 300);
+    // Exemplo de cooldown progressivo em segundos
+    // 1ª tentativa: 30s, 2ª: 60s, 3ª: 120s, >3: bloqueio (ex: 1 dia)
+    let cooldownSeconds;
+    if (attempts === 1) cooldownSeconds = 30;
+    else if (attempts === 2) cooldownSeconds = 60;
+    else if (attempts === 3) cooldownSeconds = 120;
+    else cooldownSeconds = 86400; // 24 horas, obrigar suporte
 
-        const cooldownUntil = new Date(now.getTime() + cooldownSeconds * 1000);
+    const cooldownUntil = new Date(now.getTime() + cooldownSeconds * 1000);
 
-        return prisma.userCooldown.upsert({
-            where: { userId },
-            update: {
-                attempts,
-                cooldownUntil,
-            },
-            create: {
-                userId,
-                attempts,
-                cooldownUntil,
-            },
-        });
-    }
+    return prisma.userCooldown.upsert({
+        where: { userId },
+        update: { attempts, cooldownUntil },
+        create: { userId, attempts, cooldownUntil },
+    });
+}
 
 
     async markPurchaseAsPaid(purchaseId: number): Promise<void> {
