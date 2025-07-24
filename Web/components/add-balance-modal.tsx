@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Copy, QrCode, ArrowLeft, CheckCircle } from "lucide-react"
+import { Copy, QrCode, ArrowLeft, CheckCircle, RefreshCw, Clock } from "lucide-react"
+import { useToast } from "@/components/toast-provider"
 
 interface AddBalanceModalProps {
   isOpen: boolean
@@ -41,10 +42,11 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
   const [step, setStep] = useState<"select" | "payment" | "success">("select");
   const [selectedPackage, setSelectedPackage] = useState<GbPackage | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
+  const { addToast } = useToast()
   const [paymentStatus, setPaymentStatus] = useState<"pending" | "checking" | "paid">("pending")
   const [isCheckingPayment, setIsCheckingPayment] = useState(false)
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false)
+  const [paymentId, setPaymentId] = useState<number | null>(null);
 
   const applyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -126,30 +128,44 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
       });
   };
 
-  // Função para verificar status do pagamento
   const checkPaymentStatus = async () => {
-    setIsCheckingPayment(true)
+    if (!paymentId) return;
 
-    // Simular verificação de pagamento (em produção seria uma API call)
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    setIsCheckingPayment(true);
 
-    // Simular 70% de chance de pagamento aprovado para demonstração
-    const isPaymentApproved = Math.random() > 0.3
+    try {
+      const res = await fetch("/api/user/checkPaymentStatus", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ paymentId }),
+      });
 
-    if (isPaymentApproved) {
-      setPaymentStatus("paid")
-      setShowPaymentSuccess(true)
+      const data = await res.json();
 
-      // Após 2 segundos, ir para tela de sucesso
-      setTimeout(() => {
-        setStep("success")
-      }, 2000)
-    } else {
-      setPaymentStatus("pending")
+      if (res.ok && data.status === "paid") {
+        setPaymentStatus("paid");
+        setShowPaymentSuccess(true);
+
+        setTimeout(() => {
+          setStep("success");
+        }, 2000);
+      } else {
+        setPaymentStatus("pending");
+      }
+    } catch (err) {
+      console.error("Erro ao verificar status do pagamento:", err);
+      addToast({
+        type: "error",
+        title: "Erro ao verificar pagamento",
+        message: "Tente novamente em instantes.",
+        duration: 3000,
+      });
+    } finally {
+      setIsCheckingPayment(false);
     }
+  };
 
-    setIsCheckingPayment(false)
-  }
 
   const handleClose = () => {
     setStep("select")
@@ -180,6 +196,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
         setErrorMessage(data.message || "Tente novamente em instantes.");
         setPixCode(null); // limpa código anterior
         setQrCodeBase64(null); // limpa imagem anterior
+        setPaymentId(data.paymentId); // <--- aqui
         return;
       }
 
@@ -202,6 +219,16 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
     }
   };
 
+
+  useEffect(() => {
+    if (step === "payment" && paymentStatus !== "paid" && paymentId) {
+      const interval = setInterval(() => {
+        checkPaymentStatus();
+      }, 10000); // a cada 10 segundos
+
+      return () => clearInterval(interval);
+    }
+  }, [step, paymentStatus, paymentId]);
 
   return (
 
@@ -331,27 +358,65 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
             </Card>
 
             <div className="text-center space-y-4">
-              {qrCodeBase64 ? (
-                <img
-                  src={`data:image/png;base64,${qrCodeBase64}`}
-                  alt="QR Code"
-                  className="w-48 h-48 mx-auto rounded-lg"
-                />
-              ) : (
-                <div className="w-48 h-48 mx-auto bg-white rounded-lg flex items-center justify-center">
+              {/* QR Code com status */}
+              <div className="relative w-48 h-48 mx-auto bg-white rounded-lg flex items-center justify-center">
+                {qrCodeBase64 ? (
+                  <img
+                    src={`data:image/png;base64,${qrCodeBase64}`}
+                    alt="QR Code"
+                    className="w-48 h-48 mx-auto rounded-lg absolute inset-0"
+                  />
+                ) : (
                   <QrCode className="w-32 h-32 text-black" />
-                </div>
-              )}
+                )}
+
+                {/* Overlay de sucesso */}
+                {showPaymentSuccess && (
+                  <div className="absolute inset-0 bg-green-500/90 rounded-lg flex items-center justify-center animate-fade-in">
+                    <div className="text-center">
+                      <CheckCircle className="w-16 h-16 text-white mx-auto mb-2" />
+                      <p className="text-white font-bold text-lg">✓ PAGO</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Indicador de verificação */}
+                {isCheckingPayment && (
+                  <div className="absolute inset-0 bg-blue-500/90 rounded-lg flex items-center justify-center">
+                    <div className="text-center">
+                      <RefreshCw className="w-16 h-16 text-white mx-auto mb-2 animate-spin" />
+                      <p className="text-white font-bold">Verificando...</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Status do pagamento */}
+              <div className="flex items-center justify-center gap-2">
+                {paymentStatus === "pending" && (
+                  <>
+                    <Clock className="w-4 h-4 text-yellow-400" />
+                    <span className="text-yellow-400 text-sm">Aguardando pagamento</span>
+                  </>
+                )}
+                {paymentStatus === "paid" && (
+                  <>
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span className="text-green-400 text-sm">Pagamento confirmado!</span>
+                  </>
+                )}
+              </div>
+
               <p className="text-sm text-gray-400">Escaneie o QR Code acima ou copie o código PIX</p>
 
-              <Card className="glass border-white/10">
+              <Card className="bg-white/5 backdrop-blur-xl border border-white/10">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2">
                     <code className="flex-1 text-xs bg-black/30 p-2 rounded break-all">{pixCode}</code>
                     <Button
                       size="icon"
                       onClick={copyPixCode}
-                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 glow"
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg shadow-blue-500/25"
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
@@ -359,17 +424,37 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
                 </CardContent>
               </Card>
 
-              <Button
-                onClick={copyPixCode}
-                className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 glow"
-              >
-                Copiar Código PIX
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={copyPixCode}
+                  className="flex-1 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 shadow-lg shadow-green-500/25"
+                >
+                  Copiar Código PIX
+                </Button>
+
+                <Button
+                  onClick={checkPaymentStatus}
+                  disabled={isCheckingPayment || paymentStatus === "paid"}
+                  variant="outline"
+                  className="bg-white/5 backdrop-blur-xl border border-white/20 hover:bg-white/10 transition-all duration-300"
+                >
+                  {isCheckingPayment ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : paymentStatus === "paid" ? (
+                    <CheckCircle className="w-4 h-4" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
 
               <p className="text-xs text-gray-500">
-                O saldo será adicionado automaticamente após a confirmação do pagamento
+                {paymentStatus === "pending"
+                  ? "Clique no botão de atualizar após efetuar o pagamento"
+                  : "O saldo será adicionado automaticamente"}
               </p>
             </div>
+
           </div>
         )}
 
@@ -412,7 +497,3 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
     </Dialog >
   )
 }
-function addToast(arg0: { type: string; title: string; message: any; duration: number }) {
-  throw new Error("Function not implemented.")
-}
-
