@@ -12,9 +12,9 @@ model User {
   name         String
   email        String        @unique
   password     String
-  proxyUser    ProxyUser? // Apenas referência simples
+  proxyUser    ProxyUser? 
   purchases    Purchase[]
-  couponUsages CouponUsage[] // 👈 Adicione essa linha
+  couponUsages CouponUsage[] 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -30,10 +30,10 @@ model ProxyUser {
 }
 
 enum PurchaseStatus {
-  PENDING // aguardando pagamento
-  PAID // pago
-  CANCELED // cancelado
-  FAILED // falha no pagamento
+  PENDING 
+  PAID 
+  CANCELED 
+  FAILED 
 }
 
 model Purchase {
@@ -43,21 +43,20 @@ model Purchase {
   gbAmount    Float
   totalPrice  Float
   status      PurchaseStatus @default(PENDING)
-  mpPaymentId BigInt? // <--- ID da transação do Mercado Pago
+  mpPaymentId BigInt? 
   createdAt   DateTime       @default(now())
 }
 
 model Coupon {
   id          String        @id @default(uuid())
   code        String        @unique
-  discountPct Float // Ex: 10.0 para 10%
-  onlyOnce    Boolean       @default(false) // Apenas 1 uso por usuário
-  minGb       Float? // Ex: só vale se comprar mais de 10GB
+  discountPct Float 
+  onlyOnce    Boolean       @default(false) 
+  minGb       Float? 
   isActive    Boolean       @default(true)
   createdAt   DateTime      @default(now())
   usages      CouponUsage[]
 
-  // Regra opcional: validade
   expiresAt DateTime?
 }
 
@@ -71,5 +70,5 @@ model CouponUsage {
 
   usedAt DateTime @default(now())
 
-  @@unique([couponId, userId]) // Garante uso único por usuário
+  @@unique([couponId, userId]) 
 }

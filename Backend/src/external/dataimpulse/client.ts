@@ -26,7 +26,7 @@ export const dataImpulseClient = axios.create({
   },
 });
 
-// Interceptor para tratar token expirado
+
 dataImpulseClient.interceptors.response.use(
   response => response,
   async error => {
@@ -37,13 +37,10 @@ dataImpulseClient.interceptors.response.use(
       try {
         const newToken = await loginAndGetNewToken();
 
-        // Atualiza headers globais corretamente
         dataImpulseClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
 
-        // Atualiza header da requisição original
         error.config.headers['Authorization'] = `Bearer ${newToken}`;
 
-        // Reenvia a requisição original
         return dataImpulseClient.request(error.config);
       } catch (loginError) {
         return Promise.reject(loginError);
