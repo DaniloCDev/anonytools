@@ -81,7 +81,6 @@ class ProxyUserService {
 
         const descUser = await this.userRepository.getSubuserIdByUserId(userId)
         let updatedThreads = await changeProxyThreads(Number(descUser?.subuserId), threads);
-      //  await this.userRepository.resetPasswordProxy(userId, respResetPassword.password)
         console.log(updatedThreads.threads)
         return updatedThreads.threads
     }
@@ -91,12 +90,9 @@ class ProxyUserService {
         if (!user_id) throw new Error("Usuario não esta logado");
 
         const existing = await this.userRepository.getDashboardData(user_id);
-        // console.log(existing)
         if (!existing) {
             throw new Error("Usuario nâo existe");
         }
-
-        //    console.log(existing)
         return serializeBigIntAndDate(existing);
     }
 }

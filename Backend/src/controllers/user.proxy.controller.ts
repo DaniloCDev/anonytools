@@ -39,11 +39,10 @@ export class UserProxyController {
             }
 
             const gbPackages = [
-                { gb: 5, price: 29.9 },
-                { gb: 10, price: 49.9 },
-                { gb: 25, price: 99.9 },
-                { gb: 50, price: 179.9 },
-                { gb: 100, price: 299.9 },
+                { gb: 5, price: 49.9 },
+                { gb: 10, price: 79.9 },
+                { gb: 20, price: 159.9 },
+                { gb: 50, price: 399.9 },
             ];
             const selected = gbPackages.find(p => p.gb === gbAmount);
             if (!selected) {

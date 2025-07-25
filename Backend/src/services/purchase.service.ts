@@ -26,7 +26,6 @@ class PurchaseService {
             totalPrice = totalPrice * (1 - coupon.discountPct / 100);
         }
 
-        // Tenta incrementar cooldown e bloqueia se necessário
         const cooldownCheck = await this.userRepository.tryIncrementCooldown(userId);
         if (!cooldownCheck.allowed) {
             throw new Error(`Aguarde ${cooldownCheck.waitSeconds} segundos antes de gerar um novo código PIX.`);
@@ -40,11 +39,9 @@ class PurchaseService {
                 payerEmail: user.email,
             });
         } catch (err) {
-            // Em caso de erro, cooldown já incrementado, só lança erro
             throw new Error("Erro ao gerar pagamento Pix. Tente novamente.");
         }
 
-        // Cria a compra no banco
         const purchase = await this.userRepository.createPurchase({
             userId,
             gbAmount,
@@ -55,9 +52,6 @@ class PurchaseService {
         if (couponCode) {
             await this.userRepository.registerUseCoupon(userId, coupon!.id);
         }
-
-        // **Não limpar cooldown aqui!** Só quando o pagamento for confirmado (exemplo: webhook)
-
         return {
             ...payment,
             status: 'PENDING',
