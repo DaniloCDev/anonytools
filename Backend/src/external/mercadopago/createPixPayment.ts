@@ -19,7 +19,7 @@ export async function createPixPayment({ amount, description, payerEmail }: {
         "X-Idempotency-Key":idempotencyKey
       },
       body: JSON.stringify({
-        transaction_amount: 1,
+        transaction_amount: amount,
         description,
         payer: { email: payerEmail },
         payment_method_id: "pix",
