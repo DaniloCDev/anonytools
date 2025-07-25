@@ -50,12 +50,7 @@ export class AuthController {
         try {
 
             if (!result.success) {
-                res.status(400).json({
-                    message: "Erro de validação",
-                    errors: formatZodError(result.error),
-                });
-
-                return;
+                throw new ZodError(result.error.errors);
             }
 
             const user = await usecase.LoginUser(result.data);
