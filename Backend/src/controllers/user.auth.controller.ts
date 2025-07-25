@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import UserRepository from "../repository/user.repository";
-import { toUserResponseDTO, registerUserSchema, loginUserSchema } from "../dtos";
+import { registerUserSchema, loginUserSchema } from "../dtos";
 import { ZodError } from "zod";
 import AuthUserService from "../services/auth.services";
 import formatZodError from "../utils/formatErrorZod";
+import { changePasswordSchema } from "../dtos/ChangePasswordDTO";
 
 export class AuthController {
 
@@ -32,10 +33,12 @@ export class AuthController {
             res.status(200).json({ message: "Login successful" });
         } catch (error) {
             if (error instanceof ZodError) {
-                res.status(400).json({ message: "Erro de validação", errors: error.format() });
+                const firstMessage = error.errors[0]?.message || "Erro de validação"
+                res.status(400).json({ message: firstMessage })
             } else {
-                res.status(400).json({ message: (error as Error).message });
+                res.status(400).json({ message: (error as Error).message })
             }
+
         }
     };
 
@@ -69,9 +72,10 @@ export class AuthController {
         } catch (error) {
             console.log(error)
             if (error instanceof ZodError) {
-                res.status(400).json({ message: "Erro de validação", errors: error.format() });
+                const firstMessage = error.errors[0]?.message || "Erro de validação"
+                res.status(400).json({ message: firstMessage })
             } else {
-                res.status(400).json({ message: (error as Error).message });
+                res.status(400).json({ message: (error as Error).message })
             }
         }
     };
@@ -82,23 +86,18 @@ export class AuthController {
         const usecase = new AuthUserService(new UserRepository());
         const userID = req.userId;
 
-        const { lastPassword, newPassword } = req.body;
-
         try {
-
-            if (!lastPassword || !newPassword) {
-                throw new Error("todos campos são obrigatorios")
-            }
+            const { lastPassword, newPassword } = changePasswordSchema.parse(req.body)
 
             await usecase.changePasswordService(userID, lastPassword, newPassword);
 
             res.status(200).json({ message: "Senha alterada com sucesso" });
         } catch (error) {
-            console.log(error)
             if (error instanceof ZodError) {
-                res.status(400).json({ message: "Erro de validação", errors: error.format() });
+                const firstMessage = error.errors[0]?.message || "Erro de validação"
+                res.status(400).json({ message: firstMessage })
             } else {
-                res.status(400).json({ message: (error as Error).message });
+                res.status(400).json({ message: (error as Error).message })
             }
         }
     };
@@ -108,11 +107,11 @@ export class AuthController {
         try {
             res.status(200).json({ message: "Usuário autenticado", userId: req.userId });
         } catch (error) {
-            console.log(error)
             if (error instanceof ZodError) {
-                res.status(400).json({ message: "Erro de validação", errors: error.format() });
+                const firstMessage = error.errors[0]?.message || "Erro de validação"
+                res.status(400).json({ message: firstMessage })
             } else {
-                res.status(400).json({ message: (error as Error).message });
+                res.status(400).json({ message: (error as Error).message })
             }
         }
     };
@@ -122,11 +121,11 @@ export class AuthController {
             res.cookie('token', '', { httpOnly: true, expires: new Date(0), path: '/' });
             res.status(200).send({ message: 'Logout successful' });
         } catch (error) {
-            console.log(error)
             if (error instanceof ZodError) {
-                res.status(400).json({ message: "Erro de validação", errors: error.format() });
+                const firstMessage = error.errors[0]?.message || "Erro de validação"
+                res.status(400).json({ message: firstMessage })
             } else {
-                res.status(400).json({ message: (error as Error).message });
+                res.status(400).json({ message: (error as Error).message })
             }
         }
     };
