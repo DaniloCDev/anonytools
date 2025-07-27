@@ -8,6 +8,7 @@ const userProxyController = new UserProxyController();
 router.patch("/user/createProxy", authenticateToken , userProxyController.registerUserProxy); 
 router.post("/user/createPurchase", authenticateToken , userProxyController.createPurchase); 
 router.get("/user/purchases", authenticateToken , userProxyController.purchaseHistory); 
+router.get("/user/getDashboard", authenticateToken , userProxyController.GetDataDashboardController); 
 
 router.get("/coupons/validate", authenticateToken , userProxyController.GetCouponWithCode); 
 router.get("/user/get-balance" , authenticateToken, userProxyController.getUserBalance); 

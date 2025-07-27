@@ -75,8 +75,6 @@ export class AuthController {
         }
     };
 
-
-
     changePasswordProfile = async (req: Request, res: Response): Promise<void> => {
 
         const usecase = new AuthUserService(new UserRepository());
@@ -97,8 +95,6 @@ export class AuthController {
             }
         }
     };
-
-
 
     UpdateProfile = async (req: Request, res: Response): Promise<void> => {
 

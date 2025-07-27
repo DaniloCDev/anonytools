@@ -1,6 +1,7 @@
 import { UseRegisterDTO } from "../dtos";
 import { prisma } from "../prisma/client";
 import { PrismaClient, Prisma } from "@prisma/client"
+import { subMonths, startOfMonth } from "date-fns"
 
 class UserRepository {
     async createUser(data: UseRegisterDTO) {
@@ -62,7 +63,7 @@ class UserRepository {
             where,
             include: {
                 proxyUser: true,
-                purchases: { where: { status: "PAID" } }, 
+                purchases: { where: { status: "PAID" } },
             },
             take: 20,
         })
@@ -74,19 +75,18 @@ class UserRepository {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                plan: "Básico",  
+                plan: "Básico",
                 status: "active",
                 gbsPurchased,
-                gbsUsed: 0, 
-                referrals: 0, 
+                gbsUsed: 0,
+                referrals: 0,
                 joinDate: user.createdAt.toISOString(),
-                lastLogin: null, 
+                lastLogin: null,
             }
         })
 
         return mappedUsers
     }
-
 
     async getDashboardData(userId: string) {
         const dataUser = await prisma.user.findFirst({
@@ -133,7 +133,6 @@ class UserRepository {
         };
     }
 
-
     async createUserProxy(data: {
         userId: string;
         username: string;
@@ -146,7 +145,6 @@ class UserRepository {
             },
         });
     }
-
 
     async createPurchase(data: { userId: string; gbAmount: number; totalPrice: number, paymentId: number }) {
         console.log(data.paymentId)
@@ -175,7 +173,6 @@ class UserRepository {
         return purchases;
     }
 
-
     async getCuponCode(couponCode: string) {
         let cupomFInd = await prisma.coupon.findUnique({ where: { code: couponCode } })
 
@@ -196,7 +193,6 @@ class UserRepository {
             }
         });
     }
-
 
     async getPurchaseByPaymentId(mpPaymentId: number) {
         return await prisma.purchase.findFirst({
@@ -293,14 +289,117 @@ class UserRepository {
         return { allowed: true };
     }
 
-
-
     async markPurchaseAsPaid(purchaseId: number): Promise<void> {
         await prisma.purchase.update({
             where: { id: purchaseId },
             data: { status: "PAID" },
         });
     }
+
+
+    async getDashboardStats() {
+        const totalUsers = await prisma.user.count()
+
+        const activeClients = await prisma.user.count({
+            where: {
+                proxyUser: {
+                    is: {}, // Checa se existe proxyUser relacionado
+                },
+            },
+        })
+
+        const totalGbSoldResult = await prisma.purchase.aggregate({
+            where: { status: "PAID" },
+            _sum: { gbAmount: true }
+        })
+
+        const monthlyRevenueResult = await prisma.purchase.aggregate({
+            where: { status: "PAID" },
+            _sum: { totalPrice: true }
+        })
+
+        const startDate = startOfMonth(subMonths(new Date(), 5))
+
+        const purchases = await prisma.purchase.findMany({
+            where: {
+                createdAt: { gte: startDate },
+                status: "PAID"
+            },
+            select: {
+                createdAt: true,
+                gbAmount: true,
+                totalPrice: true
+            }
+        })
+
+        const users = await prisma.user.findMany({
+            where: { createdAt: { gte: startDate } },
+            select: { createdAt: true }
+        })
+
+        // Agrupamento por mês
+        const monthlyMap = new Map<string, { gbs: number; novos: number; total: number }>()
+        for (let i = 0; i < 6; i++) {
+            const date = subMonths(new Date(), 5 - i)
+            const key = date.toLocaleString("pt-BR", { month: "short" })
+            monthlyMap.set(key, { gbs: 0, novos: 0, total: 0 })
+        }
+
+        for (const p of purchases) {
+            const key = p.createdAt.toLocaleString("pt-BR", { month: "short" })
+            const data = monthlyMap.get(key)
+            if (data) data.gbs += p.gbAmount
+        }
+
+        for (const u of users) {
+            const key = u.createdAt.toLocaleString("pt-BR", { month: "short" })
+            const data = monthlyMap.get(key)
+            if (data) data.novos += 1
+        }
+
+        let total = 0
+        const userGrowthData = Array.from(monthlyMap.entries()).map(([month, data]) => {
+            total += data.novos
+            return { month, novos: data.novos, total }
+        })
+
+        const salesData = Array.from(monthlyMap.entries()).map(([month, data]) => ({
+            month,
+            gbs: data.gbs
+        }))
+
+        // Novo cálculo: distribuição por quantidade de GB comprada
+        const allPaidPurchases = await prisma.purchase.findMany({
+            where: { status: "PAID" },
+            select: { gbAmount: true }
+        })
+
+        const gbCounts: Record<number, number> = {}
+        let gbTotal = 0
+
+        for (const { gbAmount } of allPaidPurchases) {
+            const key = Math.round(gbAmount)
+            gbCounts[key] = (gbCounts[key] || 0) + 1
+            gbTotal += 1
+        }
+
+        const planDistribution = Object.entries(gbCounts).map(([gb, count]) => ({
+            name: `${gb} GB`,
+            value: Number(((count / gbTotal) * 100).toFixed(1))
+        }))
+
+        return {
+            totalUsers,
+            activeClients,
+            totalGbSold: totalGbSoldResult._sum.gbAmount ?? 0,
+            monthlyRevenue: monthlyRevenueResult._sum.totalPrice ?? 0,
+            salesData,
+            userGrowthData,
+            planDistribution
+        }
+    }
+
+
 
 }
 

@@ -96,7 +96,7 @@ class ProxyUserService {
         return serializeBigIntAndDate(existing);
     }
 
-    async searchInfoUsers(user_id:string, query: string) {
+    async searchInfoUsers(user_id: string, query: string) {
         if (!query && user_id) throw new Error("è nescessario email ou  id para buscar");
         const userloged = await this.userRepository.findById(user_id);
         if (!userloged) {
@@ -110,6 +110,10 @@ class ProxyUserService {
         return existing;
     }
 
+    async GetDataDashboard(user_id: string) {
+        const existing = await this.userRepository.getDashboardStats();
+        return existing;
+    }
 
 }
 
