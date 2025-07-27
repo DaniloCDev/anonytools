@@ -77,8 +77,8 @@ class UserRepository {
                 status: lastPaidPurchase?.status || "active",
                 expiresAt: "2024-02-15", // precisa de um campo real para isso, se for relevante
                 credentials: {
-                    host: "proxy.proxybr.com",
-                    port: "8080",
+                    host: "proxy.nox24proxy.com.br",
+                    port: "823",
                     username: proxyData?.username,
                     password: proxyData?.password,
                 },
