@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { BarChart3, Users, Settings, LogOut, Shield, Activity, FileText, Download, Ticket } from "lucide-react"
+import { useAdminAuth } from "@/hooks/useAdminAuth"
 
 const menuItems = [
   {
@@ -148,18 +149,9 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const router = useRouter()
+  const { isAuthenticated, loading } = useAdminAuth()
 
-  useEffect(() => {
-    const token = localStorage.getItem("admin-token")
-    if (!token) {
-      router.push("/login")
-    } else {
-      setIsAuthenticated(true)
-    }
-  }, [router])
-
+  if (loading) return <p className="text-white">Verificando sessão...</p>
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">

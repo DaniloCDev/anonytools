@@ -59,7 +59,6 @@ class PurchaseService {
         };
     }
 
-
     async purchaseHistory(userId: string) {
         const user = await this.userRepository.findById(userId)
         if (!user) throw new Error("Usuário não encontrado.")
@@ -69,7 +68,6 @@ class PurchaseService {
         console.log(purchases)
         return serializeBigIntAndDate(purchases)
     }
-
 
     async getCouponIsValid(couponCode: string) {
         const coupon = await this.userRepository.getCuponCode(couponCode);

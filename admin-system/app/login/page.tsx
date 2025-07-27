@@ -24,16 +24,30 @@ export default function LoginPage() {
     setLoading(true)
     setError("")
 
-    // Simulação de login - em produção, fazer chamada para API
-    if (email === "admin@proxy.com" && password === "admin123") {
-      localStorage.setItem("admin-token", "authenticated")
-      router.push("/dashboard")
-    } else {
-      setError("Credenciais inválidas. Acesso restrito apenas para administradores.")
-    }
+    try {
+      const res = await fetch("http://localhost:3001/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+        credentials: "include", 
+      })
 
-    setLoading(false)
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err?.message || "Falha ao fazer login")
+      }
+
+      // Redireciona após sucesso
+      router.push("/dashboard")
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
@@ -51,9 +65,7 @@ export default function LoginPage() {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-200">
-                  E-mail
-                </Label>
+                <Label htmlFor="email" className="text-slate-200">E-mail</Label>
                 <Input
                   id="email"
                   type="email"
@@ -65,9 +77,7 @@ export default function LoginPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-slate-200">
-                  Senha
-                </Label>
+                <Label htmlFor="password" className="text-slate-200">Senha</Label>
                 <div className="relative">
                   <Input
                     id="password"

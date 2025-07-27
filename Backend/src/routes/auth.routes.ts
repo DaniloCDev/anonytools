@@ -11,9 +11,13 @@ router.post("/user/register", authController.registerUser);
 router.post("/user/login", authController.login);
 router.get("/auth/check", authenticateToken, authController.authCheck);
 router.post("/auth/logout", authenticateToken, authController.logout);
-router.post("/user/ChangeUserPassword", authenticateToken, authController.changePasswordProfile);
+
+
 
 router.post("/webhook/mercadopago", purchaseController.mercadoPagoWebhook);
+router.post("/user/ChangeUserPassword", authenticateToken, authController.changePasswordProfile);
+router.put("/user/updateUser", authenticateToken, authController.UpdateProfile);
+
 router.post("/user/checkPaymentStatus", authenticateToken, purchaseController.checkPaymentStatus);
 
 

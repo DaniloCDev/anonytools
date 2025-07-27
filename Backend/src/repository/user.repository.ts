@@ -1,5 +1,6 @@
 import { UseRegisterDTO } from "../dtos";
 import { prisma } from "../prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client"
 
 class UserRepository {
     async createUser(data: UseRegisterDTO) {
@@ -26,19 +27,65 @@ class UserRepository {
             where: { userId },
         });
     }
+
     async findInformationUserById(userId: string) {
         let userData = await prisma.user.findUnique({
             where: { id: userId },
             include: {
-                proxyUser: true,     // dados do ProxyUser
-                purchases: true,     // lista de compras
+                proxyUser: true,
+                purchases: true,
             },
         });
 
-        //    console.log(JSON.stringify(userData!.purchases, null, 2));
         return userData;
     }
 
+    async searchUsers(query?: string) {
+        const where: Prisma.UserWhereInput = query && query.trim() !== "" ? {
+            OR: [
+                { name: { contains: query, mode: "insensitive" } },
+                { email: { contains: query, mode: "insensitive" } },
+                {
+                    proxyUser: {
+                        is: {
+                            OR: [
+                                { username: { contains: query, mode: "insensitive" } },
+                                { password: { contains: query, mode: "insensitive" } },
+                            ],
+                        },
+                    },
+                },
+            ],
+        } : {}
+
+        const users = await prisma.user.findMany({
+            where,
+            include: {
+                proxyUser: true,
+                purchases: { where: { status: "PAID" } }, 
+            },
+            take: 20,
+        })
+
+        const mappedUsers = users.map(user => {
+            const gbsPurchased = user.purchases.reduce((acc, p) => acc + p.gbAmount, 0)
+
+            return {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                plan: "Básico",  
+                status: "active",
+                gbsPurchased,
+                gbsUsed: 0, 
+                referrals: 0, 
+                joinDate: user.createdAt.toISOString(),
+                lastLogin: null, 
+            }
+        })
+
+        return mappedUsers
+    }
 
 
     async getDashboardData(userId: string) {

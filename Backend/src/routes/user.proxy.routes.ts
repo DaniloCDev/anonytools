@@ -15,7 +15,7 @@ router.get("/user/resetProxyPassword" , authenticateToken, userProxyController.c
 router.patch("/user/updateProxyConfig" , authenticateToken, userProxyController.updateProxythreads); 
 
 
-
+router.get("/user/searchUsers" , authenticateToken, userProxyController.informationsUsers); 
 
 
 router.get("/user/test",userProxyController.informationsUser); 

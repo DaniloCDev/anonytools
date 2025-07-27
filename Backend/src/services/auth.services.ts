@@ -62,7 +62,7 @@ class AuthUserService {
 
     }
 
-        async changePasswordService(userID : string, lastPassword:string, newPassword:string) {
+    async changePasswordService(userID: string, lastPassword: string, newPassword: string) {
         const existingUser = await this.userRepository.findById(userID);
 
         if (!existingUser) {
@@ -74,15 +74,31 @@ class AuthUserService {
             throw new Error("Senha invalida");
         }
 
-        
+
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         await this.userRepository.changeUserPassword(existingUser.id, hashedPassword);
 
-        return 
+        return
 
     }
+    
+    
+    async changePasswordUsersService(userID: string, newPassword: string) {
+        const existingUser = await this.userRepository.findById(userID);
 
+        console.log(existingUser, userID)
+        if (!existingUser) {
+            throw new Error("Cliente não existe.");
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await this.userRepository.changeUserPassword(existingUser.id, hashedPassword);
+
+        return
+
+    }
 }
 
 export default AuthUserService;

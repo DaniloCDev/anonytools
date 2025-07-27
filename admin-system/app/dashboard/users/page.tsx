@@ -1,13 +1,31 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
@@ -24,216 +42,129 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react"
+import { useUserSearch } from "@/hooks/useSearchUsers"
+import { toast } from "sonner"
 
-// Expandir os dados simulados dos usuários para demonstrar paginação
-const usersData = [
-  {
-    id: 1,
-    name: "João Silva",
-    email: "joao@email.com",
-    status: "active",
-    gbsPurchased: 150,
-    gbsUsed: 89,
-    referrals: 3,
-    joinDate: "2024-01-15",
-    lastLogin: "2024-01-20",
-    plan: "Pro",
-  },
-  {
-    id: 2,
-    name: "Maria Santos",
-    email: "maria@email.com",
-    status: "active",
-    gbsPurchased: 300,
-    gbsUsed: 245,
-    referrals: 7,
-    joinDate: "2024-01-10",
-    lastLogin: "2024-01-19",
-    plan: "Premium",
-  },
-  {
-    id: 3,
-    name: "Pedro Costa",
-    email: "pedro@email.com",
-    status: "blocked",
-    gbsPurchased: 50,
-    gbsUsed: 50,
-    referrals: 0,
-    joinDate: "2024-01-18",
-    lastLogin: "2024-01-18",
-    plan: "Básico",
-  },
-  {
-    id: 4,
-    name: "Ana Oliveira",
-    email: "ana@email.com",
-    status: "active",
-    gbsPurchased: 200,
-    gbsUsed: 156,
-    referrals: 12,
-    joinDate: "2024-01-05",
-    lastLogin: "2024-01-20",
-    plan: "Pro",
-  },
-  {
-    id: 5,
-    name: "Carlos Mendes",
-    email: "carlos@email.com",
-    status: "active",
-    gbsPurchased: 100,
-    gbsUsed: 45,
-    referrals: 2,
-    joinDate: "2024-01-12",
-    lastLogin: "2024-01-19",
-    plan: "Básico",
-  },
-  {
-    id: 6,
-    name: "Lucia Ferreira",
-    email: "lucia@email.com",
-    status: "active",
-    gbsPurchased: 250,
-    gbsUsed: 180,
-    referrals: 8,
-    joinDate: "2024-01-08",
-    lastLogin: "2024-01-20",
-    plan: "Premium",
-  },
-  {
-    id: 7,
-    name: "Roberto Lima",
-    email: "roberto@email.com",
-    status: "blocked",
-    gbsPurchased: 75,
-    gbsUsed: 75,
-    referrals: 1,
-    joinDate: "2024-01-16",
-    lastLogin: "2024-01-17",
-    plan: "Básico",
-  },
-  {
-    id: 8,
-    name: "Fernanda Rocha",
-    email: "fernanda@email.com",
-    status: "active",
-    gbsPurchased: 180,
-    gbsUsed: 120,
-    referrals: 5,
-    joinDate: "2024-01-11",
-    lastLogin: "2024-01-20",
-    plan: "Pro",
-  },
-  {
-    id: 9,
-    name: "Marcos Alves",
-    email: "marcos@email.com",
-    status: "active",
-    gbsPurchased: 320,
-    gbsUsed: 280,
-    referrals: 15,
-    joinDate: "2024-01-03",
-    lastLogin: "2024-01-19",
-    plan: "Premium",
-  },
-  {
-    id: 10,
-    name: "Patricia Souza",
-    email: "patricia@email.com",
-    status: "active",
-    gbsPurchased: 90,
-    gbsUsed: 60,
-    referrals: 3,
-    joinDate: "2024-01-14",
-    lastLogin: "2024-01-20",
-    plan: "Básico",
-  },
-  {
-    id: 11,
-    name: "Ricardo Gomes",
-    email: "ricardo@email.com",
-    status: "blocked",
-    gbsPurchased: 40,
-    gbsUsed: 40,
-    referrals: 0,
-    joinDate: "2024-01-17",
-    lastLogin: "2024-01-17",
-    plan: "Básico",
-  },
-  {
-    id: 12,
-    name: "Juliana Castro",
-    email: "juliana@email.com",
-    status: "active",
-    gbsPurchased: 220,
-    gbsUsed: 150,
-    referrals: 9,
-    joinDate: "2024-01-06",
-    lastLogin: "2024-01-20",
-    plan: "Pro",
-  },
-]
+
+type User = {
+  id: number
+  name: string
+  email: string
+  plan: string
+  status: "active" | "blocked"
+  gbsPurchased: number
+  gbsUsed: number
+  referrals: number
+  joinDate: string
+  lastLogin: string
+}
 
 export default function UsersPage() {
-  const [users, setUsers] = useState(usersData)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [selectedUser, setSelectedUser] = useState<any>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editMode, setEditMode] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(5)
+  const [searchTerm, setSearchTerm] = useState("") // <<< declarei aqui!
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [editMode, setEditMode] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 5
+  const [addAmount, setAddAmount] = useState(0)
+  const [newPassword, setNewPassword] = useState("")
 
-  // Debounce para busca em tempo real
+  // Usar seu hook com termo debounced
+  const { results, loading } = useUserSearch(debouncedSearchTerm)
+
+  // Debounce searchTerm para evitar buscas em cada digitação
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm)
-      setCurrentPage(1) // Reset para primeira página ao buscar
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm.trim())
+      setCurrentPage(1) // resetar página ao buscar novo termo
     }, 300)
 
-    return () => clearTimeout(timer)
+    return () => clearTimeout(handler)
   }, [searchTerm])
 
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      user.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+  // Filtrar por status e pelo resultado da busca
+  const filteredUsers = results.filter((user) => {
     const matchesStatus = statusFilter === "all" || user.status === statusFilter
-    return matchesSearch && matchesStatus
+    return matchesStatus
   })
 
-  // Lógica de paginação
+  // Paginação
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
   const currentUsers = filteredUsers.slice(startIndex, endIndex)
 
   const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return
     setCurrentPage(page)
   }
 
-  const handleUserClick = (user: any) => {
+  const handleUserClick = (user: User) => {
     setSelectedUser(user)
     setEditMode(false)
     setIsModalOpen(true)
   }
 
-  const handleStatusChange = (userId: number, newStatus: string) => {
-    setUsers(users.map((user) => (user.id === userId ? { ...user, status: newStatus } : user)))
+  const updateUserData = async (updatedFields: { newPassword: string }) => {
+    if (!selectedUser) return
+
+    try {
+      const res = await fetch("http://localhost:3001/user/updateUser", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: selectedUser.id,
+          ...updatedFields,
+        }),
+        credentials: "include",
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || "Erro ao atualizar")
+      }
+
+      toast.success("Senha atualizada com sucesso")
+      setNewPassword("") // limpa o campo de senha
+    } catch (err: any) {
+      toast.error(err.message)
+    }
+  }
+
+  const handlePasswordChange = async () => {
+    if (newPassword.trim().length < 6) {
+      toast.error("Senha deve ter pelo menos 6 caracteres")
+      return
+    }
+    await updateUserData({ newPassword: newPassword })
+
+  }
+
+
+  const handleStatusChange = (userId: number, newStatus: "active" | "blocked") => {
     if (selectedUser?.id === userId) {
       setSelectedUser({ ...selectedUser, status: newStatus })
     }
   }
 
+
   const handleDeleteUser = (userId: number) => {
-    setUsers(users.filter((user) => user.id !== userId))
-    setIsModalOpen(false)
+    // Aqui você pode fazer requisição DELETE na API antes
+    if (selectedUser?.id === userId) {
+      setIsModalOpen(false)
+      setSelectedUser(null)
+    }
   }
 
   const handleAddBalance = (userId: number, amount: number) => {
-    setUsers(users.map((user) => (user.id === userId ? { ...user, gbsPurchased: user.gbsPurchased + amount } : user)))
     if (selectedUser?.id === userId) {
-      setSelectedUser({ ...selectedUser, gbsPurchased: selectedUser.gbsPurchased + amount })
+      setSelectedUser({
+        ...selectedUser,
+        gbsPurchased: selectedUser.gbsPurchased + amount,
+      })
+      setAddAmount(0) // limpar input
     }
   }
 
@@ -274,7 +205,10 @@ export default function UsersPage() {
                 <SelectItem value="blocked">Bloqueados</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" className="border-slate-600 text-slate-300 hover:text-white bg-transparent">
+            <Button
+              variant="outline"
+              className="border-slate-600 text-slate-300 hover:text-white bg-transparent"
+            >
               <Download className="w-4 h-4 mr-2" />
               Exportar
             </Button>
@@ -282,7 +216,7 @@ export default function UsersPage() {
         </CardContent>
       </Card>
 
-      {/* Informações de Paginação */}
+      {/* Paginação */}
       {filteredUsers.length > 0 && (
         <div className="flex items-center justify-between text-sm text-slate-400">
           <span>
@@ -336,10 +270,16 @@ export default function UsersPage() {
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
           <CardTitle className="text-white">Usuários ({filteredUsers.length})</CardTitle>
-          <CardDescription className="text-slate-400">Clique em um usuário para ver detalhes e ações</CardDescription>
+          <CardDescription className="text-slate-400">
+            Clique em um usuário para ver detalhes e ações
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {loading && <p className="text-white">Carregando...</p>}
+            {!loading && currentUsers.length === 0 && (
+              <p className="text-slate-400">Nenhum usuário encontrado.</p>
+            )}
             {currentUsers.map((user) => (
               <div
                 key={user.id}
@@ -413,7 +353,7 @@ export default function UsersPage() {
                     <Label className="text-slate-300">Nome</Label>
                     <Input
                       value={selectedUser.name}
-                      disabled={!editMode}
+                      disabled
                       className="bg-slate-700 border-slate-600 text-white"
                     />
                   </div>
@@ -421,7 +361,7 @@ export default function UsersPage() {
                     <Label className="text-slate-300">E-mail</Label>
                     <Input
                       value={selectedUser.email}
-                      disabled={!editMode}
+                      disabled
                       className="bg-slate-700 border-slate-600 text-white"
                     />
                   </div>
@@ -429,7 +369,8 @@ export default function UsersPage() {
                     <Label className="text-slate-300">Plano</Label>
                     <Input
                       value={selectedUser.plan}
-                      disabled={!editMode}
+                      disabled
+                      onChange={(e) => setSelectedUser({ ...selectedUser, plan: e.target.value })}
                       className="bg-slate-700 border-slate-600 text-white"
                     />
                   </div>
@@ -458,20 +399,51 @@ export default function UsersPage() {
                       className="bg-slate-700 border-slate-600 text-white"
                     />
                   </div>
+
+                  {/* Novo campo para senha, aparece só no modo edição */}
+                  {editMode && (
+                    <div className="col-span-2">
+                      <Label className="text-slate-300">Nova Senha</Label>
+                      <Input
+                        type="password"
+                        placeholder="Digite a nova senha"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="bg-slate-700 border-slate-600 text-white"
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-2">
                   <Button
-                    onClick={() => setEditMode(!editMode)}
+                    onClick={() => {
+                      setEditMode(!editMode);
+                      setNewPassword(""); // limpa a senha ao cancelar edição
+                    }}
                     variant="outline"
                     className="border-slate-600 text-slate-300 hover:text-white"
                   >
                     <Edit className="w-4 h-4 mr-2" />
                     {editMode ? "Cancelar" : "Editar"}
                   </Button>
-                  {editMode && <Button className="bg-purple-600 hover:bg-purple-700">Salvar Alterações</Button>}
+                  {editMode && (
+                    <Button
+                      className="bg-purple-600 hover:bg-purple-700"
+                      onClick={() => {
+                        // Aqui você pode implementar o envio da atualização da senha + outros dados para API
+                        console.log("Salvar dados e senha:", selectedUser, newPassword)
+                        setEditMode(false)
+                        setNewPassword("")
+                        handlePasswordChange()
+                      }}
+                    >
+                      Salvar Alterações
+                    </Button>
+                  )}
                 </div>
               </TabsContent>
+
 
               <TabsContent value="usage" className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -535,14 +507,16 @@ export default function UsersPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <Button
                     onClick={() =>
-                      handleStatusChange(selectedUser.id, selectedUser.status === "active" ? "blocked" : "active")
+                      handleStatusChange(
+                        selectedUser.id,
+                        selectedUser.status === "active" ? "blocked" : "active"
+                      )
                     }
                     variant="outline"
-                    className={`border-slate-600 ${
-                      selectedUser.status === "active"
-                        ? "text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                        : "text-green-400 hover:text-green-300 hover:bg-green-500/10"
-                    }`}
+                    className={`border-slate-600 ${selectedUser.status === "active"
+                      ? "text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                      : "text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                      }`}
                   >
                     {selectedUser.status === "active" ? (
                       <>
@@ -574,9 +548,16 @@ export default function UsersPage() {
                       type="number"
                       placeholder="Quantidade em GB"
                       className="bg-slate-700 border-slate-600 text-white"
+                      value={addAmount > 0 ? addAmount : ""}
+                      onChange={(e) => setAddAmount(Number(e.target.value))}
+                      min={1}
                     />
                     <Button
-                      onClick={() => handleAddBalance(selectedUser.id, 50)}
+                      onClick={() => {
+                        if (addAmount > 0) {
+                          handleAddBalance(selectedUser.id, addAmount)
+                        }
+                      }}
                       className="bg-green-600 hover:bg-green-700"
                     >
                       <DollarSign className="w-4 h-4 mr-2" />

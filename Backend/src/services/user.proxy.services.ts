@@ -74,8 +74,8 @@ class ProxyUserService {
         return respResetPassword.password
     }
 
-    
-    async updateProxyThreadsService(userId: string, threads:number) {
+
+    async updateProxyThreadsService(userId: string, threads: number) {
         const user = await this.userRepository.findById(userId)
         if (!user) throw new Error("Usuário não encontrado.")
 
@@ -95,6 +95,22 @@ class ProxyUserService {
         }
         return serializeBigIntAndDate(existing);
     }
+
+    async searchInfoUsers(user_id:string, query: string) {
+        if (!query && user_id) throw new Error("è nescessario email ou  id para buscar");
+        const userloged = await this.userRepository.findById(user_id);
+        if (!userloged) {
+            throw new Error("Usuario adm nâo existe");
+        }
+
+        const existing = await this.userRepository.searchUsers(query);
+        if (!existing) {
+            throw new Error("Usuario nâo existe");
+        }
+        return existing;
+    }
+
+
 }
 
 export default ProxyUserService;

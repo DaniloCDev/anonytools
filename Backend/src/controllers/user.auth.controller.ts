@@ -76,6 +76,7 @@ export class AuthController {
     };
 
 
+
     changePasswordProfile = async (req: Request, res: Response): Promise<void> => {
 
         const usecase = new AuthUserService(new UserRepository());
@@ -97,6 +98,28 @@ export class AuthController {
         }
     };
 
+
+
+    UpdateProfile = async (req: Request, res: Response): Promise<void> => {
+
+        const usecase = new AuthUserService(new UserRepository());
+        const details = req.body;
+        try {
+           // const { newPassword } = changePasswordSchema.parse(req.body)
+
+        //   console.log(id. password , "controller")
+            await usecase.changePasswordUsersService(details.userId, details.newPassword);
+
+            res.status(200).json({ message: "Senha alterada com sucesso" });
+        } catch (error) {
+            if (error instanceof ZodError) {
+                const firstMessage = error.errors[0]?.message || "Erro de validação"
+                res.status(400).json({ message: firstMessage })
+            } else {
+                res.status(400).json({ message: (error as Error).message })
+            }
+        }
+    };
 
     authCheck = async (req: Request, res: Response): Promise<void> => {
         try {

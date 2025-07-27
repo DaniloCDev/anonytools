@@ -14,7 +14,7 @@ import { useToast } from "@/components/toast-provider"
 import { Copy, Plus, Activity, Shield, Clock, Eye, EyeOff, RefreshCw, HelpCircle } from "lucide-react"
 import { useUser } from "@/contexts/UserContext";
 import { ProxySettings } from "@/components/proxy-settings"
-
+import { useUserAuth } from "@/hooks/useUserAuth"
 
 type UserBalance = {
   balance: number;
@@ -31,9 +31,9 @@ export function useUserBalance() {
   const [loadingBalance, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/user/get-balance",{
-        credentials: "include",
-      })
+    fetch("/api/user/get-balance", {
+      credentials: "include",
+    })
       .then(res => res.json())
       .then(data => {
         setBalance(data);
@@ -46,16 +46,31 @@ export function useUserBalance() {
 }
 
 export default function Dashboard() {
+  const { isAuthenticated, loading: authLoading } = useUserAuth()
   const [activeMenu, setActiveMenu] = useState("proxys")
   const [showCredentials, setShowCredentials] = useState(false)
   const [showAddBalanceModal, setShowAddBalanceModal] = useState(false)
-  const [timeoutReached, setTimeoutReached] = useState(false);
+  const [timeoutReached, setTimeoutReached] = useState(false)
   const { addToast } = useToast()
-  const { balance, loadingBalance } = useUserBalance();
+  const { balance, loadingBalance } = useUserBalance()
+  const { user, loading } = useUser()
 
+  const userPlan = user?.plan
 
-  const { user, loading } = useUser();
-  const userPlan = user?.plan;
+  useEffect(() => {
+    const timer = setTimeout(() => setTimeoutReached(true), 8000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // 👇 Se ainda está verificando autenticação, exibe loading
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen text-white text-xl">
+        <img src="/loading.gif" alt="Carregando..." className="w-20 h-20 mb-4" />
+        Carregando informações...
+      </div>
+    )
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => setTimeoutReached(true), 8000);
