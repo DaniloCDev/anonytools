@@ -21,11 +21,12 @@ type GbPackage = {
 };
 
 const gbPackages: GbPackage[] = [
-  { gb: 5, price: 29.9 },
-  { gb: 10, price: 49.9 },
-  { gb: 25, price: 99.9 },
-  { gb: 50, price: 179.9 },
-  { gb: 100, price: 299.9 },
+  { gb: 1, price: 9.19 },
+  { gb: 3, price: 26.99 },
+  { gb: 5, price: 47.42 },
+  { gb: 10, price: 77.9 },
+  { gb: 20, price: 151.9 },
+  { gb: 50, price: 372.00 },
 ];
 
 

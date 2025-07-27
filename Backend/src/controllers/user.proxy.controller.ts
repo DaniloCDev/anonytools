@@ -39,10 +39,12 @@ export class UserProxyController {
             }
 
             const gbPackages = [
-                { gb: 5, price: 49.9 },
-                { gb: 10, price: 79.9 },
-                { gb: 20, price: 159.9 },
-                { gb: 50, price: 399.9 },
+                { gb: 1, price: 9.19 },
+                { gb: 3, price: 26.99 },
+                { gb: 5, price: 47.42 },
+                { gb: 10, price: 77.9 },
+                { gb: 20, price: 151.9 },
+                { gb: 50, price: 372.00 },
             ];
             const selected = gbPackages.find(p => p.gb === gbAmount);
             if (!selected) {
@@ -155,11 +157,11 @@ export class UserProxyController {
         const body = req.body;
 
         console.log(body.threads, userId)
-        if(!body.threads || body.threads == 0) throw new Error("valor do threads é nescessario");
+        if (!body.threads || body.threads == 0) throw new Error("valor do threads é nescessario");
 
         const usecase = new ProxyUserService(new UserRepository());
         try {
-           const user = await usecase.updateProxyThreadsService(userId, body.threads);
+            const user = await usecase.updateProxyThreadsService(userId, body.threads);
             // console.log(usecase)
             res.status(201).json(user);
         } catch (error) {
