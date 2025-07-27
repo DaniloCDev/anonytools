@@ -131,6 +131,32 @@ export class UserProxyController {
         }
     };
 
+    CreateCoupon = async (req: Request, res: Response): Promise<void> => {
+        const { code, discountPct, onlyOnce, minGb, expiresAt } = req.body
+
+        if (!code || discountPct === undefined) {
+            res.status(400).json({ message: "Código e desconto (%) são obrigatórios" })
+            return
+        }
+
+        try {
+            // Instancia service e repo (ajuste se usar DI ou outros padrões)
+            const usecase = new PurchaseService(new UserRepository())
+
+            // Chama o método que cria o cupom
+            const coupon = await usecase.createCouponService({
+                code,
+                discountPct,
+                onlyOnce,
+                minGb,
+                expiresAt: expiresAt ? new Date(expiresAt) : undefined,
+            })
+
+            res.status(201).json(coupon)
+        } catch (error) {
+            res.status(400).json({ message: (error as Error).message })
+        }
+    }
 
     getUserBalance = async (req: Request, res: Response): Promise<void> => {
 

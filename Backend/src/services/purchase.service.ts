@@ -84,6 +84,22 @@ class PurchaseService {
         };
     }
 
+    async createCouponService(data: {
+        code: string,
+        discountPct: number,
+        onlyOnce?: boolean, 
+        minGb?: number,
+        expiresAt?: Date
+    }) {
+        const coupon = await this.userRepository.getCuponCode(data.code);
+        if (!coupon || !coupon.isActive) {
+            throw new Error("Ja existe um cupom com este codigo.");
+        }
+
+        let creatingCode = await this.userRepository.createCoupon(data)
+        return creatingCode;
+    }
+
 }
 
 

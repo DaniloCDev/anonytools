@@ -399,8 +399,33 @@ class UserRepository {
         }
     }
 
+    async createCoupon(data: {
+        code: string
+        discountPct: number
+        onlyOnce?: boolean
+        minGb?: number
+        expiresAt?: Date
+    }) {
+        const coupon = await prisma.coupon.create({
+            data: {
+                code: data.code,
+                discountPct: data.discountPct,
+                onlyOnce: data.onlyOnce ?? false,
+                minGb: data.minGb,
+                expiresAt: data.expiresAt,
+                isActive: true,
+            },
+        })
+        return coupon
+    }
 
-
+    async deactivateCoupon(code: string) {
+        const updatedCoupon = await prisma.coupon.updateMany({
+            where: { code },
+            data: { isActive: false }
+        })
+        return updatedCoupon
+    }
 }
 
 export default UserRepository;
