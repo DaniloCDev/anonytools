@@ -31,77 +31,9 @@ import {
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 
-// Dados simulados dos cupons
-const couponsData = [
-  {
-    id: "coup_1",
-    code: "WELCOME50",
-    description: "Cupom de boas-vindas com 50% de desconto",
-    type: "percentage",
-    discount: 50,
-    maxUses: 100,
-    currentUses: 23,
-    expiresAt: "2024-02-28",
-    isActive: true,
-    createdAt: "2024-01-15",
-    minPurchase: 50,
-  },
-  {
-    id: "coup_2",
-    code: "PROMO25",
-    description: "Promoção especial de 25GB grátis",
-    type: "fixed",
-    discount: 25,
-    maxUses: 50,
-    currentUses: 12,
-    expiresAt: "2024-03-15",
-    isActive: true,
-    createdAt: "2024-01-10",
-    minPurchase: 100,
-  },
-  {
-    id: "coup_3",
-    code: "EXPIRED10",
-    description: "Cupom expirado de 10% de desconto",
-    type: "percentage",
-    discount: 10,
-    maxUses: 200,
-    currentUses: 200,
-    expiresAt: "2024-01-20",
-    isActive: false,
-    createdAt: "2024-01-01",
-    minPurchase: 0,
-  },
-  {
-    id: "coup_4",
-    code: "MEGA100",
-    description: "Super desconto de 100GB",
-    type: "fixed",
-    discount: 100,
-    maxUses: 20,
-    currentUses: 8,
-    expiresAt: "2024-04-30",
-    isActive: true,
-    createdAt: "2024-01-12",
-    minPurchase: 200,
-  },
-  {
-    id: "coup_5",
-    code: "FRIEND15",
-    description: "Cupom para amigos - 15% off",
-    type: "percentage",
-    discount: 15,
-    maxUses: 75,
-    currentUses: 34,
-    expiresAt: "2024-05-31",
-    isActive: true,
-    createdAt: "2024-01-08",
-    minPurchase: 30,
-  },
-]
 
 export default function CouponsPage() {
-  const [coupons, setCoupons] = useState(couponsData)
+  const [coupons, setCoupons] = useState<Coupon[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [typeFilter, setTypeFilter] = useState("all")
@@ -112,19 +44,50 @@ export default function CouponsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(6)
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  // Estados para criação de cupom
-  const [newCoupon, setNewCoupon] = useState({
+
+  type NewCouponType = {
+    code: string
+    description: string
+    discountPct: number
+    onlyOnce: boolean
+    minGb: number
+    maxUses: number
+    expiresAt: Date | null
+  }
+
+  interface Coupon {
+    id: string;
+    code: string;
+    discountPct: number;
+    onlyOnce: boolean;
+    minGb: number | null;
+    isActive: boolean;
+    createdAt: string;
+    expiresAt: string | null;
+    description?: string;
+    maxUses?: number;
+    currentUses?: number;
+    type?: "percentage"
+  }
+
+
+
+  const [newCoupon, setNewCoupon] = useState<NewCouponType>({
     code: "",
     description: "",
-    type: "percentage",
-    discount: "",
-    maxUses: "",
-    expiresAt: undefined as Date | undefined,
-    minPurchase: "",
+    discountPct: 0,
+    onlyOnce: false,
+    minGb: 0,
+    maxUses: 0,
+    expiresAt: null
   })
 
-  // Debounce para busca em tempo real
+
+
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm)
@@ -134,58 +97,104 @@ export default function CouponsPage() {
     return () => clearTimeout(timer)
   }, [searchTerm])
 
-  const filteredCoupons = coupons.filter((coupon) => {
-    const matchesSearch =
-      coupon.code.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      coupon.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-    const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? coupon.isActive : !coupon.isActive)
-    const matchesType = typeFilter === "all" || coupon.type === typeFilter
-    return matchesSearch && matchesStatus && matchesType
+
+  useEffect(() => {
+    async function fetchCoupons() {
+      try {
+        const res = await fetch("http://localhost:3001/allcoupons", {
+          credentials: "include"
+        })
+        if (!res.ok) throw new Error("Erro ao buscar cupons")
+        const data = await res.json()
+        setCoupons(data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    fetchCoupons()
+  }, [])
+
+  const filteredCoupons = coupons.filter(coupon => {
+    const searchLower = debouncedSearchTerm.toLowerCase()
+    return (
+      coupon.code.toLowerCase().includes(searchLower) ||
+      (coupon.description?.toLowerCase().includes(searchLower))
+    ) && (statusFilter === "all" || (statusFilter === "active" ? coupon.isActive : !coupon.isActive))
   })
+
+  const currentCoupons = filteredCoupons.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  )
 
   // Lógica de paginação
   const totalPages = Math.ceil(filteredCoupons.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const currentCoupons = filteredCoupons.slice(startIndex, endIndex)
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
   }
 
-  const handleCouponClick = (coupon: any) => {
-    setSelectedCoupon(coupon)
-    setEditMode(false)
-    setIsModalOpen(true)
+  const handleCouponClick = async (coupon: Coupon) => {
+    try {
+      const res = await fetch(`http://localhost:3001/coupons/validate?code=${encodeURIComponent(coupon.code)}`, {
+        credentials: 'include'
+      })
+      if (!res.ok) throw new Error('Erro ao buscar detalhes do cupom')
+      const fullCoupon = await res.json()
+      setSelectedCoupon(fullCoupon)
+      setEditMode(false)
+      setIsModalOpen(true)
+    } catch (error) {
+      console.error(error)
+      // Pode avisar o usuário do erro aqui
+    }
   }
 
-  const handleCreateCoupon = () => {
+  const handleCreateCoupon = async () => {
     const couponData = {
-      id: `coup_${Date.now()}`,
       code: newCoupon.code.toUpperCase(),
       description: newCoupon.description,
-      type: newCoupon.type,
-      discount: Number.parseInt(newCoupon.discount),
-      maxUses: Number.parseInt(newCoupon.maxUses),
-      currentUses: 0,
-      expiresAt: newCoupon.expiresAt ? format(newCoupon.expiresAt, "yyyy-MM-dd") : "",
-      isActive: true,
-      createdAt: format(new Date(), "yyyy-MM-dd"),
-      minPurchase: Number.parseInt(newCoupon.minPurchase) || 0,
+      discountPct: Number(newCoupon.discountPct),
+      onlyOnce: newCoupon.onlyOnce,
+      minGb: Number(newCoupon.minGb),
+      maxUses: Number(newCoupon.maxUses),
+      expiresAt: newCoupon.expiresAt ? newCoupon.expiresAt.toISOString() : null,
     }
 
-    setCoupons([couponData, ...coupons])
-    setIsCreateModalOpen(false)
-    setNewCoupon({
-      code: "",
-      description: "",
-      type: "percentage",
-      discount: "",
-      maxUses: "",
-      expiresAt: undefined,
-      minPurchase: "",
-    })
+    try {
+      const res = await fetch("http://localhost:3001/coupons/createCoupon", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(couponData),
+        credentials: "include"
+      })
+
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.message || "Erro ao criar cupom")
+      }
+
+      const createdCoupon = await res.json()
+      setCoupons((prev) => [createdCoupon, ...prev])
+      setIsCreateModalOpen(false)
+      setNewCoupon({
+        code: "",
+        description: "",
+        discountPct: 0,
+        onlyOnce: false,
+        minGb: 0,
+        maxUses: 0,
+        expiresAt: null,
+      })
+    } catch (error) {
+      console.error("Erro criando cupom:", error)
+      // Aqui pode mostrar toast, alerta, etc
+    }
   }
+
+
 
   const handleToggleStatus = (couponId: string) => {
     setCoupons(coupons.map((coupon) => (coupon.id === couponId ? { ...coupon, isActive: !coupon.isActive } : coupon)))
@@ -214,6 +223,7 @@ export default function CouponsPage() {
   }
 
   return (
+
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -254,7 +264,7 @@ export default function CouponsPage() {
             <Users className="h-4 w-4 text-cyan-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{coupons.reduce((acc, c) => acc + c.currentUses, 0)}</div>
+            <div className="text-2xl font-bold text-white">{coupons.reduce((acc, c) => acc + 10, 0)}</div>
           </CardContent>
         </Card>
 
@@ -266,8 +276,8 @@ export default function CouponsPage() {
           <CardContent>
             <div className="text-2xl font-bold text-white">
               {Math.round(
-                (coupons.reduce((acc, c) => acc + c.currentUses, 0) / coupons.reduce((acc, c) => acc + c.maxUses, 0)) *
-                  100,
+                (coupons.reduce((acc, c) => acc + 10, 0) / coupons.reduce((acc, c) => acc + 10, 0)) *
+                100,
               )}
               %
             </div>
@@ -372,6 +382,9 @@ export default function CouponsPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {currentCoupons.map((coupon) => {
           const status = getCouponStatus(coupon)
+          const currentUses = coupon.currentUses ?? 0
+          const maxUses = coupon.maxUses ?? 0
+          const expiresAt = coupon.expiresAt ? new Date(coupon.expiresAt) : null
           return (
             <Card
               key={coupon.id}
@@ -386,32 +399,32 @@ export default function CouponsPage() {
                   </div>
                   <Badge className={status.color}>{status.label}</Badge>
                 </div>
-                <CardDescription className="text-slate-400">{coupon.description}</CardDescription>
+                <CardDescription className="text-slate-400">{coupon.description || "Sem descrição"}</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-400">Desconto:</span>
                     <span className="text-white font-medium">
-                      {coupon.type === "percentage" ? `${coupon.discount}%` : `${coupon.discount} GB`}
+                      {coupon.discountPct}%
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-400">Usos:</span>
                     <span className="text-white font-medium">
-                      {coupon.currentUses}/{coupon.maxUses}
+                      {currentUses}/{maxUses}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-400">Expira em:</span>
                     <span className="text-white font-medium">
-                      {format(new Date(coupon.expiresAt), "dd/MM/yyyy", { locale: ptBR })}
+                      {expiresAt ? format(expiresAt, "dd/MM/yyyy", { locale: ptBR }) : "Sem expiração"}
                     </span>
                   </div>
                   <div className="w-full bg-slate-600 rounded-full h-2 mt-3">
                     <div
                       className="bg-purple-600 h-2 rounded-full transition-all"
-                      style={{ width: `${(coupon.currentUses / coupon.maxUses) * 100}%` }}
+                      style={{ width: maxUses > 0 ? `${(currentUses / maxUses) * 100}%` : "0%" }}
                     />
                   </div>
                 </div>
@@ -440,22 +453,20 @@ export default function CouponsPage() {
                 <Label className="text-slate-300">Código do Cupom *</Label>
                 <Input
                   value={newCoupon.code}
-                  onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
+                  onChange={(e) =>
+                    setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })
+                  }
                   placeholder="Ex: WELCOME50"
                   className="bg-slate-700 border-slate-600 text-white"
                 />
               </div>
               <div>
-                <Label className="text-slate-300">Tipo de Desconto *</Label>
-                <Select value={newCoupon.type} onValueChange={(value) => setNewCoupon({ ...newCoupon, type: value })}>
-                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    <SelectItem value="percentage">Porcentagem (%)</SelectItem>
-                    <SelectItem value="fixed">Valor Fixo (GB)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label className="text-slate-300">Uso único *</Label>
+                <input
+                  type="checkbox"
+                  checked={newCoupon.onlyOnce}
+                  onChange={(e) => setNewCoupon({ ...newCoupon, onlyOnce: e.target.checked })}
+                />
               </div>
             </div>
 
@@ -469,16 +480,16 @@ export default function CouponsPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label className="text-slate-300">
-                  Valor do Desconto * {newCoupon.type === "percentage" ? "(%)" : "(GB)"}
-                </Label>
+                <Label className="text-slate-300">Valor do Desconto (%) *</Label>
                 <Input
                   type="number"
-                  value={newCoupon.discount}
-                  onChange={(e) => setNewCoupon({ ...newCoupon, discount: e.target.value })}
-                  placeholder={newCoupon.type === "percentage" ? "50" : "25"}
+                  value={newCoupon.discountPct}
+                  onChange={(e) =>
+                    setNewCoupon({ ...newCoupon, discountPct: Number(e.target.value) })
+                  }
+                  placeholder="50"
                   className="bg-slate-700 border-slate-600 text-white"
                 />
               </div>
@@ -487,47 +498,36 @@ export default function CouponsPage() {
                 <Input
                   type="number"
                   value={newCoupon.maxUses}
-                  onChange={(e) => setNewCoupon({ ...newCoupon, maxUses: e.target.value })}
+                  onChange={(e) =>
+                    setNewCoupon({ ...newCoupon, maxUses: Number(e.target.value) })
+                  }
                   placeholder="100"
                   className="bg-slate-700 border-slate-600 text-white"
                 />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-slate-300">Data de Expiração *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal bg-slate-700 border-slate-600 text-white"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {newCoupon.expiresAt ? format(newCoupon.expiresAt, "PPP", { locale: ptBR }) : "Selecionar data"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-slate-800 border-slate-700" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={newCoupon.expiresAt}
-                      onSelect={(date) => setNewCoupon({ ...newCoupon, expiresAt: date })}
-                      initialFocus
-                      className="text-white bg-slate-800"
-                    />
-                  </PopoverContent>
-                </Popover>
               </div>
               <div>
                 <Label className="text-slate-300">Compra Mínima (GB)</Label>
                 <Input
                   type="number"
-                  value={newCoupon.minPurchase}
-                  onChange={(e) => setNewCoupon({ ...newCoupon, minPurchase: e.target.value })}
+                  value={newCoupon.minGb}
+                  onChange={(e) =>
+                    setNewCoupon({ ...newCoupon, minGb: Number(e.target.value) })
+                  }
                   placeholder="0"
                   className="bg-slate-700 border-slate-600 text-white"
                 />
               </div>
+            </div>
+
+            <div>
+              <Calendar
+                mode="single"
+                selected={newCoupon.expiresAt ?? undefined} // null vira undefined
+                onSelect={(date) => setNewCoupon({ ...newCoupon, expiresAt: date ?? null })}
+                initialFocus
+                className="text-white bg-slate-800"
+              />
+
             </div>
 
             <div className="flex gap-2 pt-4">
@@ -541,7 +541,12 @@ export default function CouponsPage() {
               <Button
                 onClick={handleCreateCoupon}
                 className="bg-purple-600 hover:bg-purple-700"
-                disabled={!newCoupon.code || !newCoupon.description || !newCoupon.discount || !newCoupon.maxUses}
+                disabled={
+                  !newCoupon.code ||
+                  !newCoupon.description ||
+                  !newCoupon.discountPct ||
+                  !newCoupon.maxUses
+                }
               >
                 Criar Cupom
               </Button>
@@ -549,6 +554,7 @@ export default function CouponsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
 
       {/* Modal de Detalhes do Cupom */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -608,17 +614,18 @@ export default function CouponsPage() {
                     <Input
                       value={
                         selectedCoupon.type === "percentage"
-                          ? `${selectedCoupon.discount}%`
-                          : `${selectedCoupon.discount} GB`
+                          ? `${selectedCoupon.discountPct}%`
+                          : `${selectedCoupon.discountPct} GB` // ajuste para o campo correto do valor fixo
                       }
                       disabled
                       className="bg-slate-700 border-slate-600 text-white"
                     />
+
                   </div>
                   <div>
                     <Label className="text-slate-300">Compra Mínima</Label>
                     <Input
-                      value={`${selectedCoupon.minPurchase} GB`}
+                      value={`${selectedCoupon.minGb ?? 0} GB`}
                       disabled
                       className="bg-slate-700 border-slate-600 text-white"
                     />
@@ -630,11 +637,16 @@ export default function CouponsPage() {
                       disabled
                       className="bg-slate-700 border-slate-600 text-white"
                     />
+
                   </div>
                   <div>
                     <Label className="text-slate-300">Data de Expiração</Label>
                     <Input
-                      value={format(new Date(selectedCoupon.expiresAt), "dd/MM/yyyy", { locale: ptBR })}
+                      value={
+                        selectedCoupon.expiresAt
+                          ? format(new Date(selectedCoupon.expiresAt), "dd/MM/yyyy", { locale: ptBR })
+                          : "Sem expiração"
+                      }
                       disabled
                       className="bg-slate-700 border-slate-600 text-white"
                     />
@@ -716,11 +728,10 @@ export default function CouponsPage() {
                   <Button
                     onClick={() => handleToggleStatus(selectedCoupon.id)}
                     variant="outline"
-                    className={`border-slate-600 ${
-                      selectedCoupon.isActive
-                        ? "text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                        : "text-green-400 hover:text-green-300 hover:bg-green-500/10"
-                    }`}
+                    className={`border-slate-600 ${selectedCoupon.isActive
+                      ? "text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                      : "text-green-400 hover:text-green-300 hover:bg-green-500/10"
+                      }`}
                   >
                     {selectedCoupon.isActive ? "Desativar Cupom" : "Ativar Cupom"}
                   </Button>
