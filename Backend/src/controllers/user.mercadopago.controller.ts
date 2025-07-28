@@ -74,12 +74,18 @@ export class PurchaseController {
         return;
       }
 
+      console.log(purchase)
+
       if (payment.status === "approved" && purchase.status !== "PAID") {
         if (!purchase.user.proxyUser?.subuserId) {
           console.error("SubuserId ausente:", purchase.user);
           res.status(400).json({ message: "Erro interno: SubuserId ausente. Contate o suporte." });
+          console.log(payment)
           return;
+          
         }
+
+          console.log(payment,purchase)
 
         await userRepository.markPurchaseAsPaid(purchase.id);
         await addToBalance(Number(purchase.user.proxyUser.subuserId), purchase.gbAmount);
