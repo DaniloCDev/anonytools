@@ -42,7 +42,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await fetch("/api/user/getDashboard", {
+        const res = await fetch("https://nox24proxy.com.br/api/user/getDashboard", {
           credentials: "include",
         })
         const data = await res.json()

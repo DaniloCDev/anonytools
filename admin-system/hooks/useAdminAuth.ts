@@ -9,7 +9,7 @@ export function useAdminAuth() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("/api/auth/check", {
+        const res = await fetch("https://nox24proxy.com.br/api/auth/check", {
           credentials: "include", 
         })
 
