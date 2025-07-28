@@ -91,6 +91,9 @@ export class PurchaseController {
         await addToBalance(Number(purchase.user.proxyUser.subuserId), purchase.gbAmount);
       }
 
+      console.log(purchase)
+
+     await  userRepository.clearCooldown(purchase.user.id)
       res.status(200).json({ status: purchase.status === "PAID" || payment.status === "approved" ? "paid" : "pending" });
     } catch (error) {
       console.error("Erro ao verificar status do pagamento:", error);
