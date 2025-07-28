@@ -134,16 +134,16 @@ export class UserProxyController {
     CreateCoupon = async (req: Request, res: Response): Promise<void> => {
         const { code, discountPct, onlyOnce, minGb, expiresAt } = req.body
 
+        console.log(code, discountPct, onlyOnce, minGb, expiresAt)
         if (!code || discountPct === undefined) {
             res.status(400).json({ message: "Código e desconto (%) são obrigatórios" })
             return
         }
 
         try {
-            // Instancia service e repo (ajuste se usar DI ou outros padrões)
+
             const usecase = new PurchaseService(new UserRepository())
 
-            // Chama o método que cria o cupom
             const coupon = await usecase.createCouponService({
                 code,
                 discountPct,
@@ -153,6 +153,21 @@ export class UserProxyController {
             })
 
             res.status(201).json(coupon)
+        } catch (error) {
+            res.status(400).json({ message: (error as Error).message })
+        }
+    }
+
+    
+    ListAllCoupons = async (req: Request, res: Response): Promise<void> => {
+
+        try {
+
+            const usecase = new PurchaseService(new UserRepository())
+
+            const coupons = await usecase.ListAllCoupons()
+
+            res.status(201).json(coupons)
         } catch (error) {
             res.status(400).json({ message: (error as Error).message })
         }

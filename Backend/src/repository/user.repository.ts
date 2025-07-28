@@ -426,6 +426,16 @@ class UserRepository {
         })
         return updatedCoupon
     }
+
+    async listCoupons() {
+        const coupons = await prisma.coupon.findMany({
+            orderBy: {
+                createdAt: 'desc', 
+            },
+        })
+        return coupons
+    }
+
 }
 
 export default UserRepository;

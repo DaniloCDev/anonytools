@@ -11,6 +11,9 @@ router.get("/user/purchases", authenticateToken , userProxyController.purchaseHi
 router.get("/user/getDashboard", authenticateToken , userProxyController.GetDataDashboardController); 
 
 router.get("/coupons/validate", authenticateToken , userProxyController.GetCouponWithCode); 
+router.post("/coupons/createCoupon", authenticateToken , userProxyController.CreateCoupon); 
+router.get("/allcoupons", authenticateToken , userProxyController.ListAllCoupons);
+
 router.get("/user/get-balance" , authenticateToken, userProxyController.getUserBalance); 
 router.get("/user/resetProxyPassword" , authenticateToken, userProxyController.changePassword); 
 router.patch("/user/updateProxyConfig" , authenticateToken, userProxyController.updateProxythreads); 

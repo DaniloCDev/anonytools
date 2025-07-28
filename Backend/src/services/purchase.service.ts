@@ -71,33 +71,36 @@ class PurchaseService {
 
     async getCouponIsValid(couponCode: string) {
         const coupon = await this.userRepository.getCuponCode(couponCode);
+        console.log(coupon)
         if (!coupon || !coupon.isActive) {
             throw new Error("Cupom inválido ou expirado.");
         }
         if (coupon.expiresAt && coupon.expiresAt < new Date()) {
             throw new Error("Cupom expirado.");
         }
-        return {
-            code: coupon.code,
-            discountPct: coupon.discountPct,
-            minGb: coupon.minGb ?? 0,
-        };
+        return coupon
     }
+    
 
     async createCouponService(data: {
         code: string,
         discountPct: number,
-        onlyOnce?: boolean, 
+        onlyOnce?: boolean,
         minGb?: number,
         expiresAt?: Date
     }) {
         const coupon = await this.userRepository.getCuponCode(data.code);
-        if (!coupon || !coupon.isActive) {
+        if (coupon) {
             throw new Error("Ja existe um cupom com este codigo.");
         }
 
         let creatingCode = await this.userRepository.createCoupon(data)
         return creatingCode;
+    }
+
+    async ListAllCoupons() {
+        const coupons = await this.userRepository.listCoupons();
+        return coupons;
     }
 
 }
