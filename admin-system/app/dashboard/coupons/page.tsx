@@ -101,7 +101,7 @@ export default function CouponsPage() {
   useEffect(() => {
     async function fetchCoupons() {
       try {
-        const res = await fetch("http://localhost:3001/allcoupons", {
+        const res = await fetch("/api/allcoupons", {
           credentials: "include"
         })
         if (!res.ok) throw new Error("Erro ao buscar cupons")
@@ -138,7 +138,7 @@ export default function CouponsPage() {
 
   const handleCouponClick = async (coupon: Coupon) => {
     try {
-      const res = await fetch(`http://localhost:3001/coupons/validate?code=${encodeURIComponent(coupon.code)}`, {
+      const res = await fetch(`/api/coupons/validate?code=${encodeURIComponent(coupon.code)}`, {
         credentials: 'include'
       })
       if (!res.ok) throw new Error('Erro ao buscar detalhes do cupom')
@@ -164,7 +164,7 @@ export default function CouponsPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:3001/coupons/createCoupon", {
+      const res = await fetch("/api/coupons/createCoupon", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(couponData),

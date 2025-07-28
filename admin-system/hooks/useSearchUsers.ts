@@ -24,7 +24,7 @@ const [results, setResults] = useState<User[]>([])
 
       try {
 
-        const res = await fetch(`http://localhost:3001/user/searchUsers?q=${encodeURIComponent(query)}`, {
+        const res = await fetch(`/api/user/searchUsers?q=${encodeURIComponent(query)}`, {
           credentials: "include", 
         })
 

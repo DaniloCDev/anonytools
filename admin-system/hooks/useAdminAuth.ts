@@ -9,7 +9,7 @@ export function useAdminAuth() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("http://localhost:3001/auth/check", {
+        const res = await fetch("/api/auth/check", {
           credentials: "include", 
         })
 
