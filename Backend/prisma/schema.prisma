@@ -12,13 +12,14 @@ model User {
   name         String
   email        String        @unique
   password     String
-  proxyUser    ProxyUser? 
+  proxyUser    ProxyUser?
+  isAdmin      Boolean       @default(false)
   purchases    Purchase[]
-  couponUsages CouponUsage[] 
+  couponUsages CouponUsage[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
-  cooldown     UserCooldown?
+  cooldown UserCooldown?
 }
 
 model ProxyUser {
@@ -32,10 +33,10 @@ model ProxyUser {
 }
 
 enum PurchaseStatus {
-  PENDING 
-  PAID 
-  CANCELED 
-  FAILED 
+  PENDING
+  PAID
+  CANCELED
+  FAILED
 }
 
 model Purchase {
@@ -45,16 +46,16 @@ model Purchase {
   gbAmount    Float
   totalPrice  Float
   status      PurchaseStatus @default(PENDING)
-  mpPaymentId BigInt? 
+  mpPaymentId BigInt?
   createdAt   DateTime       @default(now())
 }
 
 model Coupon {
   id          String        @id @default(uuid())
   code        String        @unique
-  discountPct Float 
-  onlyOnce    Boolean       @default(false) 
-  minGb       Float? 
+  discountPct Float
+  onlyOnce    Boolean       @default(false)
+  minGb       Float?
   isActive    Boolean       @default(true)
   createdAt   DateTime      @default(now())
   usages      CouponUsage[]
@@ -72,18 +73,17 @@ model CouponUsage {
 
   usedAt DateTime @default(now())
 
-  @@unique([couponId, userId]) 
+  @@unique([couponId, userId])
 }
 
-
 model UserCooldown {
-  id            Int      @id @default(autoincrement())
-  userId        String   @unique
-  attempts      Int      @default(0)
+  id            Int       @id @default(autoincrement())
+  userId        String    @unique
+  attempts      Int       @default(0)
   cooldownUntil DateTime?
 
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

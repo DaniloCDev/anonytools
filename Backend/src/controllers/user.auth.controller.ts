@@ -42,6 +42,39 @@ export class AuthController {
         }
     };
 
+    loginAdmin = async (req: Request, res: Response): Promise<void> => {
+
+        const usecase = new AuthUserService(new UserRepository());
+        const result = loginUserSchema.safeParse(req.body);
+
+        try {
+
+            if (!result.success) {
+                throw new ZodError(result.error.errors);
+            }
+
+            const user = await usecase.LoginUser(result.data);
+            const isProduction = process.env.NODE_ENV === "production";
+
+
+            res.cookie("token", user.token, {
+                httpOnly: true,
+                maxAge: 60 * 60 * 24000, // 24h
+                sameSite: "lax",
+                secure: isProduction,
+            });
+            res.status(200).json({ message: "Login successful" });
+        } catch (error) {
+            console.log(error)
+            if (error instanceof ZodError) {
+                const firstMessage = error.errors[0]?.message || "Erro de validação"
+                res.status(400).json({ message: firstMessage })
+            } else {
+                res.status(400).json({ message: (error as Error).message })
+            }
+        }
+    };
+
     login = async (req: Request, res: Response): Promise<void> => {
 
         const usecase = new AuthUserService(new UserRepository());
@@ -101,9 +134,9 @@ export class AuthController {
         const usecase = new AuthUserService(new UserRepository());
         const details = req.body;
         try {
-           // const { newPassword } = changePasswordSchema.parse(req.body)
+            // const { newPassword } = changePasswordSchema.parse(req.body)
 
-        //   console.log(id. password , "controller")
+            //   console.log(id. password , "controller")
             await usecase.changePasswordUsersService(details.userId, details.newPassword);
 
             res.status(200).json({ message: "Senha alterada com sucesso" });

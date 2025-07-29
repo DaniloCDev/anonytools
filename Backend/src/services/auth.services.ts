@@ -62,6 +62,35 @@ class AuthUserService {
 
     }
 
+    async LoginUserAdmin(data: UserLoginDTO) {
+        const proxyService = new ProxyUserService(new UserRepository());
+        const existingUser = await this.userRepository.findByEmail(data.email);
+
+        if (!existingUser) {
+            throw new Error("Email ou senha inválidos."); 
+        }
+
+        const isPasswordValid = await bcrypt.compare(data.password, existingUser.password);
+        if (!isPasswordValid) {
+            throw new Error("Email ou senha inválidos.");
+        }
+
+        if (!existingUser.isAdmin) {
+            throw new Error("Acesso negado: usuário não é administrador.");
+        }
+
+        await proxyService.createUserProxy(existingUser.id);
+
+        const token = jwt.sign(
+            { id: existingUser.id },
+            process.env.JWT_SECRET_KEY as string,
+            { expiresIn: '1d' }
+        );
+
+        return { user: toUserResponseDTO(existingUser), token };
+    }
+
+
     async changePasswordService(userID: string, lastPassword: string, newPassword: string) {
         const existingUser = await this.userRepository.findById(userID);
 
@@ -82,8 +111,8 @@ class AuthUserService {
         return
 
     }
-    
-    
+
+
     async changePasswordUsersService(userID: string, newPassword: string) {
         const existingUser = await this.userRepository.findById(userID);
 
@@ -100,7 +129,7 @@ class AuthUserService {
 
     }
 
-    
+
 }
 
 export default AuthUserService;

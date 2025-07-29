@@ -6,8 +6,8 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Proxy Admin - Sistema de Gestão",
-  description: "Sistema administrativo para gerenciamento de proxy e usuários",
+  title: " Admin - Sistema de Gestão",
+  //description: "Sistema administrativo para gerenciamento de proxy e usuários",
 }
 
 export default function RootLayout({
@@ -17,6 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className="dark">
+      <meta name="robots" content="noindex, nofollow"></meta>
       <body className={`${inter.className} dark bg-slate-900 text-slate-50`}>{children}</body>
     </html>
   )
