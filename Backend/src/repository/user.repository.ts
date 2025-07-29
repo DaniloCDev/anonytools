@@ -1,6 +1,6 @@
 import { UseRegisterDTO } from "../dtos";
 import { prisma } from "../prisma/client";
-import { PrismaClient, Prisma } from "@prisma/client"
+import { PrismaClient, Prisma, User } from "@prisma/client"
 import { subMonths, startOfMonth } from "date-fns"
 
 class UserRepository {
@@ -15,12 +15,12 @@ class UserRepository {
         })
     }
 
-    async findByEmail(email: string) {
+    async findByEmail(email: string): Promise<User | null> {
         return prisma.user.findUnique({
             where: { email },
         });
-
     }
+
 
     async findById(userid: string) {
         return prisma.user.findUnique({ where: { id: userid } });
