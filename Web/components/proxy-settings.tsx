@@ -39,7 +39,7 @@ export function ProxySettings() {
         port: user.plan.credentials.port,
         username: user.plan.credentials.username,
         password: user.plan.credentials.password,
-        threads: user.plan.threads || 150
+        threads: user.plan.threads 
       }));
     }
   }, [user, loading]);
