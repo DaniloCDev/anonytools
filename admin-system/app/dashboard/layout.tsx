@@ -68,13 +68,7 @@ function AppSidebar() {
   const router = useRouter()
 
   const handleLogout = async () => {
-    const res = await fetch("/api/auth/logout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    })
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     router.push("/login")
   }
 
