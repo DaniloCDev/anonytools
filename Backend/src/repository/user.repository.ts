@@ -21,11 +21,10 @@ class UserRepository {
         });
     }
 
-    async deleteByEmail(email: string): Promise<boolean> {
-        const result = await prisma.user.deleteMany({
-            where: { email },
-        });
-        return result.count > 0;
+    async deleteUser(userId: string): Promise<boolean> {
+        await prisma.proxyUser.deleteMany({ where: { userId } }); // remover dependência
+        const result = await prisma.user.delete({ where: { id: userId } });
+        return !!result;
     }
 
 

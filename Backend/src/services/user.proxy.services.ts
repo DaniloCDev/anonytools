@@ -70,7 +70,7 @@ class ProxyUserService {
         if (!user) throw new Error("Usuário não encontrado.");
 
         const descUser = await this.userRepository.getSubuserIdByUserId(userId)
-        await this.userRepository.deleteByEmail(user.email)
+        await this.userRepository.deleteUser(user.email)
         let respBalance = await getBalanceUser(Number(descUser?.subuserId));
         if (!respBalance.success) throw new Error("Usuario não pode ser deletado");
         
