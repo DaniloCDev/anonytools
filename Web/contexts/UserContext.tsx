@@ -57,7 +57,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       } else {
         const proxyData = await proxyRes.json();
         console.log( proxyData)
-        userData.plan.threads = proxyData.threads ?? 0;
+        userData.plan.threads = proxyData
       }
 
       //console.log(userData)
