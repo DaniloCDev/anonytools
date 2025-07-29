@@ -198,7 +198,7 @@ export class UserProxyController {
         const userId = req.userId;
         const usecase = new ProxyUserService(new UserRepository());
         try {
-            const user = await usecase.getUserBalanceService(userId);
+            const user = await usecase.getUserService(userId);
             //  console.log(usecase)
             res.status(201).json(user);
         } catch (error) {
