@@ -1,6 +1,6 @@
 import { dataImpulseClient } from './client';
 
-export async function createSubUser(idUser: string): Promise<any> {
+export async function deleteSubUser(idUser: number): Promise<any> {
     let payload = {
         subuser_id: idUser
     }

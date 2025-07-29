@@ -2,6 +2,7 @@ import { mapSubUserDtoToProxyUser, ProxyUser, SubUserDTO } from "../dtos/mappers
 import { addToBalance } from "../external/dataimpulse/addTrafficInToBalance";
 import { changePasswordExternalApi } from "../external/dataimpulse/changePassword";
 import { createSubUser } from "../external/dataimpulse/createSubUser";
+import { deleteSubUser } from "../external/dataimpulse/deleteSubUser";
 import { getBalanceUser } from "../external/dataimpulse/getBalanceSubUser";
 import { getUser } from "../external/dataimpulse/getUser";
 import { changeProxyThreads } from "../external/dataimpulse/updateProxyThreads";
@@ -71,10 +72,9 @@ class ProxyUserService {
 
         const descUser = await this.userRepository.getSubuserIdByUserId(userId);
 
-        // CORRETO: passa o ID aqui
         await this.userRepository.deleteUser(userId);
 
-        const respBalance = await getBalanceUser(Number(descUser?.subuserId));
+        const respBalance = await deleteSubUser(Number(descUser?.subuserId));
         if (!respBalance.success) throw new Error("Usuario não pode ser deletado");
 
         return respBalance.success;
