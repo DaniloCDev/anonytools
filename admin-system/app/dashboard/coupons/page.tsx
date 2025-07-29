@@ -612,11 +612,7 @@ export default function CouponsPage() {
                   <div>
                     <Label className="text-slate-300">Desconto</Label>
                     <Input
-                      value={
-                        selectedCoupon.type === "percentage"
-                          ? `${selectedCoupon.discountPct}%`
-                          : `${selectedCoupon.discountPct} GB` // ajuste para o campo correto do valor fixo
-                      }
+                      value={ `${selectedCoupon.discountPct}%`}
                       disabled
                       className="bg-slate-700 border-slate-600 text-white"
                     />

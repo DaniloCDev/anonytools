@@ -152,7 +152,7 @@ export default function UsersPage() {
 
   const handleDeleteUser = async (userId: number) => {
     try {
-      const response = await fetch("/api/user/deleteUse", {
+      const response = await fetch("/api/user/BlockUser", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
