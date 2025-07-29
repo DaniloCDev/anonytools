@@ -331,9 +331,15 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent className="space-y-4 lg:space-y-6">
                     <p className="text-gray-400 lg:text-lg">Nossa equipe está disponível 24/7 para ajudar você</p>
-                    <Button className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 py-3 text-base lg:text-lg">
-                      Contatar Suporte
-                    </Button>
+                    <a
+                      href="https://wa.me/5511965879253?text=Ol%C3%A1%20gostaria%20de%20tirar%20uma%20d%C3%BAvida"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 py-3 text-base lg:text-lg">
+                        Contatar Suporte
+                      </Button>
+                    </a>
                   </CardContent>
                 </Card>
               </div>
@@ -362,7 +368,15 @@ export default function Dashboard() {
                 <HelpCircle className="w-20 h-20 lg:w-24 lg:h-24 mx-auto text-blue-400" />
                 <h3 className="text-2xl lg:text-3xl font-semibold">Como podemos ajudar?</h3>
                 <p className="text-gray-400 text-lg lg:text-xl">Nossa equipe está disponível 24/7</p>
-                <Button className="bg-gradient-to-r from-green-500 to-blue-600 px-8 py-4 text-lg">Abrir Ticket</Button>
+                <a
+                  href="https://wa.me/5511965879253?text=Ol%C3%A1%20gostaria%20de%20tirar%20uma%20d%C3%BAvida"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 py-3 text-base lg:text-lg">
+                    Contatar Suporte
+                  </Button>
+                </a>
               </div>
             </Card>
           </div>
