@@ -90,7 +90,6 @@ class AuthUserService {
         return { user: toUserResponseDTO(existingUser), token };
     }
 
-
     async changePasswordService(userID: string, lastPassword: string, newPassword: string) {
         const existingUser = await this.userRepository.findById(userID);
 
