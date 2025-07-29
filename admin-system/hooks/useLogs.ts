@@ -20,7 +20,7 @@ export default function useLogs() {
   useEffect(() => {
     async function fetchLogs() {
       try {
-        const response = await axios.get("/api/logs");
+        const response = await axios.get("/api/sistem/logs");
         const data = response.data;
 
         if (Array.isArray(data.logs)) {
