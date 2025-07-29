@@ -22,9 +22,21 @@ class UserRepository {
     }
 
     async deleteUser(userId: string): Promise<boolean> {
-        await prisma.proxyUser.deleteMany({ where: { userId } }); // remover dependência
-        const result = await prisma.user.delete({ where: { id: userId } });
-        return !!result;
+        const existingUser = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!existingUser) {
+            throw new Error("Usuário não encontrado.");
+        }
+
+        // Remove dependências primeiro
+        await prisma.proxyUser.deleteMany({ where: { userId } });
+
+        // Agora pode deletar com segurança
+        await prisma.user.delete({ where: { id: userId } });
+
+        return true;
     }
 
 
