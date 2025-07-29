@@ -30,10 +30,10 @@ class UserRepository {
             throw new Error("Usuário não encontrado.");
         }
 
-        // Remove dependências primeiro
+        // Remove dependências
         await prisma.proxyUser.deleteMany({ where: { userId } });
-
-        // Agora pode deletar com segurança
+        await prisma.purchase.deleteMany({ where: { userId } }); 
+        // Agora pode deletar o usuário com segurança
         await prisma.user.delete({ where: { id: userId } });
 
         return true;
