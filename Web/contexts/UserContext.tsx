@@ -47,6 +47,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         fetch("/api/user/getUserProxy", { credentials: "include" }),
       ]);
 
+      console.log(userRes, proxyRes)
       if (!userRes.ok) throw new Error("Erro ao buscar dados do usuário");
       const userData = await userRes.json();
 
