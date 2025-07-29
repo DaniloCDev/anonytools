@@ -1,6 +1,6 @@
 import { UseRegisterDTO } from "../dtos";
 import { prisma } from "../prisma/client";
-import { PrismaClient, Prisma, User } from "@prisma/client"
+import { Prisma, User } from "@prisma/client"
 import { subMonths, startOfMonth } from "date-fns"
 
 class UserRepository {
@@ -20,6 +20,14 @@ class UserRepository {
             where: { email },
         });
     }
+
+    async deleteByEmail(email: string): Promise<boolean> {
+        const result = await prisma.user.deleteMany({
+            where: { email },
+        });
+        return result.count > 0;
+    }
+
 
     async findById(userid: string) {
         return prisma.user.findUnique({ where: { id: userid } });

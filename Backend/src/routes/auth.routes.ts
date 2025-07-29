@@ -1,23 +1,25 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/user.auth.controller";
-import { authenticateToken } from "../middlewares/auth.middleware";
 import { PurchaseController } from "../controllers/user.mercadopago.controller";
+import { authenticateToken } from "../middlewares/auth.middleware";
+
 const router = Router();
 const authController = new AuthController();
 const purchaseController = new PurchaseController();
 
-
+// ─── Auth ────────────────────────────────────────────────
 router.post("/user/register", authController.registerUser);
 router.post("/user/login", authController.login);
 router.post("/user/admin/login", authController.loginAdmin);
-
 router.get("/auth/check", authenticateToken, authController.authCheck);
 router.post("/auth/logout", authenticateToken, authController.logout);
 
-router.post("/user/ChangeUserPassword", authenticateToken, authController.changePasswordProfile);
-router.put("/user/updateUser", authenticateToken, authController.UpdateProfile);
+// ─── User Profile ────────────────────────────────────────
+router.post("/user/change-password", authenticateToken, authController.changePasswordProfile);
+router.put("/user/update", authenticateToken, authController.UpdateProfile);
 
-router.post("/webhook/mercadopago", purchaseController.mercadoPagoWebhook);
-router.post("/user/checkPaymentStatus", authenticateToken, purchaseController.checkPaymentStatus);
+// ─── Payments / Mercado Pago ─────────────────────────────
+router.post("/webhook/mercadopago", purchaseController.mercadoPagoWebhook); 
+router.post("/user/check-payment-status", authenticateToken, purchaseController.checkPaymentStatus);
 
 export default router;

@@ -1,30 +1,37 @@
-import {  Router } from "express";
-import {  UserProxyController} from "../controllers/user.proxy.controller";
+import { Router } from "express";
+import { UserProxyController } from "../controllers/user.proxy.controller";
 import { authenticateToken } from "../middlewares/auth.middleware";
 
 const router = Router();
 const userProxyController = new UserProxyController();
 
-router.patch("/user/createProxy", authenticateToken , userProxyController.registerUserProxy); 
-router.post("/user/createPurchase", authenticateToken , userProxyController.createPurchase); 
-router.get("/user/purchases", authenticateToken , userProxyController.purchaseHistory); 
-router.get("/user/getDashboard", authenticateToken , userProxyController.GetDataDashboardController); 
+// ─── Authenticated User Info ──────────────────────────────
+router.get("/user/me", authenticateToken, userProxyController.informationsUser);
+router.get("/user/test", userProxyController.informationsUser); 
 
-router.get("/coupons/validate", authenticateToken , userProxyController.GetCouponWithCode); 
-router.post("/coupons/createCoupon", authenticateToken , userProxyController.CreateCoupon); 
-router.get("/allcoupons", authenticateToken , userProxyController.ListAllCoupons);
+// ─── Dashboard ────────────────────────────────────────────
+router.get("/user/getDashboard", authenticateToken, userProxyController.GetDataDashboardController);
 
-router.get("/user/get-balance" , authenticateToken, userProxyController.getUserBalance); 
-router.get("/user/resetProxyPassword" , authenticateToken, userProxyController.changePassword); 
-router.patch("/user/updateProxyConfig" , authenticateToken, userProxyController.updateProxythreads); 
+// ─── Proxy Configurations ─────────────────────────────────
+router.get("/user/getUserProxy", authenticateToken, userProxyController.getUser);
+router.patch("/user/createProxy", authenticateToken, userProxyController.registerUserProxy);
+router.patch("/user/updateProxyConfig", authenticateToken, userProxyController.updateProxythreads);
+router.get("/user/resetProxyPassword", authenticateToken, userProxyController.changePassword);
+router.post("/user/deleteUse", authenticateToken, userProxyController.deleteUser);
 
-router.get("/user/getUserProxy" , authenticateToken, userProxyController.getUser); 
+// ─── Purchase ─────────────────────────────────────────────
+router.post("/user/createPurchase", authenticateToken, userProxyController.createPurchase);
+router.get("/user/purchases", authenticateToken, userProxyController.purchaseHistory);
 
-router.get("/user/searchUsers" , authenticateToken, userProxyController.informationsUsers); 
+// ─── Balance ──────────────────────────────────────────────
+router.get("/user/get-balance", authenticateToken, userProxyController.getUserBalance);
 
-router.get("/user/test",userProxyController.informationsUser); 
-router.get("/user/me", authenticateToken , userProxyController.informationsUser); 
+// ─── Coupons ──────────────────────────────────────────────
+router.get("/coupons/validate", authenticateToken, userProxyController.GetCouponWithCode);
+router.post("/coupons/createCoupon", authenticateToken, userProxyController.CreateCoupon);
+router.get("/allcoupons", authenticateToken, userProxyController.ListAllCoupons);
 
-
+// ─── Admin - User Search ──────────────────────────────────
+router.get("/user/searchUsers", authenticateToken, userProxyController.informationsUsers);
 
 export default router;

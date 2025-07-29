@@ -150,13 +150,37 @@ export default function UsersPage() {
   }
 
 
-  const handleDeleteUser = (userId: number) => {
-    // Aqui você pode fazer requisição DELETE na API antes
-    if (selectedUser?.id === userId) {
-      setIsModalOpen(false)
-      setSelectedUser(null)
+  const handleDeleteUser = async (userId: number) => {
+    try {
+      const response = await fetch("/api/user/deleteUse", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ id: userId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao excluir usuário.");
+      }
+
+      // Sucesso: limpar estado
+      if (selectedUser?.id === userId) {
+
+        toast.success("Usuário excluído com sucesso!");
+        setIsModalOpen(false);
+        setSelectedUser(null);
+      }
+
+      // Opcional: atualizar lista de usuários, exibir toast, etc.
+    } catch (error) {
+      toast.error("Erro ao excluir usuário.");
+      console.error("Erro ao excluir usuário:", error);
+      // Você pode adicionar um toast de erro aqui se desejar
     }
-  }
+  };
+
 
   const handleAddBalance = (userId: number, amount: number) => {
     if (selectedUser?.id === userId) {

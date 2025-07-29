@@ -195,6 +195,24 @@ export class UserProxyController {
 
     getUser = async (req: Request, res: Response): Promise<void> => {
 
+        const userId = req.body;
+        const usecase = new ProxyUserService(new UserRepository());
+        try {
+            const user = await usecase.deleteUser(userId.id);
+            //  console.log(usecase)
+            res.status(201).json(user);
+        } catch (error) {
+            console.log(error)
+            if (error instanceof ZodError) {
+                res.status(400).json({ message: "Erro de validação", errors: error.format() });
+            } else {
+                res.status(400).json({ message: (error as Error).message });
+            }
+        }
+    };
+
+    deleteUser = async (req: Request, res: Response): Promise<void> => {
+
         const userId = req.userId;
         const usecase = new ProxyUserService(new UserRepository());
         try {
@@ -210,6 +228,7 @@ export class UserProxyController {
             }
         }
     };
+
 
     changePassword = async (req: Request, res: Response): Promise<void> => {
 
