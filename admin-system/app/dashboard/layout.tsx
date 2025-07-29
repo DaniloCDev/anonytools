@@ -67,8 +67,14 @@ const menuItems = [
 function AppSidebar() {
   const router = useRouter()
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin-token")
+  const handleLogout = async () => {
+    const res = await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
     router.push("/login")
   }
 
