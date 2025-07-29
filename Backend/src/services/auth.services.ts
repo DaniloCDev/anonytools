@@ -62,7 +62,7 @@ class AuthUserService {
 
     }
 
-    async LoginUserAdmin(data: UserLoginDTO) {
+    async LoginUserAdmin(data: { email: string, password: string}) {
         const proxyService = new ProxyUserService(new UserRepository());
         const existingUser = await this.userRepository.findByEmail(data.email);
 
