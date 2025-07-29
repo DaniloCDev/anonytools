@@ -18,7 +18,7 @@ router.get("/user/get-balance" , authenticateToken, userProxyController.getUserB
 router.get("/user/resetProxyPassword" , authenticateToken, userProxyController.changePassword); 
 router.patch("/user/updateProxyConfig" , authenticateToken, userProxyController.updateProxythreads); 
 
-router.get("/user/getUserProxy" , authenticateToken, userProxyController.updateProxythreads); 
+router.get("/user/getUserProxy" , authenticateToken, userProxyController.getUser); 
 
 router.get("/user/searchUsers" , authenticateToken, userProxyController.informationsUsers); 
 

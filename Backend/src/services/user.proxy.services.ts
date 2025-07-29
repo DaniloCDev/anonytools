@@ -70,7 +70,7 @@ class ProxyUserService {
 
         const descUser = await this.userRepository.getSubuserIdByUserId(userId)
         let respBalance = await getUser(Number(descUser?.subuserId));
-        //  console.log(respBalance)
+          console.log(respBalance)
         return respBalance.threads;
     }
 
