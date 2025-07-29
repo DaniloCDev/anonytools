@@ -1,12 +1,13 @@
-"use client"
+"use client";
 import React, { createContext, useState, useEffect, ReactNode, useContext } from "react";
 
 type UserPlan = {
   name: "Ativ";
-  totalGb: 10;
+  totalGb: number;
   usedGb: number;
   remainingGb: number;
   status: string;
+  threads: number;
   expiresAt: string;
   credentials: {
     host: string;
@@ -31,25 +32,33 @@ type UserContextType = {
 const UserContext = createContext<UserContextType>({
   user: null,
   loading: true,
-  refreshUser: async () => { },
+  refreshUser: async () => {},
 });
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-
-
   const fetchUser = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/user/me", { credentials: "include" });
-      if (!res.ok) {
-        setUser(null);
-        return;
+      const [userRes, proxyRes] = await Promise.all([
+        fetch("/api/user/me", { credentials: "include" }),
+        fetch("/api/user/getUserProxy", { credentials: "include" }),
+      ]);
+
+      if (!userRes.ok) throw new Error("Erro ao buscar dados do usuário");
+      const userData = await userRes.json();
+
+      if (!proxyRes.ok) {
+        console.warn("Não foi possível buscar dados do proxy, usando padrão.");
+        userData.plan.threads = 0;
+      } else {
+        const proxyData = await proxyRes.json();
+        userData.plan.threads = proxyData.threads ?? 0;
       }
-      const data = await res.json();
-      setUser(data);
+
+      setUser(userData);
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
       setUser(null);
@@ -58,11 +67,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
-
   useEffect(() => {
     fetchUser();
   }, []);
-
 
   return (
     <UserContext.Provider value={{ user, loading, refreshUser: fetchUser }}>
@@ -71,7 +78,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Hook para usar o contexto de forma simples
 export function useUser() {
   return useContext(UserContext);
 }

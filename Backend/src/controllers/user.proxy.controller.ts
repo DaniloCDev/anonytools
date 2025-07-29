@@ -158,7 +158,7 @@ export class UserProxyController {
         }
     }
 
-    
+
     ListAllCoupons = async (req: Request, res: Response): Promise<void> => {
 
         try {
@@ -178,6 +178,24 @@ export class UserProxyController {
         const userId = req.userId;
         //  console.log(userId)
 
+        const usecase = new ProxyUserService(new UserRepository());
+        try {
+            const user = await usecase.getUserBalanceService(userId);
+            //  console.log(usecase)
+            res.status(201).json(user);
+        } catch (error) {
+            console.log(error)
+            if (error instanceof ZodError) {
+                res.status(400).json({ message: "Erro de validação", errors: error.format() });
+            } else {
+                res.status(400).json({ message: (error as Error).message });
+            }
+        }
+    };
+
+    getUser = async (req: Request, res: Response): Promise<void> => {
+
+        const userId = req.userId;
         const usecase = new ProxyUserService(new UserRepository());
         try {
             const user = await usecase.getUserBalanceService(userId);

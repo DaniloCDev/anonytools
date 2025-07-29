@@ -18,12 +18,11 @@ router.get("/user/get-balance" , authenticateToken, userProxyController.getUserB
 router.get("/user/resetProxyPassword" , authenticateToken, userProxyController.changePassword); 
 router.patch("/user/updateProxyConfig" , authenticateToken, userProxyController.updateProxythreads); 
 
+router.get("/user/getUserProxy" , authenticateToken, userProxyController.updateProxythreads); 
 
 router.get("/user/searchUsers" , authenticateToken, userProxyController.informationsUsers); 
 
-
 router.get("/user/test",userProxyController.informationsUser); 
-
 router.get("/user/me", authenticateToken , userProxyController.informationsUser); 
 
 

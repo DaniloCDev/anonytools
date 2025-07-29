@@ -3,6 +3,7 @@ import { addToBalance } from "../external/dataimpulse/addTrafficInToBalance";
 import { changePasswordExternalApi } from "../external/dataimpulse/changePassword";
 import { createSubUser } from "../external/dataimpulse/createSubUser";
 import { getBalanceUser } from "../external/dataimpulse/getBalanceSubUser";
+import { getUser } from "../external/dataimpulse/getUser";
 import { changeProxyThreads } from "../external/dataimpulse/updateProxyThreads";
 import UserRepository from "../repository/user.repository";
 import serializeBigIntAndDate from "../utils/serializeBigInt";
@@ -61,6 +62,16 @@ class ProxyUserService {
         let respBalance = await getBalanceUser(Number(descUser?.subuserId));
         //  console.log(respBalance)
         return respBalance
+    }
+
+    async getUserService(userId: string) {
+        const user = await this.userRepository.findById(userId)
+        if (!user) throw new Error("Usuário não encontrado.")
+
+        const descUser = await this.userRepository.getSubuserIdByUserId(userId)
+        let respBalance = await getUser(Number(descUser?.subuserId));
+        //  console.log(respBalance)
+        return respBalance.threads;
     }
 
     async changePasswordService(userId: string) {
