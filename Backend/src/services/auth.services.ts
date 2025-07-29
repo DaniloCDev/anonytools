@@ -40,14 +40,15 @@ class AuthUserService {
     async LoginUser(data: UserLoginDTO) {
         const proxyService = new ProxyUserService(new UserRepository());
         const existingUser = await this.userRepository.findByEmail(data.email);
+
         if (!existingUser) {
             throw new Error("Email não existe.");
         }
 
+        if (existingUser.blocked) throw new Error("Usuário Bloqueado, procurar o suporte.");
+
         const isPassword = await bcrypt.compare(data.password, existingUser.password);
-        if (!isPassword) {
-            throw new Error("Senha invalida");
-        }
+        if (!isPassword)  throw new Error("Senha inválida.");
 
         await proxyService.createUserProxy(existingUser.id);
 
@@ -62,12 +63,12 @@ class AuthUserService {
 
     }
 
-    async LoginUserAdmin(data: { email: string, password: string}) {
+    async LoginUserAdmin(data: { email: string, password: string }) {
         const proxyService = new ProxyUserService(new UserRepository());
         const existingUser = await this.userRepository.findByEmail(data.email);
 
         if (!existingUser) {
-            throw new Error("Email ou senha inválidos."); 
+            throw new Error("Email ou senha inválidos.");
         }
 
         const isPasswordValid = await bcrypt.compare(data.password, existingUser.password);
