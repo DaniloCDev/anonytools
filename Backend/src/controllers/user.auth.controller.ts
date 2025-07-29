@@ -53,7 +53,7 @@ export class AuthController {
                 throw new ZodError(result.error.errors);
             }
 
-            const user = await usecase.LoginUser(result.data);
+            const user = await usecase.LoginUserAdmin(result.data);
             const isProduction = process.env.NODE_ENV === "production";
 
 
