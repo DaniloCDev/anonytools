@@ -32,7 +32,7 @@ type UserContextType = {
 const UserContext = createContext<UserContextType>({
   user: null,
   loading: true,
-  refreshUser: async () => {},
+  refreshUser: async () => { },
 });
 
 export function UserProvider({ children }: { children: ReactNode }) {
@@ -50,12 +50,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
       console.log(userRes, proxyRes)
       if (!userRes.ok) throw new Error("Erro ao buscar dados do usuário");
       const userData = await userRes.json();
-
+      console.log(userData)
       if (!proxyRes.ok) {
         console.warn("Não foi possível buscar dados do proxy, usando padrão.");
         userData.plan.threads = 0;
       } else {
         const proxyData = await proxyRes.json();
+        console.log(userData, proxyData)
         userData.plan.threads = proxyData.threads ?? 0;
       }
 
