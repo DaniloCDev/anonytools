@@ -211,13 +211,12 @@ export class UserProxyController {
         }
     };
 
-    deleteUser = async (req: Request, res: Response): Promise<void> => {
+    blockUser = async (req: Request, res: Response): Promise<void> => {
 
-        const userId = req.body;
+        const body = req.body;
         const usecase = new ProxyUserService(new UserRepository());
         try {
-            const user = await usecase.deleteUser(userId.id);
-            //  console.log(usecase)
+            const user = await usecase.BlockUser(body.id);
             res.status(201).json(user);
         } catch (error) {
             console.log(error)

@@ -21,6 +21,24 @@ class UserRepository {
         });
     }
 
+    async toggleUserBlock(userId: string, block: boolean): Promise<void> {
+        const existingUser = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!existingUser) {
+            throw new Error("Usuário não encontrado.");
+        }
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                blocked: block,
+            },
+        });
+    }
+
+
     async deleteUser(userId: string): Promise<boolean> {
         const existingUser = await prisma.user.findUnique({
             where: { id: userId },
@@ -32,7 +50,7 @@ class UserRepository {
 
         // Remove dependências
         await prisma.proxyUser.deleteMany({ where: { userId } });
-        await prisma.purchase.deleteMany({ where: { userId } }); 
+        await prisma.purchase.deleteMany({ where: { userId } });
         // Agora pode deletar o usuário com segurança
         await prisma.user.delete({ where: { id: userId } });
 

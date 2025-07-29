@@ -2,7 +2,7 @@ import { mapSubUserDtoToProxyUser, ProxyUser, SubUserDTO } from "../dtos/mappers
 import { addToBalance } from "../external/dataimpulse/addTrafficInToBalance";
 import { changePasswordExternalApi } from "../external/dataimpulse/changePassword";
 import { createSubUser } from "../external/dataimpulse/createSubUser";
-import { deleteSubUser } from "../external/dataimpulse/deleteSubUser";
+import { blockSubUser } from "../external/dataimpulse/blockSubUser";
 import { getBalanceUser } from "../external/dataimpulse/getBalanceSubUser";
 import { getUser } from "../external/dataimpulse/getUser";
 import { changeProxyThreads } from "../external/dataimpulse/updateProxyThreads";
@@ -66,20 +66,20 @@ class ProxyUserService {
     }
 
 
-    async deleteUser(userId: string) {
+    async BlockUser(userId: string) {
         const user = await this.userRepository.findById(userId);
         if (!user) throw new Error("Usuário não encontrado.");
 
         const descUser = await this.userRepository.getSubuserIdByUserId(userId);
 
-        await this.userRepository.deleteUser(userId);
+        const newBlockedStatus = !user.blocked;
+        await this.userRepository.toggleUserBlock(userId, newBlockedStatus);
 
-        const respBalance = await deleteSubUser(Number(descUser?.subuserId));
-        if (!respBalance.success) throw new Error("Usuario não pode ser deletado");
+        const respBalance = await blockSubUser(Number(descUser?.subuserId), newBlockedStatus);
+        if (!respBalance.blocked) throw new Error("Não foi possível alterar o status do usuário.");
 
-        return respBalance.success;
+        return respBalance.blocked;
     }
-
 
     async getUserService(userId: string) {
         const user = await this.userRepository.findById(userId)
