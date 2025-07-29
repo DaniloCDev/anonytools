@@ -108,21 +108,21 @@ class UserRepository {
         })
 
         const mappedUsers = users.map(user => {
-            const gbsPurchased = user.purchases.reduce((acc, p) => acc + p.gbAmount, 0)
+            const gbsPurchased = user.purchases.reduce((acc, p) => acc + p.gbAmount, 0);
 
             return {
                 id: user.id,
                 name: user.name,
                 email: user.email,
                 plan: "Básico",
-                status: "active",
+                status: user.blocked ? "blocked" : "active",
                 gbsPurchased,
                 gbsUsed: 0,
                 referrals: 0,
                 joinDate: user.createdAt.toISOString(),
                 lastLogin: null,
-            }
-        })
+            };
+        });
 
         return mappedUsers
     }

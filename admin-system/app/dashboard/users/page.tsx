@@ -150,7 +150,7 @@ export default function UsersPage() {
   }
 
 
-  const handleDeleteUser = async (userId: number) => {
+  const handleBlockUser = async (userId: number, block: boolean) => {
     try {
       const response = await fetch("/api/user/BlockUser", {
         method: "POST",
@@ -158,26 +158,25 @@ export default function UsersPage() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ id: userId }),
+        body: JSON.stringify({ id: userId, block }),
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao excluir usuário.");
+        throw new Error("Erro ao atualizar status do usuário.");
       }
 
-      // Sucesso: limpar estado
-      if (selectedUser?.id === userId) {
+      // Sucesso: atualizar UI
+      toast.success(block ? "Usuário bloqueado com sucesso!" : "Usuário desbloqueado com sucesso!");
 
-        toast.success("Usuário excluído com sucesso!");
+      if (selectedUser?.id === userId) {
         setIsModalOpen(false);
         setSelectedUser(null);
       }
 
-      // Opcional: atualizar lista de usuários, exibir toast, etc.
+      // Aqui você pode atualizar a lista de usuários se estiver visível
     } catch (error) {
-      toast.error("Erro ao excluir usuário.");
-      console.error("Erro ao excluir usuário:", error);
-      // Você pode adicionar um toast de erro aqui se desejar
+      toast.error("Erro ao atualizar status do usuário.");
+      console.error("Erro ao bloquear/desbloquear usuário:", error);
     }
   };
 
@@ -529,13 +528,15 @@ export default function UsersPage() {
                 </Alert>
 
                 <div className="grid grid-cols-2 gap-4">
+
                   <Button
                     onClick={() =>
-                      handleStatusChange(
+                      handleBlockUser(
                         selectedUser.id,
-                        selectedUser.status === "active" ? "blocked" : "active"
+                        selectedUser.status === "active" ? true : false
                       )
                     }
+
                     variant="outline"
                     className={`border-slate-600 ${selectedUser.status === "active"
                       ? "text-red-400 hover:text-red-300 hover:bg-red-500/10"
@@ -556,7 +557,7 @@ export default function UsersPage() {
                   </Button>
 
                   <Button
-                    onClick={() => handleDeleteUser(selectedUser.id)}
+                  //  onClick={() => handleBlockUser(selectedUser.id)}
                     variant="outline"
                     className="border-red-500 text-red-400 hover:text-red-300 hover:bg-red-500/10"
                   >
