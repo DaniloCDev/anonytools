@@ -24,9 +24,8 @@ import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
 import useLogs from "@/hooks/useLogs"
 
-
 export default function LogsPage() {
-  const { logs, loading, error } = useLogs()
+  const { logs } = useLogs()
   const [searchTerm, setSearchTerm] = useState("")
   const [typeFilter, setTypeFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState<Date>()
@@ -95,10 +94,6 @@ export default function LogsPage() {
 
     return <Badge className={variants[type as keyof typeof variants]}>{labels[type as keyof typeof labels]}</Badge>
   }
-
-  if (loading) return <p className="text-white">Carregando logs...</p>
-  if (error) return <p className="text-red-500">Erro: {error}</p>
-
 
   return (
     <div className="space-y-6">

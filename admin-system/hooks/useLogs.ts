@@ -1,44 +1,41 @@
-// hooks/useLogs.ts
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 type LogType = {
-  id: number
-  action: string
-  user: string
-  admin: string | null
-  timestamp: string
-  type: "info" | "success" | "warning" | "error"
-  details: string
-  ip: string
-}
+  id: number;
+  action: string;
+  user: string;
+  admin: string | null;
+  timestamp: string;
+  type: "info" | "success" | "warning" | "error";
+  details: string;
+  ip: string;
+};
 
 export default function useLogs() {
-  const [logs, setLogs] = useState<LogType[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [logs, setLogs] = useState<LogType[]>([]); 
 
   useEffect(() => {
-    const fetchLogs = async () => {
+    async function fetchLogs() {
       try {
-        const res = await fetch("/api/sistem/logs", {
-            credentials:"include"
-        })
+        const response = await axios.get("/api/logs");
+        const data = response.data;
 
-        if (!res.ok) throw new Error("Erro ao buscar logs")
-
-        const data = await res.json()
-        setLogs(data)
-      } catch (err: any) {
-        setError(err.message || "Erro desconhecido")
-      } finally {
-        setLoading(false)
+        if (Array.isArray(data.logs)) {
+          setLogs(data.logs as LogType[]);
+        } else {
+          setLogs([]);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar logs:", err);
+        setLogs([]);
       }
     }
 
-    fetchLogs()
-  }, [])
+    fetchLogs();
+  }, []);
 
-  return { logs, loading, error }
+  return { logs };
 }
