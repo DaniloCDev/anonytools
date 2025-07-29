@@ -31,18 +31,19 @@ export function ProxySettings() {
 
   const { user, loading } = useUser();
 
-  useEffect(() => {
-    if (!loading && user) {
-      setProxyConfig((prev) => ({
-        ...prev,
-        host: user.plan.credentials.host,
-        port: user.plan.credentials.port,
-        username: user.plan.credentials.username,
-        password: user.plan.credentials.password,
-        threads: user.plan.threads 
-      }));
-    }
-  }, [user, loading]);
+useEffect(() => {
+  if (!loading && user) {
+    setProxyConfig((prev) => ({
+      ...prev,
+      host: user.plan.credentials.host,
+      port: user.plan.credentials.port,
+      username: user.plan.credentials.username,
+      password: user.plan.credentials.password,
+      threads: user.plan.threads,
+    }));
+  }
+}, [user?.plan.threads, user?.plan.credentials, loading]);
+
 
   const [proxyConfig, setProxyConfig] = useState({
     host: "",
@@ -168,8 +169,10 @@ export function ProxySettings() {
     if (value <= 500) return "bg-orange-500/20 text-orange-300 border-orange-500/30"
     return "bg-red-500/20 text-red-300 border-red-500/30"
   }
-
+                      console.log(proxyConfig)
+                        console.log(proxyConfig.threads)
   return (
+    
     <div className="space-y-6 lg:space-y-8">
       <div className="space-y-2">
         <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold">
@@ -348,6 +351,7 @@ export function ProxySettings() {
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
+                    
                     <Badge className={getThreadsColor(proxyConfig.threads)}>
                       {getThreadsLabel(proxyConfig.threads)}
                     </Badge>
