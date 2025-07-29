@@ -10,6 +10,7 @@ class PurchaseService {
         const user = await this.userRepository.findById(userId);
         if (!user) throw new Error("Usuário não encontrado.");
 
+
         let coupon;
         if (couponCode) {
             coupon = await this.userRepository.getCuponCode(couponCode);
@@ -23,7 +24,8 @@ class PurchaseService {
                 const alreadyUsed = await this.userRepository.couponUsage(userId, coupon.id);
                 if (alreadyUsed) throw new Error("Você já usou esse cupom.");
             }
-            totalPrice = totalPrice * (1 - coupon.discountPct / 100);
+            totalPrice = parseFloat((totalPrice * (1 - coupon.discountPct / 100)).toFixed(2));
+
         }
 
         const cooldownCheck = await this.userRepository.tryIncrementCooldown(userId);
@@ -32,6 +34,12 @@ class PurchaseService {
         }
 
         let payment;
+        console.log({
+            amount: totalPrice,
+            description: `Compra de ${gbAmount}GB de tráfego`,
+            payerEmail: user.email,
+        });
+
         try {
             payment = await createPixPayment({
                 amount: totalPrice,
@@ -80,7 +88,7 @@ class PurchaseService {
         }
         return coupon
     }
-    
+
 
     async createCouponService(data: {
         code: string,

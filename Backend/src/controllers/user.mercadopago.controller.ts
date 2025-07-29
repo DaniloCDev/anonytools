@@ -74,7 +74,6 @@ export class PurchaseController {
         return;
       }
 
-      console.log(purchase)
 
       if (payment.status === "approved" && purchase.status !== "PAID") {
         if (!purchase.user.proxyUser?.subuserId) {
@@ -82,18 +81,15 @@ export class PurchaseController {
           res.status(400).json({ message: "Erro interno: SubuserId ausente. Contate o suporte." });
           console.log(payment)
           return;
-          
+
         }
-
-          console.log(payment,purchase)
-
+        
         await userRepository.markPurchaseAsPaid(purchase.id);
         await addToBalance(Number(purchase.user.proxyUser.subuserId), purchase.gbAmount);
+
+        await userRepository.clearCooldown(purchase.user.id)
       }
 
-      console.log(purchase)
-
-     await  userRepository.clearCooldown(purchase.user.id)
       res.status(200).json({ status: purchase.status === "PAID" || payment.status === "approved" ? "paid" : "pending" });
     } catch (error) {
       console.error("Erro ao verificar status do pagamento:", error);

@@ -259,35 +259,42 @@ class UserRepository {
         const existing = await prisma.userCooldown.findUnique({ where: { userId } });
         const now = new Date();
 
+        const attempts = (existing?.attempts || 0) + 1;
+
+        let cooldownSeconds = 0;
+        if (attempts === 5) cooldownSeconds = 30;
+        else if (attempts === 6) cooldownSeconds = 60;
+        else if (attempts === 7) cooldownSeconds = 120;
+        else if (attempts >= 8) cooldownSeconds = 86400; // 24h
+
         if (existing?.cooldownUntil && existing.cooldownUntil > now) {
-            // Ainda em cooldown, bloqueia
             const wait = Math.ceil((existing.cooldownUntil.getTime() - now.getTime()) / 1000);
             return { allowed: false, waitSeconds: wait };
         }
 
-        // Incrementa tentativas e atualiza cooldown
-        const attempts = (existing?.attempts || 0) + 1;
-        let cooldownSeconds;
-        if (attempts === 1) cooldownSeconds = 30;
-        else if (attempts === 2) cooldownSeconds = 60;
-        else if (attempts === 3) cooldownSeconds = 120;
-        else cooldownSeconds = 86400;
-
-        const cooldownUntil = new Date(now.getTime() + cooldownSeconds * 1000);
+        const cooldownUntil = cooldownSeconds > 0 ? new Date(now.getTime() + cooldownSeconds * 1000) : null;
 
         if (existing) {
             await prisma.userCooldown.update({
                 where: { userId },
-                data: { attempts, cooldownUntil },
+                data: {
+                    attempts,
+                    cooldownUntil,
+                },
             });
         } else {
             await prisma.userCooldown.create({
-                data: { userId, attempts, cooldownUntil },
+                data: {
+                    userId,
+                    attempts,
+                    cooldownUntil,
+                },
             });
         }
 
         return { allowed: true };
     }
+
 
     async markPurchaseAsPaid(purchaseId: number): Promise<void> {
         await prisma.purchase.update({
@@ -430,7 +437,7 @@ class UserRepository {
     async listCoupons() {
         const coupons = await prisma.coupon.findMany({
             orderBy: {
-                createdAt: 'desc', 
+                createdAt: 'desc',
             },
         })
         return coupons
