@@ -66,16 +66,20 @@ class ProxyUserService {
 
 
     async deleteUser(userId: string) {
-        const user = await this.userRepository.findById(userId)
+        const user = await this.userRepository.findById(userId);
         if (!user) throw new Error("Usuário não encontrado.");
 
-        const descUser = await this.userRepository.getSubuserIdByUserId(userId)
-        await this.userRepository.deleteUser(user.email)
-        let respBalance = await getBalanceUser(Number(descUser?.subuserId));
+        const descUser = await this.userRepository.getSubuserIdByUserId(userId);
+
+        // CORRETO: passa o ID aqui
+        await this.userRepository.deleteUser(userId);
+
+        const respBalance = await getBalanceUser(Number(descUser?.subuserId));
         if (!respBalance.success) throw new Error("Usuario não pode ser deletado");
-        
+
         return respBalance.success;
     }
+
 
     async getUserService(userId: string) {
         const user = await this.userRepository.findById(userId)
