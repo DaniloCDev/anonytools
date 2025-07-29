@@ -449,7 +449,7 @@ useEffect(() => {
               <div className="space-y-3 text-sm">
                 <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                   <p className="font-medium text-blue-300 mb-1">💡 Threads Ideais</p>
-                  <p className="text-gray-400">Para uso geral, mantenha entre 100-150 threads</p>
+                  <p className="text-gray-400">Para uso geral, mantenha entre 300-400 threads</p>
                 </div>
 
                 <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
