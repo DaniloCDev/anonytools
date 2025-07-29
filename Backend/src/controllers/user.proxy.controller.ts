@@ -158,7 +158,6 @@ export class UserProxyController {
         }
     }
 
-
     ListAllCoupons = async (req: Request, res: Response): Promise<void> => {
 
         try {
@@ -227,7 +226,6 @@ export class UserProxyController {
             }
         }
     };
-
 
     changePassword = async (req: Request, res: Response): Promise<void> => {
 

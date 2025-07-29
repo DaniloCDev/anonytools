@@ -20,6 +20,8 @@ app.use(cors({
   credentials: true,
 }));
 
+app.set("trust proxy", true);
+
 app.use(router)
 app.use(routerProxy)
 

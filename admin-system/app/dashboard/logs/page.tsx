@@ -22,162 +22,11 @@ import {
 } from "lucide-react"
 import { format } from "date-fns"
 import { ptBR } from "date-fns/locale"
+import useLogs from "@/hooks/useLogs"
 
-const logsData = [
-  {
-    id: 1,
-    action: "Login de usuário",
-    user: "joao@email.com",
-    admin: null,
-    timestamp: "2024-01-20T10:30:00",
-    type: "info",
-    details: "Login realizado com sucesso",
-    ip: "192.168.1.100",
-  },
-  {
-    id: 2,
-    action: "Usuário bloqueado",
-    user: "spam@email.com",
-    admin: "admin@proxy.com",
-    timestamp: "2024-01-20T10:25:00",
-    type: "warning",
-    details: "Usuário bloqueado por atividade suspeita",
-    ip: "10.0.0.1",
-  },
-  {
-    id: 3,
-    action: "Compra realizada",
-    user: "maria@email.com",
-    admin: null,
-    timestamp: "2024-01-20T10:20:00",
-    type: "success",
-    details: "Compra de 100GB aprovada",
-    ip: "192.168.1.101",
-  },
-  {
-    id: 4,
-    action: "Saldo adicionado",
-    user: "cliente@email.com",
-    admin: "admin@proxy.com",
-    timestamp: "2024-01-20T10:15:00",
-    type: "success",
-    details: "50GB adicionados manualmente",
-    ip: "10.0.0.1",
-  },
-  {
-    id: 5,
-    action: "Tentativa de login falhada",
-    user: "hacker@email.com",
-    admin: null,
-    timestamp: "2024-01-20T10:10:00",
-    type: "error",
-    details: "Múltiplas tentativas de login com senha incorreta",
-    ip: "203.0.113.1",
-  },
-  {
-    id: 6,
-    action: "Usuário editado",
-    user: "ana@email.com",
-    admin: "admin@proxy.com",
-    timestamp: "2024-01-20T10:05:00",
-    type: "info",
-    details: "Dados do usuário atualizados",
-    ip: "10.0.0.1",
-  },
-  {
-    id: 7,
-    action: "Login de administrador",
-    user: "admin@proxy.com",
-    admin: null,
-    timestamp: "2024-01-20T09:00:00",
-    type: "info",
-    details: "Acesso ao painel administrativo",
-    ip: "10.0.0.1",
-  },
-  {
-    id: 8,
-    action: "Compra realizada",
-    user: "carlos@email.com",
-    admin: null,
-    timestamp: "2024-01-20T08:45:00",
-    type: "success",
-    details: "Compra de 75GB aprovada",
-    ip: "192.168.1.102",
-  },
-  {
-    id: 9,
-    action: "Usuário desbloqueado",
-    user: "pedro@email.com",
-    admin: "admin@proxy.com",
-    timestamp: "2024-01-20T08:30:00",
-    type: "info",
-    details: "Usuário desbloqueado após revisão",
-    ip: "10.0.0.1",
-  },
-  {
-    id: 10,
-    action: "Falha na compra",
-    user: "lucia@email.com",
-    admin: null,
-    timestamp: "2024-01-20T08:15:00",
-    type: "error",
-    details: "Falha no processamento do pagamento",
-    ip: "192.168.1.103",
-  },
-  {
-    id: 11,
-    action: "Login de usuário",
-    user: "fernanda@email.com",
-    admin: null,
-    timestamp: "2024-01-20T08:00:00",
-    type: "info",
-    details: "Login realizado com sucesso",
-    ip: "192.168.1.104",
-  },
-  {
-    id: 12,
-    action: "Saldo adicionado",
-    user: "marcos@email.com",
-    admin: "admin@proxy.com",
-    timestamp: "2024-01-20T07:45:00",
-    type: "success",
-    details: "100GB adicionados manualmente",
-    ip: "10.0.0.1",
-  },
-  {
-    id: 13,
-    action: "Usuário excluído",
-    user: "spam2@email.com",
-    admin: "admin@proxy.com",
-    timestamp: "2024-01-20T07:30:00",
-    type: "warning",
-    details: "Usuário excluído por violação dos termos",
-    ip: "10.0.0.1",
-  },
-  {
-    id: 14,
-    action: "Login de usuário",
-    user: "patricia@email.com",
-    admin: null,
-    timestamp: "2024-01-20T07:15:00",
-    type: "info",
-    details: "Login realizado com sucesso",
-    ip: "192.168.1.105",
-  },
-  {
-    id: 15,
-    action: "Compra realizada",
-    user: "ricardo@email.com",
-    admin: null,
-    timestamp: "2024-01-20T07:00:00",
-    type: "success",
-    details: "Compra de 25GB aprovada",
-    ip: "192.168.1.106",
-  },
-]
 
 export default function LogsPage() {
-  const [logs, setLogs] = useState(logsData)
+  const { logs, loading, error } = useLogs()
   const [searchTerm, setSearchTerm] = useState("")
   const [typeFilter, setTypeFilter] = useState("all")
   const [dateFilter, setDateFilter] = useState<Date>()
@@ -246,6 +95,10 @@ export default function LogsPage() {
 
     return <Badge className={variants[type as keyof typeof variants]}>{labels[type as keyof typeof labels]}</Badge>
   }
+
+  if (loading) return <p className="text-white">Carregando logs...</p>
+  if (error) return <p className="text-red-500">Erro: {error}</p>
+
 
   return (
     <div className="space-y-6">

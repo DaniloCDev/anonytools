@@ -2,6 +2,7 @@ import { Router } from "express";
 import { AuthController } from "../controllers/user.auth.controller";
 import { PurchaseController } from "../controllers/user.mercadopago.controller";
 import { authenticateToken } from "../middlewares/auth.middleware";
+import { getLogsController } from "../controllers/logs.controller";
 
 const router = Router();
 const authController = new AuthController();
@@ -21,5 +22,11 @@ router.put("/user/update", authenticateToken, authController.UpdateProfile);
 // ─── Payments / Mercado Pago ─────────────────────────────
 router.post("/webhook/mercadopago", purchaseController.mercadoPagoWebhook); 
 router.post("/user/check-payment-status", authenticateToken, purchaseController.checkPaymentStatus);
+
+//  ─── Logs / Sistem ─────────────────────────────
+router.get("/sistem/logs", authenticateToken,  async (req, res)=> {
+    await getLogsController(req, res);
+}); 
+
 
 export default router;

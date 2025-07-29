@@ -37,31 +37,63 @@ class AuthUserService {
 
     }
 
-    async LoginUser(data: UserLoginDTO) {
+    async LoginUser(data: UserLoginDTO, ip: string) {
         const proxyService = new ProxyUserService(new UserRepository());
         const existingUser = await this.userRepository.findByEmail(data.email);
 
         if (!existingUser) {
+            await this.userRepository.createLogsActives(
+                data.email,
+                "login",
+                "Erro",
+                "Tentativa de login com email não registrado",
+                ip
+            );
             throw new Error("Email não existe.");
         }
 
-        if (existingUser.blocked) throw new Error("Usuário Bloqueado, procurar o suporte.");
+        if (existingUser.blocked) {
+            await this.userRepository.createLogsActives(
+                existingUser.email,
+                "login",
+                "Erro",
+                "Tentativa de login com usuário bloqueado",
+                ip
+            );
+            throw new Error("Usuário Bloqueado, procurar o suporte.");
+        }
 
         const isPassword = await bcrypt.compare(data.password, existingUser.password);
-        if (!isPassword)  throw new Error("Senha inválida.");
+        if (!isPassword) {
+            await this.userRepository.createLogsActives(
+                existingUser.email,
+                "login",
+                "Erro",
+                "Tentativa de login com senha inválida",
+                ip
+            );
+            throw new Error("Senha inválida.");
+        }
 
         await proxyService.createUserProxy(existingUser.id);
-
 
         const token = jwt.sign(
             { id: existingUser.id },
             process.env.JWT_SECRET_KEY as string,
-            { expiresIn: '1d' }
+            { expiresIn: "1d" }
+        );
+
+        await this.userRepository.createLogsActives(
+            existingUser.email,
+            "login",
+            "Sucesso",
+            "Login realizado com sucesso",
+            ip
         );
 
         return { user: toUserResponseDTO(existingUser), token };
-
     }
+
 
     async LoginUserAdmin(data: { email: string, password: string }) {
         const proxyService = new ProxyUserService(new UserRepository());

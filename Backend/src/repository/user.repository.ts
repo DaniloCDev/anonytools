@@ -3,6 +3,15 @@ import { prisma } from "../prisma/client";
 import { Prisma, User } from "@prisma/client"
 import { subMonths, startOfMonth } from "date-fns"
 
+type LogsFilter = {
+    email?: string;
+    status?: string;
+    actionType?: string;
+    search?: string;
+    page?: number;      
+    perPage?: number;   
+};
+
 class UserRepository {
     async createUser(data: UseRegisterDTO) {
         return prisma.user.create({
@@ -36,6 +45,69 @@ class UserRepository {
                 blocked: block,
             },
         });
+    }
+
+
+    async getLogs(filter: LogsFilter) {
+        const {
+            email,
+            status,
+            actionType,
+            search,
+            page = 1,
+            perPage = 20,
+        } = filter;
+
+        const where: any = {};
+
+        if (email) {
+            where.userEmail = { contains: email, mode: "insensitive" };
+        }
+
+        if (status) {
+            where.status = status;
+        }
+
+        if (actionType) {
+            where.actionType = actionType;
+        }
+
+        if (search) {
+            where.message = { contains: search, mode: "insensitive" };
+        }
+
+        const logs = await prisma.activityLog.findMany({
+            where,
+            orderBy: {
+                createdAt: "desc",
+            },
+            skip: (page - 1) * perPage,
+            take: perPage,
+        });
+
+        const totalCount = await prisma.activityLog.count({ where });
+
+        return {
+            logs,
+            totalCount,
+            page,
+            perPage,
+            totalPages: Math.ceil(totalCount / perPage),
+        };
+    }
+
+
+    async createLogsActives(email: string, action: string, status: string, message: string, ip: string): Promise<void> {
+        await prisma.activityLog.create({
+            data: {
+                actionType: action,
+                status: status,
+                userEmail: email,
+                ip: ip,
+                message: message,
+            },
+        });
+
     }
 
 

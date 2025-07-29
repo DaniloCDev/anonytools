@@ -88,3 +88,15 @@ model UserCooldown {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  actionType  String   
+  status      String   
+  userEmail   String?
+  adminEmail  String?
+  ip          String
+  message     String   
+  createdAt   DateTime @default(now())
+}

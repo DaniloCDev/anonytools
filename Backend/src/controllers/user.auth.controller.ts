@@ -79,14 +79,14 @@ export class AuthController {
 
         const usecase = new AuthUserService(new UserRepository());
         const result = loginUserSchema.safeParse(req.body);
-
+        const ip: string = req.ip || "";
         try {
 
             if (!result.success) {
                 throw new ZodError(result.error.errors);
             }
 
-            const user = await usecase.LoginUser(result.data);
+            const user = await usecase.LoginUser(result.data, ip);
             const isProduction = process.env.NODE_ENV === "production";
 
 
