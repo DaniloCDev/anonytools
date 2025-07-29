@@ -13,6 +13,7 @@
     "jsonwebtoken": "^9.0.2",
     "mercadopago": "^2.8.0",
     "morgan": "^1.10.0",
+    "next-sitemap": "^4.2.3",
     "zod": "^3.25.56"
   },
   "devDependencies": {
