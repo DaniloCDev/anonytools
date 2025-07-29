@@ -47,20 +47,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
         fetch("/api/user/getUserProxy", { credentials: "include" }),
       ]);
 
-      console.log(userRes, proxyRes)
+     // console.log(userRes, proxyRes)
       if (!userRes.ok) throw new Error("Erro ao buscar dados do usuário");
       const userData = await userRes.json();
       console.log(userData, proxyRes)
       if (!proxyRes.ok) {
         console.warn("Não foi possível buscar dados do proxy, usando padrão.");
-        userData.plan.threads = 0;
+         userData.plan.threads = 0;
       } else {
         const proxyData = await proxyRes.json();
-        console.log(userData, proxyData)
+        console.log( proxyData)
         userData.plan.threads = proxyData.threads ?? 0;
       }
 
-      console.log(userData)
+      //console.log(userData)
       setUser(userData);
     } catch (error) {
       console.error("Erro ao buscar usuário:", error);
