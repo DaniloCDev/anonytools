@@ -195,10 +195,10 @@ export class UserProxyController {
 
     getUser = async (req: Request, res: Response): Promise<void> => {
 
-        const userId = req.body;
+        const userId = req.userId;
         const usecase = new ProxyUserService(new UserRepository());
         try {
-            const user = await usecase.deleteUser(userId.id);
+            const user = await usecase.getUserService(userId);
             //  console.log(usecase)
             res.status(201).json(user);
         } catch (error) {
@@ -213,10 +213,10 @@ export class UserProxyController {
 
     deleteUser = async (req: Request, res: Response): Promise<void> => {
 
-        const userId = req.userId;
+        const userId = req.body;
         const usecase = new ProxyUserService(new UserRepository());
         try {
-            const user = await usecase.getUserService(userId);
+            const user = await usecase.deleteUser(userId.id);
             //  console.log(usecase)
             res.status(201).json(user);
         } catch (error) {
