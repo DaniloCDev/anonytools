@@ -17,7 +17,7 @@ router.get("/user/getUserProxy", authenticateToken, userProxyController.getUser)
 router.patch("/user/createProxy", authenticateToken, userProxyController.registerUserProxy);
 router.patch("/user/updateProxyConfig", authenticateToken, userProxyController.updateProxythreads);
 router.get("/user/resetProxyPassword", authenticateToken, userProxyController.changePassword);
-router.put("/user/BlockUser", authenticateToken, userProxyController.blockUser);
+router.post("/user/BlockUser", authenticateToken, userProxyController.blockUser);
 
 // ─── Purchase ─────────────────────────────────────────────
 router.post("/user/createPurchase", authenticateToken, userProxyController.createPurchase);
