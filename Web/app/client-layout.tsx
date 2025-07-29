@@ -15,6 +15,7 @@ export default function ClientLayout({
   const isDashboard = pathname?.startsWith("/dashboard")
 
   return (
+    
     <ToastProvider>
       {/* Navbar apenas fora do dashboard */}
       {!isDashboard && <Navbar />}
