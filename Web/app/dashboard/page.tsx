@@ -62,7 +62,6 @@ export default function Dashboard() {
     return () => clearTimeout(timer)
   }, [])
 
-  // 👇 Se ainda está verificando autenticação, exibe loading
 
   useEffect(() => {
     const timer = setTimeout(() => setTimeoutReached(true), 8000);

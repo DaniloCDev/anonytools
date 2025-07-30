@@ -147,10 +147,6 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
       if (res.ok && data.status === "paid") {
         setPaymentStatus("paid");
         setShowPaymentSuccess(true);
-
-        setTimeout(() => {
-          setStep("success");
-        }, 2000);
       } else {
         setPaymentStatus("pending");
       }
