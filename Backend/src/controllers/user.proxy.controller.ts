@@ -26,7 +26,7 @@ export class UserProxyController {
     createPurchase = async (req: Request, res: Response): Promise<void> => {
         const userId = req.userId;
         const { gbAmount, couponCode } = req.body;
-
+        const ip: string = req.ip || "";
         try {
 
             if (!userId) {
@@ -52,7 +52,7 @@ export class UserProxyController {
                 return;
             }
             const usecase = new PurchaseService(new UserRepository());
-            const purchase = await usecase.createPurchaseService(userId, selected?.gb, selected?.price, couponCode);
+            const purchase = await usecase.createPurchaseService(userId, selected?.gb, selected?.price, ip, couponCode);
             //   console.log(purchase)
 
             res.status(200).json(purchase);
@@ -133,7 +133,7 @@ export class UserProxyController {
 
     CreateCoupon = async (req: Request, res: Response): Promise<void> => {
         const { code, discountPct, onlyOnce, minGb, expiresAt } = req.body
-
+        const ip: string = req.ip || "";
         console.log(code, discountPct, onlyOnce, minGb, expiresAt)
         if (!code || discountPct === undefined) {
             res.status(400).json({ message: "Código e desconto (%) são obrigatórios" })
@@ -150,7 +150,7 @@ export class UserProxyController {
                 onlyOnce,
                 minGb,
                 expiresAt: expiresAt ? new Date(expiresAt) : undefined,
-            })
+            }, ip)
 
             res.status(201).json(coupon)
         } catch (error) {
@@ -214,8 +214,9 @@ export class UserProxyController {
 
         const body = req.body;
         const usecase = new ProxyUserService(new UserRepository());
+                const ip: string = req.ip || "";
         try {
-            const user = await usecase.BlockUser(body.id);
+            const user = await usecase.BlockUser(body.id, ip);
             res.status(201).json(user);
         } catch (error) {
             console.log(error)
@@ -249,13 +250,13 @@ export class UserProxyController {
 
         const userId = req.userId;
         const body = req.body;
-
+        const ip: string = req.ip || "";
         console.log(body.threads, userId)
         if (!body.threads || body.threads == 0) throw new Error("valor do threads é nescessario");
 
         const usecase = new ProxyUserService(new UserRepository());
         try {
-            const user = await usecase.updateProxyThreadsService(userId, body.threads);
+            const user = await usecase.updateProxyThreadsService(userId, body.threads, ip);
             // console.log(usecase)
             res.status(201).json(user);
         } catch (error) {

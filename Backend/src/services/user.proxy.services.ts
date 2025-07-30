@@ -8,6 +8,7 @@ import { getUser } from "../external/dataimpulse/getUser";
 import { changeProxyThreads } from "../external/dataimpulse/updateProxyThreads";
 import UserRepository from "../repository/user.repository";
 import serializeBigIntAndDate from "../utils/serializeBigInt";
+import { createLog } from "../repository/logsCreate";
 
 class ProxyUserService {
     constructor(private userRepository: UserRepository) { }
@@ -39,7 +40,7 @@ class ProxyUserService {
         return;
     }
 
-    async addTrafficInToBalance(user_id: string, saldo: number) {
+    async addTrafficInToBalance(user_id: string, saldo: number, ip: string) {
         if (!user_id) throw new Error("Usuário não está logado");
 
         const existing = await this.userRepository.findById(user_id);
@@ -50,7 +51,10 @@ class ProxyUserService {
 
         const result = await addToBalance(Number(existingUserProxy.subuserId), saldo);
 
-        if (!result.success) throw new Error("Erro ao adicionar saldo");
+        if (!result.success) {
+            await createLog({ email: existing.email, action: "Adicionar saldo", status: "Erro", message: "Erro ao adicionar saldo.", ip: ip })
+            throw new Error("Erro ao adicionar saldo");
+        }
 
         return result;
     }
@@ -65,7 +69,7 @@ class ProxyUserService {
         return respBalance
     }
 
-    async BlockUser(userId: string) {
+    async BlockUser(userId: string, ip: string) {
         const user = await this.userRepository.findById(userId);
         if (!user) throw new Error("Usuário não encontrado.");
 
@@ -74,7 +78,10 @@ class ProxyUserService {
         await this.userRepository.toggleUserBlock(userId, newBlockedStatus);
 
         const respBalance = await blockSubUser(Number(descUser?.subuserId), newBlockedStatus);
-        if (respBalance.blocked == newBlockedStatus) throw new Error("Não foi possível alterar o status do usuário.");
+        if (respBalance.blocked !== newBlockedStatus) {
+            await createLog({ email: user.email, action: "Bloquear usuario", status: "Erro", message: "Não foi possível alterar o status do usuário", ip: ip })
+            throw new Error("Não foi possível alterar o status do usuário.");
+        }
 
         return respBalance.blocked;
     }
@@ -101,13 +108,14 @@ class ProxyUserService {
     }
 
 
-    async updateProxyThreadsService(userId: string, threads: number) {
+    async updateProxyThreadsService(userId: string, threads: number, ip:string) {
         const user = await this.userRepository.findById(userId)
         if (!user) throw new Error("Usuário não encontrado.")
 
         const descUser = await this.userRepository.getSubuserIdByUserId(userId)
         let updatedThreads = await changeProxyThreads(Number(descUser?.subuserId), threads);
-        console.log(updatedThreads.threads)
+
+        await createLog({ email: user.email, action: "Update de threads proxy", status: "Sucesso", message: `Usuario trocou threads para ${threads}`, ip: ip })
         return updatedThreads.threads
     }
 
