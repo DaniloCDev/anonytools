@@ -9,11 +9,12 @@ const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN!
 export class PurchaseController {
   mercadoPagoWebhook = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { id, type } = req.body;
+      const type = req.body.type;
+      const id = req.body.data?.id;
       const ip: string = req.ip || "";
 
-      if (type !== "payment") {
-        res.status(200).send("Tipo de evento ignorado");
+      if (type !== "payment" || !id) {
+        res.status(200).send("Evento ignorado");
         return;
       }
 
@@ -45,7 +46,13 @@ export class PurchaseController {
 
       await userRepository.markPurchaseAsPaid(purchase.id);
       await addToBalance(Number(purchase.user.proxyUser.subuserId), purchase.gbAmount);
-      await createLog({ email: purchase.user.email, action: "Request do mercado pago", status: "Sucesso", message: "Confirmação do pagamento.", ip: ip })
+      await createLog({
+        email: purchase.user.email,
+        action: "Request do mercado pago",
+        status: "Sucesso",
+        message: "Confirmação do pagamento.",
+        ip: ip
+      });
 
       res.status(200).send("Pagamento confirmado e saldo adicionado");
     } catch (error) {
@@ -53,6 +60,7 @@ export class PurchaseController {
       res.status(500).json({ message: "Erro ao processar webhook" });
     }
   };
+
 
   checkPaymentStatus = async (req: Request, res: Response): Promise<void> => {
     const ip: string = req.ip || "";
