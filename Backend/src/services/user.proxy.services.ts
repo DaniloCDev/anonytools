@@ -65,7 +65,6 @@ class ProxyUserService {
         return respBalance
     }
 
-
     async BlockUser(userId: string) {
         const user = await this.userRepository.findById(userId);
         if (!user) throw new Error("Usuário não encontrado.");

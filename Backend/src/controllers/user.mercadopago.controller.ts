@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import UserRepository from "../repository/user.repository";
 import { addToBalance } from "../external/dataimpulse/addTrafficInToBalance";
+import { createLog } from "../repository/logsCreate";
 
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! });
 
@@ -9,6 +10,7 @@ export class PurchaseController {
   mercadoPagoWebhook = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id, type } = req.body;
+      const ip: string = req.ip || "";
 
       if (type !== "payment") {
         res.status(200).send("Tipo de evento ignorado");
@@ -43,6 +45,7 @@ export class PurchaseController {
 
       await userRepository.markPurchaseAsPaid(purchase.id);
       await addToBalance(Number(purchase.user.proxyUser.subuserId), purchase.gbAmount);
+      await createLog({ email: purchase.user.email, action: "Request do mercado pago", status: "Sucesso", message: "Confirmação do pagamento.", ip: ip })
 
       res.status(200).send("Pagamento confirmado e saldo adicionado");
     } catch (error) {
@@ -52,6 +55,8 @@ export class PurchaseController {
   };
 
   checkPaymentStatus = async (req: Request, res: Response): Promise<void> => {
+    const ip: string = req.ip || "";
+
     try {
       const { paymentId } = req.body;
       if (!paymentId) {
@@ -78,14 +83,16 @@ export class PurchaseController {
       if (payment.status === "approved" && purchase.status !== "PAID") {
         if (!purchase.user.proxyUser?.subuserId) {
           console.error("SubuserId ausente:", purchase.user);
+          await createLog({ action: "pagamento status error", status: "Erro", message: "Erro interno: SubuserId ausente. Contate o suporte", ip: ip })
           res.status(400).json({ message: "Erro interno: SubuserId ausente. Contate o suporte." });
           console.log(payment)
           return;
 
         }
-        
+
         await userRepository.markPurchaseAsPaid(purchase.id);
         await addToBalance(Number(purchase.user.proxyUser.subuserId), purchase.gbAmount);
+        await createLog({ email: purchase.user.email, action: "Pagamento confirmado", status: "Sucesso", message: `Pagamento confirmado e recarga realizada . ${paymentId}`, ip: ip })
 
         await userRepository.clearCooldown(purchase.user.id)
       }

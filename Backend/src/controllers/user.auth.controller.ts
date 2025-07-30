@@ -3,7 +3,6 @@ import UserRepository from "../repository/user.repository";
 import { registerUserSchema, loginUserSchema } from "../dtos";
 import { ZodError } from "zod";
 import AuthUserService from "../services/auth.services";
-import formatZodError from "../utils/formatErrorZod";
 import { changePasswordSchema } from "../dtos/ChangePasswordDTO";
 
 export class AuthController {
@@ -12,6 +11,7 @@ export class AuthController {
 
         const usecase = new AuthUserService(new UserRepository());
         const result = registerUserSchema.safeParse(req.body);
+        const ip: string = req.ip || "";
 
         try {
 
@@ -19,7 +19,7 @@ export class AuthController {
                 throw new ZodError(result.error.errors);
             }
 
-            const user = await usecase.registerUser(result.data);
+            const user = await usecase.registerUser(result.data, ip);
 
             console.log(user);
 
@@ -46,6 +46,7 @@ export class AuthController {
 
         const usecase = new AuthUserService(new UserRepository());
         const result = loginUserSchema.safeParse(req.body);
+        const ip: string = req.ip || "";
 
         try {
 
@@ -53,7 +54,7 @@ export class AuthController {
                 throw new ZodError(result.error.errors);
             }
 
-            const user = await usecase.LoginUserAdmin(result.data);
+            const user = await usecase.LoginUserAdmin(result.data, ip);
             const isProduction = process.env.NODE_ENV === "production";
 
 
@@ -112,11 +113,12 @@ export class AuthController {
 
         const usecase = new AuthUserService(new UserRepository());
         const userID = req.userId;
+        const ip: string = req.ip || "";
 
         try {
             const { lastPassword, newPassword } = changePasswordSchema.parse(req.body)
 
-            await usecase.changePasswordService(userID, lastPassword, newPassword);
+            await usecase.changePasswordService(userID, lastPassword, newPassword, ip);
 
             res.status(200).json({ message: "Senha alterada com sucesso" });
         } catch (error) {
@@ -133,11 +135,13 @@ export class AuthController {
 
         const usecase = new AuthUserService(new UserRepository());
         const details = req.body;
+        const ip: string = req.ip || "";
+
         try {
             // const { newPassword } = changePasswordSchema.parse(req.body)
 
             //   console.log(id. password , "controller")
-            await usecase.changePasswordUsersService(details.userId, details.newPassword);
+            await usecase.changePasswordUsersService(details.userId, details.newPassword, ip);
 
             res.status(200).json({ message: "Senha alterada com sucesso" });
         } catch (error) {

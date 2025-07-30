@@ -47,7 +47,6 @@ class UserRepository {
         });
     }
 
-
     async getLogs(filter: LogsFilter) {
         const {
             email,
@@ -96,7 +95,6 @@ class UserRepository {
         };
     }
 
-
     async createLogsActives(email: string, action: string, status: string, message: string, ip: string): Promise<void> {
         await prisma.activityLog.create({
             data: {
@@ -109,7 +107,6 @@ class UserRepository {
         });
 
     }
-
 
     async deleteUser(userId: string): Promise<boolean> {
         const existingUser = await prisma.user.findUnique({
@@ -128,7 +125,6 @@ class UserRepository {
 
         return true;
     }
-
 
     async findById(userid: string) {
         return prisma.user.findUnique({ where: { id: userid } });
