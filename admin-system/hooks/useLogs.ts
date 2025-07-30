@@ -4,38 +4,41 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 type LogType = {
-  id: number;
-  action: string;
-  user: string;
-  admin: string | null;
-  timestamp: string;
-  type: "info" | "success" | "warning" | "error";
-  details: string;
-  ip: string;
-};
+  id: string
+  actionType: string
+  status: string
+  userEmail: string
+  adminEmail: string | null
+  ip: string
+  message: string
+  createdAt: string
+}
+
 
 export default function useLogs() {
-  const [logs, setLogs] = useState<LogType[]>([]); 
 
-  useEffect(() => {
-    async function fetchLogs() {
-      try {
-        const response = await axios.get("/api/sistem/logs");
-        const data = response.data;
+    const [logs, setLogs] = useState<LogType[]>([])
 
-        if (Array.isArray(data.logs)) {
-          setLogs(data.logs as LogType[]);
-        } else {
-          setLogs([]);
+
+    useEffect(() => {
+        async function fetchLogs() {
+            try {
+                const response = await axios.get("/api/sistem/logs");
+                const data = response.data;
+
+                if (Array.isArray(data.logs)) {
+                    setLogs(data.logs as LogType[]);
+                } else {
+                    setLogs([]);
+                }
+            } catch (err) {
+                console.error("Erro ao buscar logs:", err);
+                setLogs([]);
+            }
         }
-      } catch (err) {
-        console.error("Erro ao buscar logs:", err);
-        setLogs([]);
-      }
-    }
 
-    fetchLogs();
-  }, []);
+        fetchLogs();
+    }, []);
 
-  return { logs };
+    return { logs };
 }

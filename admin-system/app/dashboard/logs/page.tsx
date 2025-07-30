@@ -45,13 +45,17 @@ export default function LogsPage() {
 
   const filteredLogs = logs.filter((log) => {
     const matchesSearch =
-      log.action.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      log.user.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      (log.admin && log.admin.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
-    const matchesType = typeFilter === "all" || log.type === typeFilter
-    const matchesDate = !dateFilter || new Date(log.timestamp).toDateString() === dateFilter.toDateString()
-    return matchesSearch && matchesType && matchesDate
-  })
+      log.actionType.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      log.userEmail.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      (log.adminEmail && log.adminEmail.toLowerCase().includes(debouncedSearchTerm.toLowerCase())) ||
+      log.message.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+
+    const matchesType = typeFilter === "all" || log.status.toLowerCase() === typeFilter;
+    const matchesDate = !dateFilter || new Date(log.createdAt).toDateString() === dateFilter.toDateString();
+
+    return matchesSearch && matchesType && matchesDate;
+  });
+
 
   // Lógica de paginação
   const totalPages = Math.ceil(filteredLogs.length / itemsPerPage)
@@ -127,7 +131,7 @@ export default function LogsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {filteredLogs.filter((log) => log.type === "success").length}
+              {filteredLogs.filter((log) => log.status === "success").length}
             </div>
           </CardContent>
         </Card>
@@ -139,7 +143,7 @@ export default function LogsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {filteredLogs.filter((log) => log.type === "warning").length}
+              {filteredLogs.filter((log) => log.status === "warning").length}
             </div>
           </CardContent>
         </Card>
@@ -151,7 +155,7 @@ export default function LogsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {filteredLogs.filter((log) => log.type === "error").length}
+              {filteredLogs.filter((log) => log.status === "error").length}
             </div>
           </CardContent>
         </Card>
@@ -294,40 +298,59 @@ export default function LogsPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {currentLogs.map((log) => (
-              <div key={log.id} className="flex items-start gap-4 p-4 bg-slate-700 rounded-lg">
-                <div className="flex-shrink-0 mt-1">{getTypeIcon(log.type)}</div>
+            {currentLogs.map((log) => {
+              // Função auxiliar para mapear o status para o tipo esperado no badge e ícone
+              const mapStatusToType = (status: string) => {
+                switch (status.toLowerCase()) {
+                  case "sucesso":
+                    return "success"
+                  case "aviso":
+                    return "warning"
+                  case "erro":
+                    return "error"
+                  case "info":
+                  default:
+                    return "info"
+                }
+              }
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-white truncate">{log.action}</h3>
-                    {getTypeBadge(log.type)}
-                  </div>
+              const type = mapStatusToType(log.status)
 
-                  <div className="space-y-1 text-sm text-slate-400">
-                    <div className="flex items-center gap-4">
-                      <span>
-                        <User className="w-3 h-3 inline mr-1" />
-                        Usuário: {log.user}
-                      </span>
-                      {log.admin && (
-                        <span>
-                          <Shield className="w-3 h-3 inline mr-1" />
-                          Admin: {log.admin}
-                        </span>
-                      )}
+              return (
+                <div key={log.id} className="flex items-start gap-4 p-4 bg-slate-700 rounded-lg">
+                  <div className="flex-shrink-0 mt-1">{getTypeIcon(type)}</div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-medium text-white truncate">{log.actionType}</h3>
+                      {getTypeBadge(type)}
                     </div>
 
-                    <p className="text-slate-300">{log.details}</p>
+                    <div className="space-y-1 text-sm text-slate-400">
+                      <div className="flex items-center gap-4">
+                        <span>
+                          <User className="w-3 h-3 inline mr-1" />
+                          Usuário: {log.userEmail}
+                        </span>
+                        {log.adminEmail && (
+                          <span>
+                            <Shield className="w-3 h-3 inline mr-1" />
+                            Admin: {log.adminEmail}
+                          </span>
+                        )}
+                      </div>
 
-                    <div className="flex items-center gap-4 text-xs">
-                      <span>{format(new Date(log.timestamp), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
-                      <span>IP: {log.ip}</span>
+                      <p className="text-slate-300">{log.message}</p>
+
+                      <div className="flex items-center gap-4 text-xs">
+                        <span>{format(new Date(log.createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
+                        <span>IP: {log.ip}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
 
             {currentLogs.length === 0 && (
               <div className="text-center py-8 text-slate-400">
@@ -338,6 +361,7 @@ export default function LogsPage() {
           </div>
         </CardContent>
       </Card>
+
     </div>
   )
 }
