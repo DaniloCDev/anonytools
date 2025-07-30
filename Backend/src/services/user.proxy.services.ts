@@ -76,7 +76,7 @@ class ProxyUserService {
         await this.userRepository.toggleUserBlock(userId, newBlockedStatus);
 
         const respBalance = await blockSubUser(Number(descUser?.subuserId), newBlockedStatus);
-        if (!respBalance.blocked) throw new Error("Não foi possível alterar o status do usuário.");
+      //  if (!respBalance.blocked) throw new Error("Não foi possível alterar o status do usuário.");
 
         return respBalance.blocked;
     }
