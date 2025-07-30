@@ -70,6 +70,7 @@ export default function UsersPage() {
   const itemsPerPage = 5
   const [addAmount, setAddAmount] = useState(0)
   const [newPassword, setNewPassword] = useState("")
+  const [userBalance, setUserBalance] = useState<null | number>(null)
 
   // Usar seu hook com termo debounced
   const { results, loading } = useUserSearch(debouncedSearchTerm)
@@ -101,11 +102,24 @@ export default function UsersPage() {
     setCurrentPage(page)
   }
 
-  const handleUserClick = (user: User) => {
+  const handleUserClick = async (user: User) => {
     setSelectedUser(user)
     setEditMode(false)
     setIsModalOpen(true)
+
+    try {
+      const res = await fetch(`/api/user/getBalance?userID=${user.id}`, {
+        credentials: "include",
+      })
+      if (!res.ok) throw new Error("Erro ao buscar saldo do usuário")
+      const data = await res.json()
+      setUserBalance(data.balance_total) // ou data.balance se quiser só o restante
+    } catch (err) {
+      console.error(err)
+      setUserBalance(null)
+    }
   }
+
 
   const updateUserData = async (updatedFields: { newPassword: string }) => {
     if (!selectedUser) return
@@ -122,16 +136,17 @@ export default function UsersPage() {
       })
       if (!res.ok) {
         const data = await res.json()
-  console.log(data)
+        console.log(data)
         throw new Error(data.error || "Erro ao atualizar")
       }
-  
+
       toast.success("Senha atualizada com sucesso")
       setNewPassword("") // limpa o campo de senha
     } catch (err: any) {
       toast.error(err.message)
     }
   }
+
 
   const handlePasswordChange = async () => {
     if (newPassword.trim().length < 6) {
@@ -492,8 +507,13 @@ export default function UsersPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold text-green-400">
-                        {selectedUser.gbsPurchased - selectedUser.gbsUsed} GB
+                        {userBalance !== null && (
+                          <p className="text-sm text-slate-400">
+                            Saldo atual: <span className="font-semibold">{userBalance} GB</span>
+                          </p>
+                        )} 
                       </div>
+
                     </CardContent>
                   </Card>
                   <Card className="bg-slate-700 border-slate-600">
@@ -565,8 +585,9 @@ export default function UsersPage() {
                     Excluir Usuário
                   </Button>
                 </div>
-
-                <div className="space-y-2">
+                {
+                  /**
+                   *                 <div className="space-y-2">
                   <Label className="text-slate-300">Adicionar Saldo (GB)</Label>
                   <div className="flex gap-2">
                     <Input
@@ -590,6 +611,8 @@ export default function UsersPage() {
                     </Button>
                   </div>
                 </div>
+                   */
+                }
               </TabsContent>
             </Tabs>
           )}

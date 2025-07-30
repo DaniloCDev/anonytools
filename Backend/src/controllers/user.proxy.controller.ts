@@ -192,6 +192,26 @@ export class UserProxyController {
         }
     };
 
+    getUserBalanceWithAdmin = async (req: Request, res: Response): Promise<void> => {
+
+        const UserID = req.query.userID as string;
+
+        const usecase = new ProxyUserService(new UserRepository());
+        try {
+            const user = await usecase.getUserBalanceService(UserID);
+            //  console.log(usecase)
+            res.status(201).json(user);
+        } catch (error) {
+            console.log(error)
+            if (error instanceof ZodError) {
+                res.status(400).json({ message: "Erro de validação", errors: error.format() });
+            } else {
+                res.status(400).json({ message: (error as Error).message });
+            }
+        }
+    };
+
+
     getUser = async (req: Request, res: Response): Promise<void> => {
 
         const userId = req.userId;
@@ -214,7 +234,7 @@ export class UserProxyController {
 
         const body = req.body;
         const usecase = new ProxyUserService(new UserRepository());
-                const ip: string = req.ip || "";
+        const ip: string = req.ip || "";
         try {
             const user = await usecase.BlockUser(body.id, ip);
             res.status(201).json(user);

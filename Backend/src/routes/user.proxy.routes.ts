@@ -25,6 +25,7 @@ router.get("/user/purchases", authenticateToken, userProxyController.purchaseHis
 
 // ─── Balance ──────────────────────────────────────────────
 router.get("/user/get-balance", authenticateToken, userProxyController.getUserBalance);
+router.get("/user/getBalance", authenticateToken, userProxyController.getUserBalanceWithAdmin);
 
 // ─── Coupons ──────────────────────────────────────────────
 router.get("/coupons/validate", authenticateToken, userProxyController.GetCouponWithCode);
