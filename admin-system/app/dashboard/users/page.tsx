@@ -71,6 +71,8 @@ export default function UsersPage() {
   const [addAmount, setAddAmount] = useState(0)
   const [newPassword, setNewPassword] = useState("")
   const [userBalance, setUserBalance] = useState<null | number>(null)
+  const [userUsedBalance, setUserUsedBalance] = useState<null | number>(null)
+
 
   // Usar seu hook com termo debounced
   const { results, loading } = useUserSearch(debouncedSearchTerm)
@@ -113,7 +115,8 @@ export default function UsersPage() {
       })
       if (!res.ok) throw new Error("Erro ao buscar saldo do usuário")
       const data = await res.json()
-      setUserBalance(data.balance_total) // ou data.balance se quiser só o restante
+      setUserBalance(data.balance_total) 
+      setUserUsedBalance(data.balance.balance_used)
     } catch (err) {
       console.error(err)
       setUserBalance(null)

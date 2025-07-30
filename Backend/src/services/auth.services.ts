@@ -99,7 +99,7 @@ class AuthUserService {
             process.env.JWT_SECRET_KEY as string,
             { expiresIn: '1d' }
         );
-        await createLog({ email: existingUser.email, action: "LoginAdm", status: "Sucesso", message: "Acesso negado realizado.", ip: ip })
+        await createLog({ email: existingUser.email, action: "LoginAdm", status: "Sucesso", message: "Acesso realizado.", ip: ip })
 
         return { user: toUserResponseDTO(existingUser), token };
     }
