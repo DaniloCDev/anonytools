@@ -131,7 +131,9 @@ class ProxyUserService {
     }
 
     async searchInfoUsers(user_id: string, query: string) {
-        if (!query && user_id) throw new Error("è nescessario email ou  id para buscar");
+        if (!query && user_id) {
+            query = "";
+        }
         const userloged = await this.userRepository.findById(user_id);
         if (!userloged) {
             throw new Error("Usuario adm nâo existe");
