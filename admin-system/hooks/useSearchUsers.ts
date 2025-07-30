@@ -14,18 +14,20 @@ type User = {
 }
 
 export function useUserSearch(query: string) {
-const [results, setResults] = useState<User[]>([])
+  const [results, setResults] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const fetchResults = async () => {
-      if (!query) return
       setLoading(true)
 
       try {
+        const url = query.trim()
+          ? `/api/user/searchUsers?q=${encodeURIComponent(query)}`
+          : `/api/user/searchUsers`
 
-        const res = await fetch(`/api/user/searchUsers?q=${encodeURIComponent(query)}`, {
-          credentials: "include", 
+        const res = await fetch(url, {
+          credentials: "include",
         })
 
         if (res.ok) {
@@ -40,8 +42,8 @@ const [results, setResults] = useState<User[]>([])
         setLoading(false)
       }
     }
-    const timeout = setTimeout(() => fetchResults(), 300)
 
+    const timeout = setTimeout(() => fetchResults(), 300)
     return () => clearTimeout(timeout)
   }, [query])
 

@@ -8,8 +8,8 @@ type LogsFilter = {
     status?: string;
     actionType?: string;
     search?: string;
-    page?: number;      
-    perPage?: number;   
+    page?: number;
+    perPage?: number;
 };
 
 class UserRepository {
@@ -173,6 +173,9 @@ class UserRepository {
                 purchases: { where: { status: "PAID" } },
             },
             take: 20,
+            orderBy: {
+                createdAt: "desc", // <-- Adicionado aqui!
+            },
         })
 
         const mappedUsers = users.map(user => {
