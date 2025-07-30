@@ -6,5 +6,6 @@ export async function blockSubUser(idUser: number, status: boolean): Promise<any
         blocked: status
     }
     const { data } = await dataImpulseClient.post('/reseller/sub-user/set-blocked', payload);
+    console.log(data)
     return data;
 }

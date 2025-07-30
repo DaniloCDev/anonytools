@@ -120,12 +120,12 @@ export default function UsersPage() {
         }),
         credentials: "include",
       })
-
       if (!res.ok) {
         const data = await res.json()
+  console.log(data)
         throw new Error(data.error || "Erro ao atualizar")
       }
-
+  
       toast.success("Senha atualizada com sucesso")
       setNewPassword("") // limpa o campo de senha
     } catch (err: any) {
@@ -557,7 +557,7 @@ export default function UsersPage() {
                   </Button>
 
                   <Button
-                  //  onClick={() => handleBlockUser(selectedUser.id)}
+                    //  onClick={() => handleBlockUser(selectedUser.id)}
                     variant="outline"
                     className="border-red-500 text-red-400 hover:text-red-300 hover:bg-red-500/10"
                   >
