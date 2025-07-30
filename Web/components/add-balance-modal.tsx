@@ -131,7 +131,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
     setIsCheckingPayment(true);
 
     try {
-      const res = await fetch("/api/user/checkPaymentStatus", {
+      const res = await fetch("/api/user/check-payment-status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
