@@ -70,13 +70,11 @@ class ProxyUserService {
         if (!user) throw new Error("Usuário não encontrado.");
 
         const descUser = await this.userRepository.getSubuserIdByUserId(userId);
-        console.log(descUser)
-
         const newBlockedStatus = !user.blocked;
         await this.userRepository.toggleUserBlock(userId, newBlockedStatus);
 
         const respBalance = await blockSubUser(Number(descUser?.subuserId), newBlockedStatus);
-      //  if (!respBalance.blocked) throw new Error("Não foi possível alterar o status do usuário.");
+        if (respBalance.blocked == newBlockedStatus) throw new Error("Não foi possível alterar o status do usuário.");
 
         return respBalance.blocked;
     }
