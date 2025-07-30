@@ -115,8 +115,8 @@ export default function UsersPage() {
       })
       if (!res.ok) throw new Error("Erro ao buscar saldo do usuário")
       const data = await res.json()
-      setUserBalance(data.balance_total)
-      setUserUsedBalance(data.balance.balance_used)
+      setUserBalance(data.balance_format)
+      setUserUsedBalance(data.balance_used_format)
     } catch (err) {
       console.error(err)
       setUserBalance(null)
@@ -503,7 +503,7 @@ export default function UsersPage() {
                     <CardContent>
                       <div className="text-2xl font-bold text-white">                    {userBalance !== null && (
                         <p className="text-sm text-slate-400">
-                          Saldo atual: <span className="font-semibold">{userUsedBalance} GB</span>
+                          Saldo atual: <span className="font-semibold">{userUsedBalance}</span>
                         </p>
                       )} </div>
                     </CardContent>
@@ -516,7 +516,7 @@ export default function UsersPage() {
                       <div className="text-2xl font-bold text-green-400">
                         {userBalance !== null && (
                           <p className="text-sm text-slate-400">
-                            Saldo atual: <span className="font-semibold">{userBalance} GB</span>
+                            Saldo atual: <span className="font-semibold">{userBalance}</span>
                           </p>
                         )}
                       </div>
