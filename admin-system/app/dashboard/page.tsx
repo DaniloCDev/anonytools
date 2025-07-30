@@ -39,6 +39,27 @@ export default function DashboardPage() {
     planDistribution: any[]
   }>(null)
 
+    useEffect(() => {
+    document.title = "Sistema Interno"
+
+    // Adicionar meta tag específica para esta página
+    const metaRobots = document.createElement("meta")
+    metaRobots.name = "robots"
+    metaRobots.content = "noindex, nofollow, noarchive, nosnippet, noimageindex, nocache"
+    document.head.appendChild(metaRobots)
+
+    // Prevenir que a página seja salva no histórico do navegador
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", window.location.href)
+    }
+
+    return () => {
+      if (document.head.contains(metaRobots)) {
+        document.head.removeChild(metaRobots)
+      }
+    }
+  }, [])
+  
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
