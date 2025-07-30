@@ -402,14 +402,12 @@ class UserRepository {
         return { allowed: true };
     }
 
-
     async markPurchaseAsPaid(purchaseId: number): Promise<void> {
         await prisma.purchase.update({
             where: { id: purchaseId },
             data: { status: "PAID" },
         });
     }
-
 
     async getDashboardStats() {
         const totalUsers = await prisma.user.count()

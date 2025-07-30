@@ -113,10 +113,6 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
           message: "Cole no app do banco para efetuar o pagamento.",
           duration: 3000,
         });
-
-        setTimeout(() => {
-          setStep("success");
-        }, 2000);
       })
       .catch((err) => {
         console.error("Erro ao copiar código PIX:", err);
