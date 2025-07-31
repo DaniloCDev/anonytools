@@ -150,10 +150,10 @@ const filteredPurchases = purchases.filter((purchase) => {
           <h1 className="text-3xl font-bold text-white">Gerenciamento de Compras</h1>
           <p className="text-slate-400">Visualize e gerencie todas as transações</p>
         </div>
-        <Button variant="outline" className="border-slate-600 text-slate-300 hover:text-white bg-transparent">
+        {/**<Button variant="outline" className="border-slate-600 text-slate-300 hover:text-white bg-transparent">
           <Download className="w-4 h-4 mr-2" />
           Exportar Compras
-        </Button>
+        </Button> */}
       </div>
 
       {/* Estatísticas */}
@@ -323,8 +323,8 @@ const filteredPurchases = purchases.filter((purchase) => {
                     <TableHead className="text-slate-300">Status</TableHead>
                     <TableHead className="text-slate-300">ID Mercado Pago</TableHead>
                     <TableHead className="text-slate-300">Data da Compra</TableHead>
-                    <TableHead className="text-slate-300">Ações</TableHead>
-                  </TableRow>
+                  {/**  <TableHead className="text-slate-300">Ações</TableHead>*/ 
+  }                </TableRow>
                 </TableHeader>
                 <TableBody>
                   {currentPurchases.map((purchase) => (

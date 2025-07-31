@@ -216,10 +216,6 @@ export default function UsersPage() {
           <h1 className="text-3xl font-bold text-white">Gerenciamento de Usuários</h1>
           <p className="text-slate-400">Gerencie todos os usuários do sistema</p>
         </div>
-        <Button className="bg-purple-600 hover:bg-purple-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Adicionar Usuário
-        </Button>
       </div>
 
       {/* Filtros e Busca */}
@@ -246,13 +242,6 @@ export default function UsersPage() {
                 <SelectItem value="blocked">Bloqueados</SelectItem>
               </SelectContent>
             </Select>
-            <Button
-              variant="outline"
-              className="border-slate-600 text-slate-300 hover:text-white bg-transparent"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Exportar
-            </Button>
           </div>
         </CardContent>
       </Card>
