@@ -208,14 +208,6 @@ export default function DashboardLayout({
             <div className="flex items-center gap-4 px-6 py-4">
               <SidebarTrigger className="text-slate-400 hover:text-white" />
               <div className="flex-1" />
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-slate-600 text-slate-300 hover:text-white bg-transparent"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Exportar Dados
-              </Button>
             </div>
           </header>
           <div className="flex-1 p-6">{children}</div>

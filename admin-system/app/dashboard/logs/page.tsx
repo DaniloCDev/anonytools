@@ -106,10 +106,6 @@ export default function LogsPage() {
           <h1 className="text-3xl font-bold text-white">Logs do Sistema</h1>
           <p className="text-slate-400">Histórico de ações e eventos do sistema</p>
         </div>
-        <Button variant="outline" className="border-slate-600 text-slate-300 hover:text-white bg-transparent">
-          <Download className="w-4 h-4 mr-2" />
-          Exportar Logs
-        </Button>
       </div>
 
       {/* Estatísticas Rápidas */}

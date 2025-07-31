@@ -320,10 +320,6 @@ export default function CouponsPage() {
                 <SelectItem value="fixed">Valor Fixo</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" className="border-slate-600 text-slate-300 hover:text-white bg-transparent">
-              <Download className="w-4 h-4 mr-2" />
-              Exportar
-            </Button>
           </div>
         </CardContent>
       </Card>
