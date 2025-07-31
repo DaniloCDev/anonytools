@@ -15,6 +15,7 @@ import { Copy, Plus, Activity, Shield, Clock, Eye, EyeOff, RefreshCw, HelpCircle
 import { useUser } from "@/contexts/UserContext";
 import { ProxySettings } from "@/components/proxy-settings"
 //import { useUserAuth } from "@/hooks/useUserAuth"
+import { useRouter } from "next/navigation"
 
 type UserBalance = {
   balance: number;
@@ -29,20 +30,40 @@ type UserBalance = {
 export function useUserBalance() {
   const [balance, setBalance] = useState<UserBalance | null>(null);
   const [loadingBalance, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    fetch("/api/user/get-balance", {
-      credentials: "include",
-    })
-      .then(res => res.json())
-      .then(data => {
-        setBalance(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+    const checkAuthAndFetchBalance = async () => {
+      try {
+        const res = await fetch("/api/auth/check", {
+          credentials: "include",
+        })
 
-  return { balance, loadingBalance };
+        if (!res.ok) {
+          router.push("/")
+          return
+        }
+
+        // Se autenticado, busca o saldo
+        const balanceRes = await fetch("/api/user/get-balance", {
+          credentials: "include",
+        })
+
+        if (!balanceRes.ok) throw new Error("Erro ao buscar saldo")
+
+        const data = await balanceRes.json()
+        setBalance(data)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkAuthAndFetchBalance()
+  }, [router])
+
+  return { balance, loadingBalance }
 }
 
 export default function Dashboard() {

@@ -12,26 +12,6 @@ export default function Home() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const router = useRouter();
 
-    useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("/api/auth/check", {
-          credentials: "include",
-        })
-
-        if (res.ok) {
-          router.push("/dashboard")
-        } else {
-          router.push("/")
-        }
-      } catch {
-        router.push("/")
-      }
-    }
-
-    checkAuth()
-  }, [router])
-
   const handleStartClick = async () => {
     try {
       const res = await fetch("/api/auth/check", {
