@@ -4,13 +4,33 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Shield, Zap, Globe, Users, ArrowRight, CheckCircle } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AuthModal } from "@/components/auth-modal"
 
 export default function Home() {
   const [showAuthModal, setShowAuthModal] = useState(false)
-  const router = useRouter()
+  const router = useRouter();
+
+    useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/auth/check", {
+          credentials: "include",
+        })
+
+        if (res.ok) {
+          router.push("/dashboard")
+        } else {
+          router.push("/")
+        }
+      } catch {
+        router.push("/")
+      }
+    }
+
+    checkAuth()
+  }, [router])
 
   const handleStartClick = async () => {
     try {

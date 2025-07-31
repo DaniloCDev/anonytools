@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 export default function HomePage() {
   const router = useRouter()
 
-    useEffect(() => {
+  useEffect(() => {
     // Limpar título da página
     document.title = "Sistema Interno"
 
@@ -27,14 +27,25 @@ export default function HomePage() {
       document.head.removeChild(metaDescription)
     }
   }, [])
-  
+
   useEffect(() => {
-    const token = localStorage.getItem("admin-token")
-    if (token) {
-      router.push("/dashboard")
-    } else {
-      router.push("/login")
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/auth/check", {
+          credentials: "include",
+        })
+
+        if (res.ok) {
+          router.push("/dashboard")
+        } else {
+          router.push("/login")
+        }
+      } catch {
+        router.push("/login")
+      }
     }
+
+    checkAuth()
   }, [router])
 
   return (
