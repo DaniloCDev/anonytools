@@ -178,7 +178,7 @@ export default function DashboardLayout({
         })
 
         if (res.ok) {
-          router.push("/dashboard")
+       //   router.push("/dashboard")
           setIsAuthenticated(true)
         } else {
           router.push("/login")
