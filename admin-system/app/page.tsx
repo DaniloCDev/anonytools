@@ -28,25 +28,6 @@ export default function HomePage() {
     }
   }, [])
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("/api/auth/check", {
-          credentials: "include",
-        })
-
-        if (res.ok) {
-          router.push("/dashboard")
-        } else {
-          router.push("/login")
-        }
-      } catch {
-        router.push("/login")
-      }
-    }
-
-    checkAuth()
-  }, [router])
 
   return (
     <div className="min-h-screen bg-slate-900 flex items-center justify-center">
