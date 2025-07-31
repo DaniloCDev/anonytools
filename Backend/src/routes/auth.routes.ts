@@ -17,7 +17,7 @@ router.post("/auth/logout", authenticateToken, authController.logout);
 
 // ─── User Profile ────────────────────────────────────────
 router.post("/user/ChangeUserPassword", authenticateToken, authController.changePasswordProfile);
-router.put("/user/update", authenticateToken, authController.UpdateProfile);
+router.put("/user/updateUser", authenticateToken, authController.UpdateProfile);
 
 // ─── Payments / Mercado Pago ─────────────────────────────
 router.post("/webhook/mercadopago", purchaseController.mercadoPagoWebhook); 
