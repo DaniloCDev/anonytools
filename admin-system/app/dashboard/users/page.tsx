@@ -128,7 +128,7 @@ export default function UsersPage() {
     if (!selectedUser) return
 
     try {
-      const res = await fetch("/api/user/update", {
+      const res = await fetch("/api/user/updateUser", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
