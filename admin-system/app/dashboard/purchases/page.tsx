@@ -75,19 +75,19 @@ export default function PurchasesPage() {
     return () => clearTimeout(timer)
   }, [searchTerm])
 
-const filteredPurchases = purchases.filter((purchase) => {
-  if (!debouncedSearchTerm) {
-    return true; 
-  }
+  const filteredPurchases = purchases.filter((purchase) => {
+    if (!debouncedSearchTerm) {
+      return true;
+    }
 
-  const matchesSearch =
-    purchase.user.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-    purchase.user.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-    purchase.id.toString().includes(debouncedSearchTerm) ||
-    purchase.mpPaymentId?.toString().includes(debouncedSearchTerm); 
+    const matchesSearch =
+      purchase.user.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      purchase.user.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      purchase.id.toString().includes(debouncedSearchTerm) ||
+      purchase.mpPaymentId?.toString().includes(debouncedSearchTerm);
 
-  return matchesSearch;
-});
+    return matchesSearch;
+  });
 
 
   const displayPurchases = debouncedSearchTerm ? filteredPurchases : filteredPurchases.slice(0, 30)
@@ -323,9 +323,9 @@ const filteredPurchases = purchases.filter((purchase) => {
                     <TableHead className="text-slate-300">Status</TableHead>
                     <TableHead className="text-slate-300">ID Mercado Pago</TableHead>
                     <TableHead className="text-slate-300">Data da Compra</TableHead>
-                  {/**  <TableHead className="text-slate-300">Ações</TableHead>*/ 
-  }                </TableRow>
+                  </TableRow>
                 </TableHeader>
+
                 <TableBody>
                   {currentPurchases.map((purchase) => (
                     <TableRow key={purchase.id} className="border-slate-700 hover:bg-slate-750">
