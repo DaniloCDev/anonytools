@@ -77,22 +77,21 @@ export default function PurchasesPage() {
 
 const filteredPurchases = purchases.filter((purchase) => {
   if (!debouncedSearchTerm) {
-    return true; // Mostrar as últimas 30 compras
+    return true; 
   }
 
   const matchesSearch =
     purchase.user.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
     purchase.user.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
     purchase.id.toString().includes(debouncedSearchTerm) ||
-    purchase.mpPaymentId?.toString().includes(debouncedSearchTerm); // <- aqui é a correção
+    purchase.mpPaymentId?.toString().includes(debouncedSearchTerm); 
 
   return matchesSearch;
 });
 
-  // Mostrar apenas as últimas 30 se não há busca
+
   const displayPurchases = debouncedSearchTerm ? filteredPurchases : filteredPurchases.slice(0, 30)
 
-  // Lógica de paginação
   const totalPages = Math.ceil(displayPurchases.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
@@ -105,10 +104,8 @@ const filteredPurchases = purchases.filter((purchase) => {
   const handleRefreshStatus = async (purchaseId: number) => {
     setRefreshingId(purchaseId)
 
-    // Simular chamada para API
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    // Simular atualização de status (exemplo)
     setPurchases((prev) =>
       prev.map((purchase) =>
         purchase.id === purchaseId

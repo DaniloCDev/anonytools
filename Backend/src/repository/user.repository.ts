@@ -572,8 +572,12 @@ class UserRepository {
             take: 30,
         });
 
-        return purchases;
+        return purchases.map((p) => ({
+            ...p,
+            mpPaymentId: p.mpPaymentId?.toString() ?? null,
+        }));
     }
+
 
 }
 
