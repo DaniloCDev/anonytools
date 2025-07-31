@@ -108,7 +108,7 @@ class ProxyUserService {
     }
 
 
-    async updateProxyThreadsService(userId: string, threads: number, ip:string) {
+    async updateProxyThreadsService(userId: string, threads: number, ip: string) {
         const user = await this.userRepository.findById(userId)
         if (!user) throw new Error("Usuário não encontrado.")
 
@@ -145,6 +145,23 @@ class ProxyUserService {
         }
         return existing;
     }
+
+    async searchPuchases(user_id: string, query: string) {
+        if (!query && user_id) {
+            query = "";
+        }
+        const userloged = await this.userRepository.findById(user_id);
+        if (!userloged) {
+            throw new Error("Usuario adm nâo existe");
+        }
+
+        const existing = await this.userRepository.findPurchases(query);
+        if (!existing) {
+            throw new Error("Usuario nâo existe");
+        }
+        return existing;
+    }
+
 
     async GetDataDashboard(user_id: string) {
         const existing = await this.userRepository.getDashboardStats();

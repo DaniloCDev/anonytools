@@ -551,6 +551,30 @@ class UserRepository {
         return coupons
     }
 
+    async findPurchases(q?: string) {
+        const where: Prisma.PurchaseWhereInput = q
+            ? {
+                user: {
+                    OR: [
+                        { email: { contains: q, mode: "insensitive" } },
+                        { name: { contains: q, mode: "insensitive" } },
+                    ],
+                },
+            }
+            : {};
+
+        const purchases = await prisma.purchase.findMany({
+            where,
+            include: {
+                user: true,
+            },
+            orderBy: { createdAt: "desc" },
+            take: 30,
+        });
+
+        return purchases;
+    }
+
 }
 
 export default UserRepository;

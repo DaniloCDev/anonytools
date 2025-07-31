@@ -22,6 +22,8 @@ router.post("/user/BlockUser", authenticateToken, userProxyController.blockUser)
 // ─── Purchase ─────────────────────────────────────────────
 router.post("/user/createPurchase", authenticateToken, userProxyController.createPurchase);
 router.get("/user/purchases", authenticateToken, userProxyController.purchaseHistory);
+router.get("/user/purchasesAdm", authenticateToken, userProxyController.findPurchases);
+
 
 // ─── Balance ──────────────────────────────────────────────
 router.get("/user/get-balance", authenticateToken, userProxyController.getUserBalance);
@@ -34,5 +36,6 @@ router.get("/allcoupons", authenticateToken, userProxyController.ListAllCoupons)
 
 // ─── Admin - User Search ──────────────────────────────────
 router.get("/user/searchUsers", authenticateToken, userProxyController.informationsUsers);
+
 
 export default router;
