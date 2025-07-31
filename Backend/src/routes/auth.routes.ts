@@ -16,7 +16,7 @@ router.get("/auth/check", authenticateToken, authController.authCheck);
 router.post("/auth/logout", authenticateToken, authController.logout);
 
 // ─── User Profile ────────────────────────────────────────
-router.post("/user/change-password", authenticateToken, authController.changePasswordProfile);
+router.post("/user/ChangeUserPassword", authenticateToken, authController.changePasswordProfile);
 router.put("/user/update", authenticateToken, authController.UpdateProfile);
 
 // ─── Payments / Mercado Pago ─────────────────────────────
