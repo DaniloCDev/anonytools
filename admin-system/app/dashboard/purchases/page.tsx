@@ -339,17 +339,6 @@ const filteredPurchases = purchases.filter((purchase) => {
                       <TableCell className="text-slate-300">
                         {format(new Date(purchase.createdAt), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
                       </TableCell>
-                      <TableCell>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleRefreshStatus(purchase.id)}
-                          disabled={refreshingId === purchase.id}
-                          className="border-slate-600 text-slate-300 hover:text-white bg-transparent"
-                        >
-                          <RefreshCw className={`w-4 h-4 ${refreshingId === purchase.id ? "animate-spin" : ""}`} />
-                        </Button>
-                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
