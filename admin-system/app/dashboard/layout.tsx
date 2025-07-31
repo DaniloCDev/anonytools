@@ -82,10 +82,12 @@ const menuItems = [
 function AppSidebar() {
   const router = useRouter()
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin-token")
-    router.push("/login")
-  }
+  const handleLogout = async () => {
+
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    //clearAllCookies()
+    window.location.href = "/";
+  };
 
   return (
     <Sidebar className="border-r border-slate-700 bg-slate-800">
@@ -167,13 +169,26 @@ export default function DashboardLayout({
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
 
+
   useEffect(() => {
-    const token = localStorage.getItem("admin-token")
-    if (!token) {
-      router.push("/login")
-    } else {
-      setIsAuthenticated(true)
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("/api/auth/check", {
+          credentials: "include",
+        })
+
+        if (res.ok) {
+          router.push("/dashboard")
+          setIsAuthenticated(true)
+        } else {
+          router.push("/login")
+        }
+      } catch {
+        router.push("/login")
+      }
     }
+
+    checkAuth()
   }, [router])
 
   if (!isAuthenticated) {
