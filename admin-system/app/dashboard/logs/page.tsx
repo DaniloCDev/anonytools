@@ -44,11 +44,16 @@ export default function LogsPage() {
   }, [searchTerm])
 
   const filteredLogs = logs.filter((log) => {
-    const matchesSearch =
-      log.actionType.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      log.userEmail.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-      (log.adminEmail && log.adminEmail.toLowerCase().includes(debouncedSearchTerm.toLowerCase())) ||
-      log.message.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+    const matchesSearch = [
+      log.actionType,
+      log.userEmail,
+      log.adminEmail,
+      log.message,
+    ]
+      .filter((field): field is string => typeof field === "string")
+      .some((field) =>
+        field.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+      );
 
     const matchesType = typeFilter === "all" || log.status.toLowerCase() === typeFilter;
     const matchesDate = !dateFilter || new Date(log.createdAt).toDateString() === dateFilter.toDateString();
