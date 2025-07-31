@@ -28,8 +28,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { BarChart3, Users, Settings, LogOut, Shield, Activity, FileText, Download, Ticket } from "lucide-react"
-import { useAdminAuth } from "@/hooks/useAdminAuth"
+import {
+  BarChart3,
+  Users,
+  Settings,
+  LogOut,
+  Shield,
+  Activity,
+  FileText,
+  Download,
+  Ticket,
+  ShoppingCart,
+} from "lucide-react"
 
 const menuItems = [
   {
@@ -41,6 +51,11 @@ const menuItems = [
     title: "Usuários",
     url: "/dashboard/users",
     icon: Users,
+  },
+  {
+    title: "Compras",
+    url: "/dashboard/purchases",
+    icon: ShoppingCart,
   },
   {
     title: "Cupons",
@@ -67,8 +82,8 @@ const menuItems = [
 function AppSidebar() {
   const router = useRouter()
 
-  const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+  const handleLogout = () => {
+    localStorage.removeItem("admin-token")
     router.push("/login")
   }
 
@@ -149,9 +164,18 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { isAuthenticated, loading } = useAdminAuth()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const router = useRouter()
 
-  if (loading) return <p className="text-white">Verificando sessão...</p>
+  useEffect(() => {
+    const token = localStorage.getItem("admin-token")
+    if (!token) {
+      router.push("/login")
+    } else {
+      setIsAuthenticated(true)
+    }
+  }, [router])
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
