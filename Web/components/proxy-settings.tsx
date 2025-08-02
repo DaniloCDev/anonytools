@@ -74,7 +74,7 @@ useEffect(() => {
       if (!response.ok) throw new Error("Erro ao gerar nova senha");
 
       const data = await response.json();
-      console.log(data)
+     // console.log(data)
 
       setProxyConfig((prev) => ({
         ...prev,

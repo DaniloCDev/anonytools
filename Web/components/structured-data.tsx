@@ -8,7 +8,7 @@ export function StructuredData() {
     logo: "https://nox24proxy.com.br/icon.png",
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+55-11-99999-9999",
+      telephone: "+55-11-965879253",
       contactType: "customer service",
       availableLanguage: "Portuguese",
     },

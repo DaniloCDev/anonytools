@@ -58,7 +58,7 @@ export function Navbar() {
               Início
             </Link>
             {/* Desktop Menu */}
-            <Link href="/preco" className="hover:text-blue-400 transition-colors">
+            <Link href="/precos" className="hover:text-blue-400 transition-colors">
               Preços
             </Link> 
             <button onClick={handleAccountClick} className="hover:text-blue-400 transition-colors">
@@ -79,7 +79,7 @@ export function Navbar() {
               <Link href="/" className="hover:text-blue-400 transition-colors">
                 Início
               </Link>
-              <Link href="/preco" className="hover:text-blue-400 transition-colors">
+              <Link href="/precos" className="hover:text-blue-400 transition-colors">
                 Preços
               </Link>
                
