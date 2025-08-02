@@ -47,28 +47,35 @@ export function UserProvider({ children }: { children: ReactNode }) {
         fetch("/api/user/getUserProxy", { credentials: "include" }),
       ]);
 
-     // console.log(userRes, proxyRes)
-      if (!userRes.ok) throw new Error("Erro ao buscar dados do usuário");
-      const userData = await userRes.json();
-      console.log(userData, proxyRes)
-      if (!proxyRes.ok) {
-        console.warn("Não foi possível buscar dados do proxy, usando padrão.");
-         userData.plan.threads = 0;
-      } else {
-        const proxyData = await proxyRes.json();
-        console.log( proxyData)
-        userData.plan.threads = proxyData
+      // Se o userRes deu 401, nem tenta o resto
+      if (userRes.status === 401) {
+        setUser(null);
+        return;
       }
 
-      //console.log(userData)
+      if (!userRes.ok) throw new Error("Erro ao buscar dados do usuário");
+
+      const userData = await userRes.json();
+
+      // Se o proxyRes deu erro, não quebra o fluxo, apenas ignora
+      if (proxyRes.ok) {
+        const proxyData = await proxyRes.json();
+        userData.plan.threads = proxyData;
+      } else {
+        console.warn("Não foi possível buscar dados do proxy, usando padrão.");
+        userData.plan.threads = 0;
+      }
+
       setUser(userData);
     } catch (error) {
-      console.error("Erro ao buscar usuário:", error);
+      // Se quiser, pode tirar esse console completamente pra não mostrar nada:
+      // console.error("Erro ao buscar usuário:", error);
       setUser(null);
     } finally {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchUser();

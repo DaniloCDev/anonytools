@@ -23,15 +23,31 @@ export const PurchaseProvider = ({ children }: { children: React.ReactNode }) =>
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetch("/api/user/purchases", { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => {
-        setPurchases(data);
-      })
-      .catch(console.error)
-      .finally(() => setIsLoading(false));
-  }, []);
+useEffect(() => {
+  const fetchPurchases = async () => {
+    try {
+      const res = await fetch("/api/user/purchases", { credentials: "include" });
+
+      if (!res.ok) {
+        // se quiser, trate 401 silenciosamente aqui
+        if (res.status === 401) {
+          // usuário não autenticado, talvez redirecionar ou ignorar
+          return;
+        }
+        throw new Error(`Erro ao buscar compras: ${res.status}`);
+      }
+
+      const data = await res.json();
+      setPurchases(data);
+    } catch (err) {
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchPurchases();
+}, []);
+
 
   return (
     <PurchaseContext.Provider value={{ purchases, isLoading }}>
