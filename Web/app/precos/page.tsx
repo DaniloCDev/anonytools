@@ -10,7 +10,7 @@ import { Zap, Globe, Shield, CheckCircle } from "lucide-react"
 const products = [
   {
     id: "1",
-    name: "Nox24 Proxy 15GB",
+    name: "Nox24 Proxy 1GB",
     description: "IP rotativo residencial com acesso a todo Brasil",
     gb: 1,
     price: 9.9,
