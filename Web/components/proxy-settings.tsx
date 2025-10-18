@@ -169,8 +169,8 @@ useEffect(() => {
     if (value <= 500) return "bg-orange-500/20 text-orange-300 border-orange-500/30"
     return "bg-red-500/20 text-red-300 border-red-500/30"
   }
-                      console.log(proxyConfig)
-                        console.log(proxyConfig.threads)
+                     // console.log(proxyConfig)
+                   //     console.log(proxyConfig.threads)
   return (
     
     <div className="space-y-6 lg:space-y-8">

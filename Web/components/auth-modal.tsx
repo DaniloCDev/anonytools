@@ -57,7 +57,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
         router.push("/dashboard")
       } else {
         const data = await res.json()
-        console.log(data)
+     //   console.log(data)
         addToast({
           type: "error",
           title: "Erro ao fazer login",
@@ -116,7 +116,7 @@ export function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
         router.push("/dashboard")
       } else {
         const data = await res.json()
-        console.log(data)
+    //    console.log(data)
 
         addToast({
           type: "error",

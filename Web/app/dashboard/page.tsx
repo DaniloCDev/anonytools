@@ -54,7 +54,7 @@ export function useUserBalance() {
         const data = await balanceRes.json()
         setBalance(data)
       } catch (err) {
-        console.error(err)
+       /// console.error(err)
       } finally {
         setLoading(false)
       }

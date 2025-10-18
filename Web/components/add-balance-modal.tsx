@@ -75,7 +75,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
       setCouponApplied(true);
       setCouponError("");
     } catch (error) {
-      console.error(error);
+    //  console.error(error);
       setCouponError("Erro ao validar cupom");
       setCouponApplied(false);
       setDiscount(0);
@@ -147,7 +147,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
         setPaymentStatus("pending");
       }
     } catch (err) {
-      console.error("Erro ao verificar status do pagamento:", err);
+     // console.error("Erro ao verificar status do pagamento:", err);
       addToast({
         type: "error",
         title: "Erro ao verificar pagamento",
@@ -200,7 +200,7 @@ export function AddBalanceModal({ isOpen, onClose }: AddBalanceModalProps) {
       setPaymentId(data.paymentId); // <--- aqui
       setStep("payment");
     } catch (error) {
-      console.error(error);
+    //  console.error(error);
       addToast({
         type: "error",
         title: "Erro de conexão",
