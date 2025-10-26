@@ -8,7 +8,7 @@ export async function changeProxyThreads(userIdProxy: number, threads: number, c
             countries: [country]
         },
     }
-    const { data } = await dataImpulseClient.post('/reseller/sub-user/update', payload);
+    const { data } = await dataImpulseClient.post('reseller/sub-user/update', payload);
     // console.log(data!.password)
     return data;
 }
