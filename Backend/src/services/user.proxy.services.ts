@@ -93,7 +93,7 @@ class ProxyUserService {
         const descUser = await this.userRepository.getSubuserIdByUserId(userId)
         let respServicesMe = await getUser(Number(descUser?.subuserId));
         console.log(respServicesMe)
-        return respServicesMe;
+        return respServicesMe.threads;
     }
 
     async changePasswordService(userId: string) {
