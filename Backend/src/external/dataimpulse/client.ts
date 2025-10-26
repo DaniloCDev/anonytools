@@ -1,7 +1,7 @@
 import axios from 'axios';
 import FormData from 'form-data';
 
-let token = ''; 
+let token = process.env.DATAIMPULSE_API_KEY ?? '';
 
 
 async function loginAndGetNewToken(): Promise<string> {
