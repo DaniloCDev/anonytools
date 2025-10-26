@@ -9,7 +9,7 @@ async function loginAndGetNewToken(): Promise<string> {
   form.append('password', process.env.DATAIMPULSE_PASSWORD ?? '');
 
   const response = await axios.post<{ token: string }>(
-    `${process.env.BASE_URL_PROVIDED}reseller/user/token/get`,
+    `${process.env.BASE_URL_PROVIDED}/reseller/user/token/get`,
     form,
     { headers: form.getHeaders() }
   );
