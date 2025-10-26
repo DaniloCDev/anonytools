@@ -91,9 +91,9 @@ class ProxyUserService {
         if (!user) throw new Error("Usuário não encontrado.")
 
         const descUser = await this.userRepository.getSubuserIdByUserId(userId)
-        let respBalance = await getUser(Number(descUser?.subuserId));
-        console.log(respBalance)
-        return respBalance.threads;
+        let respServicesMe = await getUser(Number(descUser?.subuserId));
+        console.log(respServicesMe)
+        return respServicesMe;
     }
 
     async changePasswordService(userId: string) {

@@ -60,7 +60,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // Se o proxyRes deu erro, não quebra o fluxo, apenas ignora
       if (proxyRes.ok) {
         const proxyData = await proxyRes.json();
-        userData.plan.threads = proxyData;
+        userData.plan.threads = proxyData.threads;
+        console.log(userData.plan.threads)
       } else {
         console.warn("Não foi possível buscar dados do proxy, usando padrão.");
         userData.plan.threads = 0;
