@@ -1,7 +1,8 @@
 import axios from 'axios';
 import FormData from 'form-data';
 
-let token = process.env.DATAIMPULSE_API_KEY ?? '';
+let token = ''; 
+
 
 async function loginAndGetNewToken(): Promise<string> {
   const form = new FormData();
@@ -18,33 +19,37 @@ async function loginAndGetNewToken(): Promise<string> {
   return token;
 }
 
-export const dataImpulseClient = axios.create({
-  baseURL: process.env.BASE_URL_PROVIDED,
-  headers: {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  },
-});
+function createDataImpulseClient() {
+  if (!process.env.BASE_URL_PROVIDED) {
+    throw new Error('BASE_URL_PROVIDED não definido');
+  }
 
+  return axios.create({
+    baseURL: process.env.BASE_URL_PROVIDED,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+}
+
+export const dataImpulseClient = createDataImpulseClient();
 
 dataImpulseClient.interceptors.response.use(
   response => response,
   async error => {
+    const originalRequest = error.config;
+    
     if (
       error.response?.status === 401 &&
-      error.response?.data?.message === 'Token has expired'
+      error.response?.data?.message === 'Token has expired' &&
+      !originalRequest._retry
     ) {
-      try {
-        const newToken = await loginAndGetNewToken();
-
-        dataImpulseClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-
-        error.config.headers['Authorization'] = `Bearer ${newToken}`;
-
-        return dataImpulseClient.request(error.config);
-      } catch (loginError) {
-        return Promise.reject(loginError);
-      }
+      originalRequest._retry = true;
+      const newToken = await loginAndGetNewToken();
+      dataImpulseClient.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+      originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+      return dataImpulseClient.request(originalRequest);
     }
 
     return Promise.reject(error);

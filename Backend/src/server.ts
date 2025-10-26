@@ -1,13 +1,12 @@
-import express from 'express'
-import morgan from 'morgan'
 import dotenv from 'dotenv';
-import cors from "cors";
-
-import router from './routes/auth.routes'
-import routerProxy from './routes/user.proxy.routes'
-import cookieParser from "cookie-parser";
-
 dotenv.config();
+
+import express from 'express';
+import morgan from 'morgan';
+import cors from "cors";
+import router from './routes/auth.routes';
+import routerProxy from './routes/user.proxy.routes';
+import cookieParser from "cookie-parser";
 
 const app = express()
 
