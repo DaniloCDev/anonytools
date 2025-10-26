@@ -25,24 +25,256 @@ import {
   Server,
 } from "lucide-react"
 import { useUser } from "@/contexts/UserContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+const availableCountries = [
+  { code: "ad", name: "Andorra", flag: "🇦🇩" },
+  { code: "ae", name: "Emirados Árabes Unidos", flag: "🇦🇪" },
+  { code: "af", name: "Afeganistão", flag: "🇦🇫" },
+  { code: "ag", name: "Antígua e Barbuda", flag: "🇦🇬" },
+  { code: "ai", name: "Anguilla", flag: "🇦🇮" },
+  { code: "al", name: "Albânia", flag: "🇦🇱" },
+  { code: "am", name: "Armênia", flag: "🇦🇲" },
+  { code: "ao", name: "Angola", flag: "🇦🇴" },
+  { code: "ar", name: "Argentina", flag: "🇦🇷" },
+  { code: "as", name: "Samoa Americana", flag: "🇦🇸" },
+  { code: "at", name: "Áustria", flag: "🇦🇹" },
+  { code: "au", name: "Austrália", flag: "🇦🇺" },
+  { code: "aw", name: "Aruba", flag: "🇦🇼" },
+  { code: "az", name: "Azerbaijão", flag: "🇦🇿" },
+  { code: "ba", name: "Bósnia e Herzegovina", flag: "🇧🇦" },
+  { code: "bb", name: "Barbados", flag: "🇧🇧" },
+  { code: "bd", name: "Bangladesh", flag: "🇧🇩" },
+  { code: "be", name: "Bélgica", flag: "🇧🇪" },
+  { code: "bf", name: "Burquina Faso", flag: "🇧🇫" },
+  { code: "bg", name: "Bulgária", flag: "🇧🇬" },
+  { code: "bh", name: "Bahrein", flag: "🇧🇭" },
+  { code: "bi", name: "Burundi", flag: "🇧🇮" },
+  { code: "bj", name: "Benim", flag: "🇧🇯" },
+  { code: "bm", name: "Bermudas", flag: "🇧🇲" },
+  { code: "bn", name: "Brunei", flag: "🇧🇳" },
+  { code: "bo", name: "Bolívia", flag: "🇧🇴" },
+  { code: "bq", name: "Caribe Neerlandês", flag: "🇧🇶" },
+  { code: "br", name: "Brasil", flag: "🇧🇷" },
+  { code: "bs", name: "Bahamas", flag: "🇧🇸" },
+  { code: "bt", name: "Butão", flag: "🇧🇹" },
+  { code: "bw", name: "Botsuana", flag: "🇧🇼" },
+  { code: "by", name: "Bielorrússia", flag: "🇧🇾" },
+  { code: "bz", name: "Belize", flag: "🇧🇿" },
+  { code: "ca", name: "Canadá", flag: "🇨🇦" },
+  { code: "cd", name: "República Democrática do Congo", flag: "🇨🇩" },
+  { code: "cg", name: "República do Congo", flag: "🇨🇬" },
+  { code: "ch", name: "Suíça", flag: "🇨🇭" },
+  { code: "ci", name: "Costa do Marfim", flag: "🇨🇮" },
+  { code: "ck", name: "Ilhas Cook", flag: "🇨🇰" },
+  { code: "cl", name: "Chile", flag: "🇨🇱" },
+  { code: "cm", name: "Camarões", flag: "🇨🇲" },
+  { code: "cn", name: "China", flag: "🇨🇳" },
+  { code: "co", name: "Colômbia", flag: "🇨🇴" },
+  { code: "cr", name: "Costa Rica", flag: "🇨🇷" },
+  { code: "cu", name: "Cuba", flag: "🇨🇺" },
+  { code: "cv", name: "Cabo Verde", flag: "🇨🇻" },
+  { code: "cw", name: "Curaçao", flag: "🇨🇼" },
+  { code: "cy", name: "Chipre", flag: "🇨🇾" },
+  { code: "cz", name: "República Tcheca", flag: "🇨🇿" },
+  { code: "de", name: "Alemanha", flag: "🇩🇪" },
+  { code: "dj", name: "Djibuti", flag: "🇩🇯" },
+  { code: "dk", name: "Dinamarca", flag: "🇩🇰" },
+  { code: "dm", name: "Dominica", flag: "🇩🇲" },
+  { code: "do", name: "República Dominicana", flag: "🇩🇴" },
+  { code: "dz", name: "Argélia", flag: "🇩🇿" },
+  { code: "ec", name: "Equador", flag: "🇪🇨" },
+  { code: "ee", name: "Estônia", flag: "🇪🇪" },
+  { code: "eg", name: "Egito", flag: "🇪🇬" },
+  { code: "es", name: "Espanha", flag: "🇪🇸" },
+  { code: "et", name: "Etiópia", flag: "🇪🇹" },
+  { code: "fi", name: "Finlândia", flag: "🇫🇮" },
+  { code: "fj", name: "Fiji", flag: "🇫🇯" },
+  { code: "fo", name: "Ilhas Faroé", flag: "🇫🇴" },
+  { code: "fr", name: "França", flag: "🇫🇷" },
+  { code: "ga", name: "Gabão", flag: "🇬🇦" },
+  { code: "gb", name: "Reino Unido", flag: "🇬🇧" },
+  { code: "gd", name: "Granada", flag: "🇬🇩" },
+  { code: "ge", name: "Geórgia", flag: "🇬🇪" },
+  { code: "gf", name: "Guiana Francesa", flag: "🇬🇫" },
+  { code: "gg", name: "Guernsey", flag: "🇬🇬" },
+  { code: "gh", name: "Gana", flag: "🇬🇭" },
+  { code: "gi", name: "Gibraltar", flag: "🇬🇮" },
+  { code: "gl", name: "Groenlândia", flag: "🇬🇱" },
+  { code: "gm", name: "Gâmbia", flag: "🇬🇲" },
+  { code: "gn", name: "Guiné", flag: "🇬🇳" },
+  { code: "gp", name: "Guadalupe", flag: "🇬🇵" },
+  { code: "gq", name: "Guiné Equatorial", flag: "🇬🇶" },
+  { code: "gr", name: "Grécia", flag: "🇬🇷" },
+  { code: "gt", name: "Guatemala", flag: "🇬🇹" },
+  { code: "gu", name: "Guam", flag: "🇬🇺" },
+  { code: "gw", name: "Guiné-Bissau", flag: "🇬🇼" },
+  { code: "gy", name: "Guiana", flag: "🇬🇾" },
+  { code: "hk", name: "Hong Kong", flag: "🇭🇰" },
+  { code: "hn", name: "Honduras", flag: "🇭🇳" },
+  { code: "hr", name: "Croácia", flag: "🇭🇷" },
+  { code: "ht", name: "Haiti", flag: "🇭🇹" },
+  { code: "hu", name: "Hungria", flag: "🇭🇺" },
+  { code: "id", name: "Indonésia", flag: "🇮🇩" },
+  { code: "ie", name: "Irlanda", flag: "🇮🇪" },
+  { code: "il", name: "Israel", flag: "🇮🇱" },
+  { code: "im", name: "Ilha de Man", flag: "🇮🇲" },
+  { code: "in", name: "Índia", flag: "🇮🇳" },
+  { code: "iq", name: "Iraque", flag: "🇮🇶" },
+  { code: "ir", name: "Irã", flag: "🇮🇷" },
+  { code: "is", name: "Islândia", flag: "🇮🇸" },
+  { code: "it", name: "Itália", flag: "🇮🇹" },
+  { code: "je", name: "Jersey", flag: "🇯🇪" },
+  { code: "jm", name: "Jamaica", flag: "🇯🇲" },
+  { code: "jo", name: "Jordânia", flag: "🇯🇴" },
+  { code: "jp", name: "Japão", flag: "🇯🇵" },
+  { code: "ke", name: "Quênia", flag: "🇰🇪" },
+  { code: "kg", name: "Quirguistão", flag: "🇰🇬" },
+  { code: "kh", name: "Camboja", flag: "🇰🇭" },
+  { code: "ki", name: "Kiribati", flag: "🇰🇮" },
+  { code: "km", name: "Comores", flag: "🇰🇲" },
+  { code: "kn", name: "São Cristóvão e Névis", flag: "🇰🇳" },
+  { code: "kp", name: "Coreia do Norte", flag: "🇰🇵" },
+  { code: "kr", name: "Coreia do Sul", flag: "🇰🇷" },
+  { code: "kw", name: "Kuwait", flag: "🇰🇼" },
+  { code: "ky", name: "Ilhas Cayman", flag: "🇰🇾" },
+  { code: "kz", name: "Cazaquistão", flag: "🇰🇿" },
+  { code: "la", name: "Laos", flag: "🇱🇦" },
+  { code: "lb", name: "Líbano", flag: "🇱🇧" },
+  { code: "lc", name: "Santa Lúcia", flag: "🇱🇨" },
+  { code: "li", name: "Liechtenstein", flag: "🇱🇮" },
+  { code: "lk", name: "Sri Lanka", flag: "🇱🇰" },
+  { code: "lr", name: "Libéria", flag: "🇱🇷" },
+  { code: "ls", name: "Lesoto", flag: "🇱🇸" },
+  { code: "lt", name: "Lituânia", flag: "🇱🇹" },
+  { code: "lu", name: "Luxemburgo", flag: "🇱🇺" },
+  { code: "lv", name: "Letônia", flag: "🇱🇻" },
+  { code: "ly", name: "Líbia", flag: "🇱🇾" },
+  { code: "ma", name: "Marrocos", flag: "🇲🇦" },
+  { code: "mc", name: "Mônaco", flag: "🇲🇨" },
+  { code: "md", name: "Moldávia", flag: "🇲🇩" },
+  { code: "me", name: "Montenegro", flag: "🇲🇪" },
+  { code: "mf", name: "São Martinho", flag: "🇲🇫" },
+  { code: "mg", name: "Madagáscar", flag: "🇲🇬" },
+  { code: "mk", name: "Macedônia do Norte", flag: "🇲🇰" },
+  { code: "ml", name: "Mali", flag: "🇲🇱" },
+  { code: "mm", name: "Mianmar (Birmânia)", flag: "🇲🇲" },
+  { code: "mn", name: "Mongólia", flag: "🇲🇳" },
+  { code: "mo", name: "Macau", flag: "🇲🇴" },
+  { code: "mp", name: "Ilhas Marianas do Norte", flag: "🇲🇵" },
+  { code: "mq", name: "Martinica", flag: "🇲🇶" },
+  { code: "mr", name: "Mauritânia", flag: "🇲🇷" },
+  { code: "ms", name: "Montserrat", flag: "🇲🇸" },
+  { code: "mt", name: "Malta", flag: "🇲🇹" },
+  { code: "mu", name: "Maurício", flag: "🇲🇺" },
+  { code: "mv", name: "Maldivas", flag: "🇲🇻" },
+  { code: "mw", name: "Malawi", flag: "🇲🇼" },
+  { code: "mx", name: "México", flag: "🇲🇽" },
+  { code: "my", name: "Malásia", flag: "🇲🇾" },
+  { code: "mz", name: "Moçambique", flag: "🇲🇿" },
+  { code: "na", name: "Namíbia", flag: "🇳🇦" },
+  { code: "nc", name: "Nova Caledônia", flag: "🇳🇨" },
+  { code: "ne", name: "Níger", flag: "🇳🇪" },
+  { code: "ng", name: "Nigéria", flag: "🇳🇬" },
+  { code: "ni", name: "Nicarágua", flag: "🇳🇮" },
+  { code: "nl", name: "Países Baixos", flag: "🇳🇱" },
+  { code: "no", name: "Noruega", flag: "🇳🇴" },
+  { code: "np", name: "Nepal", flag: "🇳🇵" },
+  { code: "nr", name: "Nauru", flag: "🇳🇷" },
+  { code: "nz", name: "Nova Zelândia", flag: "🇳🇿" },
+  { code: "om", name: "Omã", flag: "🇴🇲" },
+  { code: "pa", name: "Panamá", flag: "🇵🇦" },
+  { code: "pe", name: "Peru", flag: "🇵🇪" },
+  { code: "pf", name: "Polinésia Francesa", flag: "🇵🇫" },
+  { code: "pg", name: "Papua Nova Guiné", flag: "🇵🇬" },
+  { code: "ph", name: "Filipinas", flag: "🇵🇭" },
+  { code: "pk", name: "Paquistão", flag: "🇵🇰" },
+  { code: "pl", name: "Polônia", flag: "🇵🇱" },
+  { code: "pm", name: "São Pedro e Miquelão", flag: "🇵🇲" },
+  { code: "pr", name: "Porto Rico", flag: "🇵🇷" },
+  { code: "ps", name: "Palestina", flag: "🇵🇸" },
+  { code: "pt", name: "Portugal", flag: "🇵🇹" },
+  { code: "py", name: "Paraguai", flag: "🇵🇾" },
+  { code: "qa", name: "Catar", flag: "🇶🇦" },
+  { code: "re", name: "Reunião", flag: "🇷🇪" },
+  { code: "ro", name: "Romênia", flag: "🇷🇴" },
+  { code: "rs", name: "Sérvia", flag: "🇷🇸" },
+  { code: "ru", name: "Rússia", flag: "🇷🇺" },
+  { code: "rw", name: "Ruanda", flag: "🇷🇼" },
+  { code: "sa", name: "Arábia Saudita", flag: "🇸🇦" },
+  { code: "sb", name: "Ilhas Salomão", flag: "🇸🇧" },
+  { code: "sc", name: "Seicheles", flag: "🇸🇨" },
+  { code: "sd", name: "Sudão", flag: "🇸🇩" },
+  { code: "se", name: "Suécia", flag: "🇸🇪" },
+  { code: "sg", name: "Singapura", flag: "🇸🇬" },
+  { code: "si", name: "Eslovênia", flag: "🇸🇮" },
+  { code: "sk", name: "Eslováquia", flag: "🇸🇰" },
+  { code: "sl", name: "Serra Leoa", flag: "🇸🇱" },
+  { code: "sm", name: "San Marino", flag: "🇸🇲" },
+  { code: "sn", name: "Senegal", flag: "🇸🇳" },
+  { code: "so", name: "Somália", flag: "🇸🇴" },
+  { code: "sr", name: "Suriname", flag: "🇸🇷" },
+  { code: "ss", name: "Sudão do Sul", flag: "🇸🇸" },
+  { code: "st", name: "São Tomé e Príncipe", flag: "🇸🇹" },
+  { code: "sv", name: "El Salvador", flag: "🇸🇻" },
+  { code: "sx", name: "Sint Maarten", flag: "🇸🇽" },
+  { code: "sy", name: "Síria", flag: "🇸🇾" },
+  { code: "sz", name: "Essuatíni", flag: "🇸🇿" },
+  { code: "tc", name: "Ilhas Turks e Caicos", flag: "🇹🇨" },
+  { code: "td", name: "Chade", flag: "🇹🇩" },
+  { code: "tg", name: "Togo", flag: "🇹🇬" },
+  { code: "th", name: "Tailândia", flag: "🇹🇭" },
+  { code: "tj", name: "Tajiquistão", flag: "🇹🇯" },
+  { code: "tl", name: "Timor-Leste", flag: "🇹🇱" },
+  { code: "tn", name: "Tunísia", flag: "🇹🇳" },
+  { code: "to", name: "Tonga", flag: "🇹🇴" },
+  { code: "tr", name: "Turquia", flag: "🇹🇷" },
+  { code: "tt", name: "Trinidad e Tobago", flag: "🇹🇹" },
+  { code: "tw", name: "Taiwan", flag: "🇹🇼" },
+  { code: "tz", name: "Tanzânia", flag: "🇹🇿" },
+  { code: "ua", name: "Ucrânia", flag: "🇺🇦" },
+  { code: "ug", name: "Uganda", flag: "🇺🇬" },
+  { code: "us", name: "Estados Unidos", flag: "🇺🇸" },
+  { code: "uy", name: "Uruguai", flag: "🇺🇾" },
+  { code: "uz", name: "Uzbequistão", flag: "🇺🇿" },
+  { code: "vc", name: "São Vicente e Granadinas", flag: "🇻🇨" },
+  { code: "ve", name: "Venezuela", flag: "🇻🇪" },
+  { code: "vg", name: "Ilhas Virgens Britânicas", flag: "🇻🇬" },
+  { code: "vi", name: "Ilhas Virgens Americanas", flag: "🇻🇮" },
+  { code: "vn", name: "Vietnã", flag: "🇻🇳" },
+  { code: "vu", name: "Vanuatu", flag: "🇻🇺" },
+  { code: "xk", name: "Kosovo", flag: "🇽🇰" },
+  { code: "ye", name: "Iémen", flag: "🇾🇪" },
+  { code: "za", name: "África do Sul", flag: "🇿🇦" },
+  { code: "zm", name: "Zâmbia", flag: "🇿🇲" },
+  { code: "zw", name: "Zimbábue", flag: "🇿🇼" },
+];
+
 
 export function ProxySettings() {
   const { addToast } = useToast()
 
   const { user, loading } = useUser();
 
-useEffect(() => {
-  if (!loading && user) {
-    setProxyConfig((prev) => ({
-      ...prev,
-      host: user.plan.credentials.host,
-      port: user.plan.credentials.port,
-      username: user.plan.credentials.username,
-      password: user.plan.credentials.password,
-      threads: user.plan.threads,
-    }));
-  }
-}, [user?.plan.threads, user?.plan.credentials, loading]);
+
+  useEffect(() => {
+    if (!loading && user) {
+      setProxyConfig((prev) => ({
+        ...prev,
+        host: user.plan.credentials.host,
+        port: user.plan.credentials.port,
+        username: user.plan.credentials.username,
+        password: user.plan.credentials.password,
+        threads: user.plan.threads,
+      }));
+    }
+  }, [user?.plan.threads, user?.plan.credentials, loading]);
 
 
   const [proxyConfig, setProxyConfig] = useState({
@@ -57,10 +289,15 @@ useEffect(() => {
     retries: 3,
     useHttps: true,
     enableLogging: true,
+    selectedCountry: "br", // valor padrão
   });
+
 
   const [showPassword, setShowPassword] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+
+
+  const selectedCountryData = availableCountries.find((c) => c.code === proxyConfig.selectedCountry)
 
   const generateNewPassword = async () => {
     setIsGenerating(true);
@@ -74,7 +311,7 @@ useEffect(() => {
       if (!response.ok) throw new Error("Erro ao gerar nova senha");
 
       const data = await response.json();
-     // console.log(data)
+      // console.log(data)
 
       setProxyConfig((prev) => ({
         ...prev,
@@ -169,10 +406,22 @@ useEffect(() => {
     if (value <= 500) return "bg-orange-500/20 text-orange-300 border-orange-500/30"
     return "bg-red-500/20 text-red-300 border-red-500/30"
   }
-                     // console.log(proxyConfig)
-                   //     console.log(proxyConfig.threads)
+
+  const handleCountryChange = (countryCode: string) => {
+    setProxyConfig((prev) => ({ ...prev, selectedCountry: countryCode }))
+    const country = availableCountries.find((c) => c.code === countryCode)
+    addToast({
+      type: "success",
+      title: "País alterado!",
+      message: `${country?.flag} ${country?.name}`,
+      duration: 2000,
+    })
+  }
+
+  // console.log(proxyConfig)
+  //     console.log(proxyConfig.threads)
   return (
-    
+
     <div className="space-y-6 lg:space-y-8">
       <div className="space-y-2">
         <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold">
@@ -187,6 +436,41 @@ useEffect(() => {
       <div className="grid lg:grid-cols-12 gap-6 lg:gap-8">
         {/* Main Settings */}
         <div className="lg:col-span-8 space-y-6 lg:space-y-8">
+          {/* País */}
+          <Card className="bg-white/5 backdrop-blur-xl border border-white/10">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Globe className="w-5 h-5" />
+                Selecionar País
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <Label className="text-sm">País do Proxy</Label>
+                <Select value={proxyConfig.selectedCountry} onValueChange={handleCountryChange}>
+                  <SelectTrigger className="bg-white/5 border-white/10">
+                    <SelectValue>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">{selectedCountryData?.flag}</span>
+                        <span>{selectedCountryData?.name}</span>
+                      </div>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-900/95 border-white/10">
+                    {availableCountries.map((country) => (
+                      <SelectItem key={country.code} value={country.code} className="cursor-pointer hover:bg-white/10">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{country.flag}</span>
+                          <span>{country.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Credenciais do Proxy */}
           <Card className="bg-white/5 backdrop-blur-xl border border-white/10">
             <CardHeader>
@@ -351,7 +635,7 @@ useEffect(() => {
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    
+
                     <Badge className={getThreadsColor(proxyConfig.threads)}>
                       {getThreadsLabel(proxyConfig.threads)}
                     </Badge>

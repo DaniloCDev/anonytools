@@ -295,7 +295,7 @@ export class UserProxyController {
 
         const usecase = new ProxyUserService(new UserRepository());
         try {
-            const user = await usecase.updateProxyThreadsService(userId, body.threads, ip);
+            const user = await usecase.updateProxyThreadsService(userId, body.threads,body.country,  ip);
             // console.log(usecase)
             res.status(201).json(user);
         } catch (error) {

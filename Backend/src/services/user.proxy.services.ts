@@ -108,12 +108,12 @@ class ProxyUserService {
     }
 
 
-    async updateProxyThreadsService(userId: string, threads: number, ip: string) {
+    async updateProxyThreadsService(userId: string, threads: number, country:string,ip: string) {
         const user = await this.userRepository.findById(userId)
         if (!user) throw new Error("Usuário não encontrado.")
 
         const descUser = await this.userRepository.getSubuserIdByUserId(userId)
-        let updatedThreads = await changeProxyThreads(Number(descUser?.subuserId), threads);
+        let updatedThreads = await changeProxyThreads(Number(descUser?.subuserId), threads, country);
 
         await createLog({ email: user.email, action: "Update de threads proxy", status: "Sucesso", message: `Usuario trocou threads para ${threads}`, ip: ip })
         return updatedThreads.threads
