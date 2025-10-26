@@ -9,6 +9,6 @@ export async function createSubUser(payloadLabel :string ): Promise<any> {
         "countries": ["br"]
     }
 }
-    const { data } = await dataImpulseClient.post('reseller/sub-user/create', payload);
+    const { data } = await dataImpulseClient.post('/reseller/sub-user/create', payload);
     return data;
 }

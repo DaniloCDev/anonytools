@@ -5,7 +5,7 @@ export async function addToBalance(userIdProxy: number, traffic: number): Promis
         subuser_id: userIdProxy,
         traffic: traffic,
     }
-    const { data } = await dataImpulseClient.post('reseller/sub-user/balance/add', payload);
+    const { data } = await dataImpulseClient.post('/reseller/sub-user/balance/add', payload);
     console.log(data,payload)
     return data;
 }

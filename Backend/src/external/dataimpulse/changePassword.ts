@@ -4,7 +4,7 @@ export async function changePasswordExternalApi(userIdProxy :number ): Promise<a
     let payload = {
     subuser_id: userIdProxy,
 }
-    const { data } = await dataImpulseClient.post('reseller/sub-user/reset-password', payload);
+    const { data } = await dataImpulseClient.post('/reseller/sub-user/reset-password', payload);
    // console.log(data!.password)
     return data;
 }
