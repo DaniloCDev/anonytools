@@ -3,15 +3,23 @@ import { AuthController } from "../controllers/user.auth.controller";
 import { PurchaseController } from "../controllers/user.mercadopago.controller";
 import { authenticateToken } from "../middlewares/auth.middleware";
 import { getLogsController } from "../controllers/logs.controller";
+import AuthUserService from "../services/auth.services";
+import UserRepository from "../repository/user.repository";
+import { validate } from "../middlewares/auth.validate";
+import { loginUserSchema, registerUserSchema } from "../dtos";
 
 const router = Router();
-const authController = new AuthController();
+
+const authController = new AuthController(
+    new AuthUserService(new UserRepository())
+);
+
 const purchaseController = new PurchaseController();
 
 // ─── Auth ────────────────────────────────────────────────
-router.post("/user/register", authController.registerUser);
-router.post("/user/login", authController.login);
-router.post("/user/admin/login", authController.loginAdmin);
+router.post("/user/register", validate(registerUserSchema), authController.registerUser);
+router.post("/user/login",  validate(loginUserSchema),authController.login);
+router.post("/user/admin/login", validate(loginUserSchema),authController.loginAdmin);
 router.get("/auth/check", authenticateToken, authController.authCheck);
 router.post("/auth/logout", authenticateToken, authController.logout);
 
