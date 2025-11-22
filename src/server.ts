@@ -4,8 +4,12 @@ dotenv.config();
 import express from 'express';
 import morgan from 'morgan';
 import cors from "cors";
-import router from './routes/auth.routes';
-import routerProxy from './routes/user.proxy.routes';
+import authRouter from './modules/auth/auth.routes';
+import proxyRouter from './modules/proxy/user.proxy.routes';
+import userRouter from './modules/user/user.routes';
+import paymentRouter from './modules/payments/payment.routes';
+import { errorHandler } from "./core/middlewares/error.middleware";
+
 import cookieParser from "cookie-parser";
 
 const app = express()
@@ -21,8 +25,12 @@ app.use(cors({
 
 app.set("trust proxy", true);
 
-app.use(router)
-app.use(routerProxy)
+app.use(authRouter)
+app.use(proxyRouter)
+app.use(userRouter)
+app.use(paymentRouter)
+
+app.use(errorHandler);
 
 
 const port = process.env.PORT || 3001;

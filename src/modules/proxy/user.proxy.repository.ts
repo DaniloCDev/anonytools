@@ -1,0 +1,267 @@
+import { prisma } from "../../config/prisma/client";
+import { Prisma, User } from "@prisma/client"
+import { subMonths, startOfMonth } from "date-fns"
+
+
+class ProxyUserRepository {
+
+    async getSubuserIdByUserId(userId: string) {
+        const proxyUser = await prisma.proxyUser.findFirst({
+            where: { userId },
+            select: {
+                subuserId: true,
+            },
+        });
+
+        return proxyUser;
+    }
+
+    async toggleUserBlock(userId: string, block: boolean): Promise<void> {
+        const existingUser = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!existingUser) {
+            throw new Error("Usuário não encontrado.");
+        }
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                blocked: block,
+            },
+        });
+    }
+
+    async getDashboardData(userId: string) {
+        const dataUser = await prisma.user.findFirst({
+            where: { id: userId },
+        });
+
+        const proxyData = await prisma.proxyUser.findFirst({
+            where: { userId },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true,
+                    },
+                },
+            },
+        });
+
+        const lastPaidPurchase = await prisma.purchase.findFirst({
+            where: {
+                userId,
+                status: 'PAID',
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        return {
+            name: dataUser?.name,
+            email: dataUser?.email,
+            plan: {
+                usedGb: 3.2,
+                remainingGb: (lastPaidPurchase?.gbAmount || 0) - 3.2,
+                status: lastPaidPurchase?.status || "active",
+                expiresAt: "2024-02-15",
+                credentials: {
+                    host: "proxy.nox24proxy.com.br",
+                    port: "823",
+                    username: proxyData?.username,
+                    password: proxyData?.password,
+                },
+            },
+        };
+    }
+    async searchUsers(query?: string) {
+        const where: Prisma.UserWhereInput = query && query.trim() !== "" ? {
+            OR: [
+                { name: { contains: query, mode: "insensitive" } },
+                { email: { contains: query, mode: "insensitive" } },
+                {
+                    proxyUser: {
+                        is: {
+                            OR: [
+                                { username: { contains: query, mode: "insensitive" } },
+                                { password: { contains: query, mode: "insensitive" } },
+                            ],
+                        },
+                    },
+                },
+            ],
+        } : {}
+
+        const users = await prisma.user.findMany({
+            where,
+            include: {
+                proxyUser: true,
+                purchases: { where: { status: "PAID" } },
+            },
+            take: 20,
+            orderBy: {
+                createdAt: "desc",
+            },
+        })
+        
+        
+        const mappedUsers = users.map(user => {
+            const gbsPurchased = user.purchases.reduce((acc, p) => acc + p.gbAmount, 0);
+
+            return {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                plan: "Básico",
+                status: user.blocked ? "blocked" : "active",
+                gbsPurchased,
+                gbsUsed: 0,
+                referrals: 0,
+                joinDate: user.createdAt.toISOString(),
+                lastLogin: null,
+            };
+        });
+
+        return mappedUsers
+    }
+
+    async resetPasswordProxy(userId: string, newPassword: string) {
+        await prisma.proxyUser.update({
+            where: { userId },
+            data: {
+                password: newPassword,
+            },
+        });
+    }
+
+    async findById(userid: string) {
+        return prisma.user.findUnique({ where: { id: userid } });
+    }
+
+    async createUserProxy(data: {
+        userId: string;
+        username: string;
+        password: string;
+        subuserId: string;
+    }) {
+        return prisma.proxyUser.create({
+            data: {
+                ...data,
+            },
+        });
+    }
+
+    async findProxyUserByUserId(userId: string) {
+        return prisma.proxyUser.findFirst({
+            where: { userId },
+        });
+    }
+
+    async getDashboardStats() {
+        const totalUsers = await prisma.user.count()
+
+        const activeClients = await prisma.user.count({
+            where: {
+                proxyUser: {
+                    is: {}, // Checa se existe proxyUser relacionado
+                },
+            },
+        })
+
+        const totalGbSoldResult = await prisma.purchase.aggregate({
+            where: { status: "PAID" },
+            _sum: { gbAmount: true }
+        })
+
+        const monthlyRevenueResult = await prisma.purchase.aggregate({
+            where: { status: "PAID" },
+            _sum: { totalPrice: true }
+        })
+
+        const startDate = startOfMonth(subMonths(new Date(), 5))
+
+        const purchases = await prisma.purchase.findMany({
+            where: {
+                createdAt: { gte: startDate },
+                status: "PAID"
+            },
+            select: {
+                createdAt: true,
+                gbAmount: true,
+                totalPrice: true
+            }
+        })
+
+        const users = await prisma.user.findMany({
+            where: { createdAt: { gte: startDate } },
+            select: { createdAt: true }
+        })
+
+        // Agrupamento por mês
+        const monthlyMap = new Map<string, { gbs: number; novos: number; total: number }>()
+        for (let i = 0; i < 6; i++) {
+            const date = subMonths(new Date(), 5 - i)
+            const key = date.toLocaleString("pt-BR", { month: "short" })
+            monthlyMap.set(key, { gbs: 0, novos: 0, total: 0 })
+        }
+
+        for (const p of purchases) {
+            const key = p.createdAt.toLocaleString("pt-BR", { month: "short" })
+            const data = monthlyMap.get(key)
+            if (data) data.gbs += p.gbAmount
+        }
+
+        for (const u of users) {
+            const key = u.createdAt.toLocaleString("pt-BR", { month: "short" })
+            const data = monthlyMap.get(key)
+            if (data) data.novos += 1
+        }
+
+        let total = 0
+        const userGrowthData = Array.from(monthlyMap.entries()).map(([month, data]) => {
+            total += data.novos
+            return { month, novos: data.novos, total }
+        })
+
+        const salesData = Array.from(monthlyMap.entries()).map(([month, data]) => ({
+            month,
+            gbs: data.gbs
+        }))
+
+        // Novo cálculo: distribuição por quantidade de GB comprada
+        const allPaidPurchases = await prisma.purchase.findMany({
+            where: { status: "PAID" },
+            select: { gbAmount: true }
+        })
+
+        const gbCounts: Record<number, number> = {}
+        let gbTotal = 0
+
+        for (const { gbAmount } of allPaidPurchases) {
+            const key = Math.round(gbAmount)
+            gbCounts[key] = (gbCounts[key] || 0) + 1
+            gbTotal += 1
+        }
+
+        const planDistribution = Object.entries(gbCounts).map(([gb, count]) => ({
+            name: `${gb} GB`,
+            value: Number(((count / gbTotal) * 100).toFixed(1))
+        }))
+
+        return {
+            totalUsers,
+            activeClients,
+            totalGbSold: totalGbSoldResult._sum.gbAmount ?? 0,
+            monthlyRevenue: monthlyRevenueResult._sum.totalPrice ?? 0,
+            salesData,
+            userGrowthData,
+            planDistribution
+        }
+    }
+
+}
+
+export default ProxyUserRepository;
