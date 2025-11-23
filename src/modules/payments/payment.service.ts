@@ -4,7 +4,7 @@ import { createPixPayment } from "./mercadopago/createPixPayment"
 import serializeBigIntAndDate from "../shared/utils/serializeBigInt";
 import { createLog } from "../logs/logsCreate";
 import MercadoPagoConfig, { Payment } from "mercadopago";
-import { AppError } from "../shared/errors/AppError";
+import { AppError } from "../../core/errors/AppError";
 
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! });
 

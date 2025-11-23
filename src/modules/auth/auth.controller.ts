@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ZodError } from "zod";
 import AuthUserService from "./auth.services";
 import { AuthOrchestrator } from "./auth.orchestrator";
+import { UserLoginResponseDTO } from "./dtos";
 
 export class AuthController {
 

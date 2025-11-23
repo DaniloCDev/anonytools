@@ -3,7 +3,7 @@ import UserRepository from "./auth.respository";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { createLog } from "../logs/logsCreate";
-import { AppError } from "../shared/errors/AppError";
+import { AppError } from "../../core/errors/AppError";
 
 class AuthUserService {
     constructor(private userRepository: UserRepository) { }
@@ -54,7 +54,6 @@ class AuthUserService {
 
         return { user: toUserResponseDTO(existingUser), token };
     }
-
 
 }
 
