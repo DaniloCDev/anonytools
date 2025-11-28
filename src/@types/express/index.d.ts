@@ -1,9 +1,6 @@
-// src/@types/express/index.d.ts
-import "express";
-
-declare module "express-serve-static-core" {
-  interface Request {
+declare namespace Express {
+  export interface Request {
     validated?: any;
-    userId: string;
+    userId:string
   }
 }

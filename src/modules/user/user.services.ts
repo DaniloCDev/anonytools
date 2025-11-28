@@ -28,13 +28,13 @@ class UserService {
 
         if (!existingUser) {
             await createLog({ action: "trocar Senha pessoal", status: "Erro", message: "Cliente não existe.", ip: ip })
-            throw new Error("Cliente não existe.");
+            throw new AppError("Cliente não existe.",404);
         }
 
         const isPassword = await bcrypt.compare(lastPassword, existingUser.password);
         if (!isPassword) {
             await createLog({ action: "trocar Senha pessoal", status: "Erro", message: "Senha atual invalida, error em trocar a senha", ip: ip })
-            throw new Error("Senha invalida");
+            throw new AppError("Senha invalida", 401);
         }
 
 
@@ -54,7 +54,7 @@ class UserService {
         console.log(existingUser, userID)
         if (!existingUser) {
             await createLog({ action: "trocar Senha de clientes", status: "Erro", message: "Cliente não existe.", ip: ip })
-            throw new Error("Cliente não existe.");
+            throw new AppError("Cliente não existe.", 404);
         }
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);

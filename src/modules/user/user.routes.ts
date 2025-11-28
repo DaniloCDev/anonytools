@@ -18,8 +18,8 @@ const authController = new AuthController(
 router.post("/user/register", validate(registerUserSchema), authController.register);
 
 // ─── Profile ────────────────────────────────────────────────
-router.post("/user/ChangeUserPassword", validate(changePasswordSchema), authenticateToken, authController.changePasswordProfile);
-router.put("/user/updateUser", authenticateToken, authController.UpdateProfile);
+router.post("/user/change-password", validate(changePasswordSchema), authenticateToken, authController.changePasswordProfile);
+router.put("/user/update-profile", authenticateToken, authController.UpdateProfile);
 
 // ─── Logs ────────────────────────────────────────────────
 router.get("/sistem/logs", authenticateToken, getLogsController);

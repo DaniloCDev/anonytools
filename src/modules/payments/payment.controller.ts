@@ -169,7 +169,6 @@ export class PurchaseController {
   ListAllCoupons = async (req: Request, res: Response): Promise<void> => {
 
     try {
-
       const coupons = await this.paymentService.ListAllCoupons()
 
       res.status(201).json(coupons)

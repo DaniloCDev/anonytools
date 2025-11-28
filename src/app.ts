@@ -12,6 +12,8 @@ import paymentRouter from './modules/payments/payment.routes';
 import { errorHandler } from "./core/middlewares/error.middleware";
 import cookieParser from "cookie-parser";
 
+import { setupSwagger } from "./docs/swagger";
+
 export const app = express();
 
 app.use(cookieParser());
@@ -31,3 +33,4 @@ app.use(userRouter);
 app.use(paymentRouter);
 
 app.use(errorHandler);
+setupSwagger(app);
