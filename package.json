@@ -21,10 +21,15 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/morgan": "^1.9.10",
+    "@types/supertest": "^6.0.3",
+    "jest": "^30.2.0",
     "nodemon": "^3.1.10",
-    "prisma": "^6.9.0"
+    "prisma": "^6.9.0",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.5"
   },
   "name": "anonytools",
   "version": "1.0.0",
@@ -33,7 +38,11 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts --watch .",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:verbose": "jest --verbose"
   },
   "repository": {
     "type": "git",

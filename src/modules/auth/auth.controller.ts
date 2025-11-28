@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { ZodError } from "zod";
 import AuthUserService from "./auth.services";
 import { AuthOrchestrator } from "./auth.orchestrator";
-import { UserLoginResponseDTO } from "./dtos";
 
 export class AuthController {
 
@@ -17,7 +16,7 @@ export class AuthController {
 
         const user = await this.authOrchestrator.login(req.validated, ip);
 
-        res.cookie("token", user?.token, {
+        res.cookie("token", user!.token, {
             httpOnly: true,
             maxAge: 60 * 60 * 24000,
             sameSite: "lax",
