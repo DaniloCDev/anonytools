@@ -41,29 +41,11 @@ export class AuthController {
     };
 
     authCheck = async (req: Request, res: Response): Promise<void> => {
-        try {
-            res.status(200).json({ message: "Usuário autenticado", userId: req.userId });
-        } catch (error) {
-            if (error instanceof ZodError) {
-                const firstMessage = error.errors[0]?.message ?? "Erro de validação"
-                res.status(400).json({ message: firstMessage })
-            } else {
-                res.status(400).json({ message: (error as Error).message })
-            }
-        }
+        res.status(200).json({ message: "Usuário autenticado", userId: req.userId });
     };
 
     logout = async (req: Request, res: Response): Promise<void> => {
-        try {
             res.cookie('token', '', { httpOnly: true, expires: new Date(0), path: '/' });
             res.status(200).send({ message: 'Logout successful' });
-        } catch (error) {
-            if (error instanceof ZodError) {
-                const firstMessage = error.errors[0]?.message ?? "Erro de validação"
-                res.status(400).json({ message: firstMessage })
-            } else {
-                res.status(400).json({ message: (error as Error).message })
-            }
-        }
     };
 }
