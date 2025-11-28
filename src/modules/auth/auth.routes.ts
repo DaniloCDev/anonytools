@@ -14,8 +14,8 @@ const authController = new AuthController(
 );
 
 
-router.post("/user/login",  validate(loginUserSchema),authController.login);
-router.post("/user/admin/login", validate(loginUserSchema),authController.loginAdmin);
+router.post("/auth/login",  validate(loginUserSchema),authController.login);
+router.post("/auth/admin/login", validate(loginUserSchema),authController.loginAdmin);
 router.get("/auth/check", authenticateToken, authController.authCheck);
 router.post("/auth/logout", authenticateToken, authController.logout);
 

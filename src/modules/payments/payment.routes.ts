@@ -13,7 +13,7 @@ const purchaseController = new PurchaseController(
 
 // ─── Payments / Mercado Pago ─────────────────────────────
 router.post("/webhook/mercadopago", purchaseController.mercadoPagoWebhook); 
-router.post("/user/check-payment-status", authenticateToken, purchaseController.checkPaymentStatus);
+router.post("/payment/check-payment-status", authenticateToken, purchaseController.checkPaymentStatus);
 
 // ─── Coupons ──────────────────────────────────────────────
 router.get("/coupons/validate", authenticateToken, purchaseController.GetCouponWithCode);
@@ -21,9 +21,9 @@ router.post("/coupons/createCoupon", authenticateToken, purchaseController.Creat
 router.get("/allcoupons", authenticateToken, purchaseController.ListAllCoupons);
 
 // ─── Purchase ─────────────────────────────────────────────
-router.post("/user/createPurchase", authenticateToken, purchaseController.createPurchase);
-router.get("/user/purchases", authenticateToken, purchaseController.purchaseHistory);
-router.get("/user/purchasesAdm", authenticateToken, purchaseController.findPurchases);
+router.post("/payment/createPurchase", authenticateToken, purchaseController.createPurchase);
+router.get("/payment/purchases", authenticateToken, purchaseController.purchaseHistory);
+router.get("/payment/purchasesAdm", authenticateToken, purchaseController.findPurchases);
 
 
 //  ─── Logs / Sistem ─────────────────────────────

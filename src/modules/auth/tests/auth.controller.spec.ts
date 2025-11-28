@@ -6,12 +6,12 @@ describe("Auth controller", () => {
     /**
      * test from users login
      */
-    describe("POST /user/login", () => {
+    describe("POST /auth/login", () => {
 
         it("should return Login successful.", async () => {
 
             const res = await request(app)
-                .post("/user/login")
+                .post("/auth/login")
                 .send({
                     email: "admin1@gmail.com",
                     password: "123456"
@@ -24,9 +24,9 @@ describe("Auth controller", () => {
         it("should return Login email not exist.", async () => {
 
             const res = await request(app)
-                .post("/user/login")
+                .post("/auth/login")
                 .send({
-                    email: "test@gmail.com",
+                    email: "test3@gmail.com",
                     password: "123456"
                 })
 
@@ -37,7 +37,7 @@ describe("Auth controller", () => {
         it("should return Login password is invalid.", async () => {
 
             const res = await request(app)
-                .post("/user/login")
+                .post("/auth/login")
                 .send({
                     email: "admin1@gmail.com",
                     password: "1234567"

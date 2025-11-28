@@ -21,7 +21,7 @@ export class AuthController {
             secure: process.env.NODE_ENV === "production",
         });
 
-         res.json(result);
+         res.status(201).json(result);
     };
 
     changePasswordProfile = async (req: Request, res: Response): Promise<void> => {

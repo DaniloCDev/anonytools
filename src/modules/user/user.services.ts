@@ -2,6 +2,7 @@ import { RegisterUserDTO, } from "./dtos";
 import UserRepository from "./user.repository";
 import bcrypt from 'bcryptjs';
 import { createLog } from "../logs/logsCreate";
+import { AppError } from "../../core/errors/AppError";
 
 class UserService {
     constructor(private userRepository: UserRepository) { }
@@ -9,7 +10,7 @@ class UserService {
     async registerUser(dto: RegisterUserDTO, ip: string) {
         const existing = await this.userRepository.findByEmail(dto.email);
         if (existing) {
-            throw new Error("Email já está em uso.");
+           throw  new AppError("Email já está em uso.", 404);
         }
 
         const hashedPassword = await bcrypt.hash(dto.password, 10);

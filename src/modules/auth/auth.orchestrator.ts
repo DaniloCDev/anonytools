@@ -13,24 +13,25 @@ export class AuthOrchestrator {
     ) { }
 
     async login(dto: UserLoginDTO, ip: string): Promise<UserLoginResponseDTO> {
-        try {
 
-            let user = await this.authService.LoginUser(dto);
-            await this.proxyService.createUserProxy(user.id);
-            await this.logsService({ email: user.email, action: "login", status: "Sucesso", message: "login realizado", ip });
+        let user = await this.authService.LoginUser(dto);
+        await this.proxyService.createUserProxy(user.id);
 
-            const token = jwt.sign(
-                { id: user.id },
-                process.env.JWT_SECRET_KEY as string,
-                { expiresIn: "1d" }
-            );
+        await this.logsService({
+            email: user.email,
+            action: "login",
+            status: "Sucesso",
+            message: "login realizado",
+            ip
+        });
 
-            return { user, token };
+        const token = jwt.sign(
+            { id: user.id },
+            process.env.JWT_SECRET_KEY as string,
+            { expiresIn: "1d" }
+        );
 
-        } catch (err) {
-            /// await this.userService.markProxyPending(user.id);
-            await this.logsService({ email: dto.email, action: "login", status: "Erro", message: "Proxy creation failed", ip });
-            throw err;
-        }
+        return { user, token };
     }
+
 }
