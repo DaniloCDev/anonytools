@@ -13,6 +13,30 @@ export class PurchaseController {
     private paymentService : PurchaseService
   ) {
   }
+
+  /**
+ * @swagger
+ * /payment/webhook/mercadopago:
+ *   post:
+ *     summary: Webhook do Mercado Pago
+ *     tags: [Payments]
+ *     description: Recebe notificações do Mercado Pago quando um pagamento muda de status.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             example:
+ *               type: payment
+ *               data:
+ *                 id: "1234567890"
+ *     responses:
+ *       200:
+ *         description: Evento recebido e processado.
+ *       500:
+ *         description: Erro ao processar webhook.
+ */
   mercadoPagoWebhook = async (req: Request, res: Response): Promise<void> => {
     try {
       const type = req.body.type;
@@ -32,6 +56,32 @@ export class PurchaseController {
     }
   };
 
+  /**
+ * @swagger
+ * /payment/check-payment-status:
+ *   post:
+ *     summary: Verifica o status de um pagamento no Mercado Pago
+ *     tags: [Payments]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               paymentId:
+ *                 type: string
+ *                 example: "1234567890"
+ *     responses:
+ *       200:
+ *         description: Status do pagamento retornado.
+ *       400:
+ *         description: paymentId ausente ou inválido.
+ *       500:
+ *         description: Erro ao consultar status.
+ */
   checkPaymentStatus = async (req: Request, res: Response): Promise<void> => {
     const ip: string = req.ip || "";
 
@@ -54,6 +104,35 @@ export class PurchaseController {
     }
   };
 
+  /**
+ * @swagger
+ * /payment/createPurchase:
+ *   post:
+ *     summary: Cria uma compra de GB e inicia pagamento via Mercado Pago
+ *     tags: [Payments]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               gbAmount:
+ *                 type: number
+ *                 example: 5
+ *               couponCode:
+ *                 type: string
+ *                 example: "DESCONTO10"
+ *     responses:
+ *       200:
+ *         description: Compra criada com sucesso.
+ *       400:
+ *         description: Dados inválidos.
+ *       401:
+ *         description: Usuário não autenticado.
+ */
   createPurchase = async (req: Request, res: Response): Promise<void> => {
     const userId = req.userId;
     const { gbAmount, couponCode } = req.body;
@@ -93,6 +172,27 @@ export class PurchaseController {
     }
   };
 
+  /**
+ * @swagger
+ * /payment/purchasesAdm:
+ *   get:
+ *     summary: Busca compras com filtro (Admin)
+ *     tags: [Payments]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - name: q
+ *         in: query
+ *         required: false
+ *         schema:
+ *           type: string
+ *         example: "email@gmail.com"
+ *     responses:
+ *       200:
+ *         description: Compras encontradas.
+ *       400:
+ *         description: Erro ao buscar compras.
+ */
   findPurchases = async (req: Request, res: Response): Promise<void> => {
 
     const userId = req.userId;
@@ -111,6 +211,20 @@ export class PurchaseController {
     }
   };
 
+  /**
+ * @swagger
+ * /payment/purchases:
+ *   get:
+ *     summary: Lista o histórico de compras do usuário autenticado
+ *     tags: [Payments]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Histórico retornado.
+ *       400:
+ *         description: Erro ao consultar histórico.
+ */
   purchaseHistory = async (req: Request, res: Response): Promise<void> => {
 
     const userId = req.userId;
@@ -127,6 +241,27 @@ export class PurchaseController {
     }
   };
 
+  /**
+ * @swagger
+ * /coupons/validate:
+ *   get:
+ *     summary: Valida um cupom pelo código
+ *     tags: [Coupons]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - name: code
+ *         in: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *         example: "DESCONTO10"
+ *     responses:
+ *       200:
+ *         description: Cupom válido.
+ *       400:
+ *         description: Código não informado ou cupom inválido.
+ */
   GetCouponWithCode = async (req: Request, res: Response): Promise<void> => {
     const couponCode = req.query.code as string;
     if (!couponCode) {
@@ -142,6 +277,44 @@ export class PurchaseController {
     }
   };
 
+  /**
+ * @swagger
+ * /coupons/createCoupon:
+ *   post:
+ *     summary: Cria um novo cupom de desconto
+ *     tags: [Coupons]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               code:
+ *                 type: string
+ *               discountPct:
+ *                 type: number
+ *               onlyOnce:
+ *                 type: boolean
+ *               minGb:
+ *                 type: number
+ *               expiresAt:
+ *                 type: string
+ *                 format: date-time
+ *             example:
+ *               code: "DESCONTO20"
+ *               discountPct: 20
+ *               onlyOnce: true
+ *               minGb: 5
+ *               expiresAt: "2025-12-31T00:00:00Z"
+ *     responses:
+ *       201:
+ *         description: Cupom criado com sucesso.
+ *       400:
+ *         description: Dados inválidos ou cupom já existente.
+ */
   CreateCoupon = async (req: Request, res: Response): Promise<void> => {
     const { code, discountPct, onlyOnce, minGb, expiresAt } = req.body
     const ip: string = req.ip || "";
@@ -166,6 +339,20 @@ export class PurchaseController {
     }
   }
 
+  /**
+ * @swagger
+ * /allcoupons:
+ *   get:
+ *     summary: Lista todos os cupons cadastrados
+ *     tags: [Coupons]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de cupons retornada.
+ *       400:
+ *         description: Erro ao buscar cupons.
+ */
   ListAllCoupons = async (req: Request, res: Response): Promise<void> => {
 
     try {

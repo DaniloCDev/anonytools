@@ -7,9 +7,8 @@ const router = Router();
 const userProxyController = new UserProxyController(proxyContainer.proxyUserService);
 
 // ─── Authenticated User Info ──────────────────────────────
-router.get("/user/me", authenticateToken, userProxyController.informationsUser);
-router.get("/user/test", userProxyController.informationsUser); 
 
+router.get("/user/me", authenticateToken, userProxyController.informationsUser);
 // ─── Dashboard ────────────────────────────────────────────
 router.get("/user/getDashboard", authenticateToken, userProxyController.GetDataDashboardController);
 

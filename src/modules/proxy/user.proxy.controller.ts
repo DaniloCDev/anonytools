@@ -9,6 +9,19 @@ export class UserProxyController {
      */
     constructor(private proxyUserService: ProxyUserService) {
     }
+
+    /**
+ * @swagger
+ * /user/createProxy:
+ *   patch:
+ *     summary: Cria o proxy do usuário
+ *     tags: [Proxy]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       201:
+ *         description: Proxy criado com sucesso.
+ */
     registerUserProxy = async (req: Request, res: Response): Promise<void> => {
 
         const userId = req.userId;
@@ -26,6 +39,20 @@ export class UserProxyController {
         }
     };
 
+    /**
+ * @swagger
+ * /user/me:
+ *   get:
+ *     summary: Retorna informações do usuário autenticado
+ *     tags: [User]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Informações do usuário encontradas com sucesso.
+ *       401:
+ *         description: Token ausente ou inválido.
+ */
     informationsUser = async (req: Request, res: Response): Promise<void> => {
 
         const userId = req.userId;
@@ -41,6 +68,24 @@ export class UserProxyController {
         }
     };
 
+    /**
+ * @swagger
+ * /user/searchUsers:
+ *   get:
+ *     summary: Pesquisa usuários via admin
+ *     tags: [Admin]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: q
+ *         required: false
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usuários encontrados.
+ */
     informationsUsers = async (req: Request, res: Response): Promise<void> => {
 
         const userId = req.userId;
@@ -59,6 +104,18 @@ export class UserProxyController {
         }
     };
 
+    /**
+ * @swagger
+ * /user/get-balance:
+ *   get:
+ *     summary: Retorna o saldo do usuário autenticado
+ *     tags: [Balance]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Saldo retornado com sucesso.
+ */
     getUserBalance = async (req: Request, res: Response): Promise<void> => {
 
         const userId = req.userId;
@@ -78,6 +135,24 @@ export class UserProxyController {
         }
     };
 
+    /**
+ * @swagger
+ * /user/getBalance:
+ *   get:
+ *     summary: Retorna o saldo de qualquer usuário (admin)
+ *     tags: [Balance]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: userID
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Saldo retornado com sucesso.
+ */
     getUserBalanceWithAdmin = async (req: Request, res: Response): Promise<void> => {
 
         const UserID = req.query.userID as string;
@@ -96,6 +171,18 @@ export class UserProxyController {
         }
     };
 
+    /**
+ * @swagger
+ * /user/getUserProxy:
+ *   get:
+ *     summary: Retorna dados de configuração de proxy do usuário
+ *     tags: [Proxy]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Dados retornados com sucesso.
+ */
     getUser = async (req: Request, res: Response): Promise<void> => {
 
         const userId = req.userId;
@@ -113,6 +200,29 @@ export class UserProxyController {
         }
     };
 
+    /**
+ * @swagger
+ * /user/BlockUser:
+ *   post:
+ *     summary: Bloqueia ou desbloqueia um usuário (admin)
+ *     tags: [Admin]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [id]
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 example: "uuid-do-usuario"
+ *     responses:
+ *       200:
+ *         description: Usuário atualizado com sucesso.
+ */
     blockUser = async (req: Request, res: Response): Promise<void> => {
 
         const body = req.body;
@@ -130,6 +240,18 @@ export class UserProxyController {
         }
     };
 
+    /**
+ * @swagger
+ * /user/resetProxyPassword:
+ *   get:
+ *     summary: Reseta a senha do proxy do usuário
+ *     tags: [Proxy]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Senha resetada com sucesso.
+ */
     changePassword = async (req: Request, res: Response): Promise<void> => {
 
         const userId = req.userId;
@@ -147,6 +269,29 @@ export class UserProxyController {
         }
     };
 
+    /**
+ * @swagger
+ * /user/updateProxyConfig:
+ *   patch:
+ *     summary: Atualiza quantidade de threads e país do proxy
+ *     tags: [Proxy]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               threads:
+ *                 type: number
+ *               selectedCountry:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Configurações atualizadas com sucesso.
+ */
     updateProxythreads = async (req: Request, res: Response): Promise<void> => {
 
         const userId = req.userId;
@@ -168,6 +313,18 @@ export class UserProxyController {
         }
     };
 
+    /**
+ * @swagger
+ * /user/getDashboard:
+ *   get:
+ *     summary: Retorna dados do dashboard
+ *     tags: [Dashboard]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Dados retornados com sucesso.
+ */
     GetDataDashboardController = async (req: Request, res: Response): Promise<void> => {
         try {
             const user = await this.proxyUserService.GetDataDashboard();

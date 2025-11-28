@@ -8,9 +8,9 @@ export function setupSwagger(app: Express) {
         definition: {
             openapi: "3.0.0",
             info: {
-                title: "AnonyTools API",
+                title: "sellproxy API",
                 version: "1.0.0",
-                description: "Documentação da API da AnonyTools",
+                description: "Documentação da API da nox24proxy",
             },
             servers: [
                 {
