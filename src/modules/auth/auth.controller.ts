@@ -122,7 +122,6 @@ export class AuthController {
         res.status(200).json({ message: "Usuário autenticado", userId: req.userId });
     };
 
-
     /**
      * @swagger
      * /auth/logout:

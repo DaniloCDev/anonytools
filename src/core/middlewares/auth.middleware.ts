@@ -7,21 +7,12 @@ interface JwtPayload {
   exp: number;
 }
 
-// Extensão para o req.userId
-declare global {
-  namespace Express {
-    interface Request {
-      userId?: string;
-    }
-  }
-}
-
 export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
-  const token = req.cookies.token; // aqui pega o token do cookie
+  const token = req.cookies.token; 
 
   if (!token) {
     res.status(401).json({ message: 'Token não fornecido' });
-    return; 
+    return;
   }
 
   try {
@@ -30,6 +21,6 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
     next();
   } catch (err) {
     res.status(401).json({ message: 'Token inválido' });
-    return; 
+    return;
   }
 };
